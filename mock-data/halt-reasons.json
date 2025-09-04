@@ -1,0 +1,62 @@
+[
+  {
+    "code": "T1",
+    "description": "Halt - News Pending"
+  },
+  {
+    "code": "T2", 
+    "description": "Halt - News Released"
+  },
+  {
+    "code": "T5",
+    "description": "Single Stock Trading Pause in Effect"
+  },
+  {
+    "code": "T6",
+    "description": "Halt - Extraordinary Market Activity"
+  },
+  {
+    "code": "T8",
+    "description": "Halt - Exchange Non-Compliance"
+  },
+  {
+    "code": "T12",
+    "description": "Halt - Additional Information Requested"
+  },
+  {
+    "code": "H4",
+    "description": "Halt - Non-Compliance"
+  },
+  {
+    "code": "H9",
+    "description": "Halt - Filings Not Current"
+  },
+  {
+    "code": "H10",
+    "description": "Halt - SEC Trading Suspension"
+  },
+  {
+    "code": "H11",
+    "description": "Halt - Regulatory Concern"
+  },
+  {
+    "code": "O1",
+    "description": "Operations Halt, Contact Market Operations"
+  },
+  {
+    "code": "IPO1",
+    "description": "IPO Issue not yet Trading"
+  },
+  {
+    "code": "M1",
+    "description": "Corporate Action"
+  },
+  {
+    "code": "M2",
+    "description": "Quotation Not Available"
+  },
+  {
+    "code": "LUDP",
+    "description": "Volatility Trading Pause"
+  }
+]

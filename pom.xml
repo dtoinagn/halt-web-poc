@@ -1,0 +1,66 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	  <groupId>ca.ciro.reghalt</groupId>
+      <artifactId>reg-halt-web</artifactId>
+      <version>1.0.8-SNAPSHOT</version>
+	  <name>halt-web-portal</name>
+	  <description>halt-web-portal</description>
+	  <packaging>rpm</packaging>
+  
+	  <properties>
+		  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		  <halt-web-portal.version>0.3.0</halt-web-portal.version>
+		  <halt-web-portal.release>rc1</halt-web-portal.release>
+          <halt-web-portal.dir>/var/www/haltweb_html</halt-web-portal.dir>
+
+	  </properties> 
+	  
+	  <build>
+	  <plugins>
+		  <plugin>
+			  <groupId>org.springframework.boot</groupId>
+			  <artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.5.1</version>
+	  
+		  </plugin>
+          
+
+		<plugin>
+		  <groupId>org.codehaus.mojo</groupId>
+		  <artifactId>rpm-maven-plugin</artifactId>
+		  <version>2.1.5</version>
+		  <extensions>true</extensions>
+		  <executions>
+			<execution>
+			  <goals>
+				<goal>rpm</goal>
+			  </goals>
+			</execution>
+		  </executions>
+		  <configuration>
+			<group>Application/IIROC-STG</group>
+			<name>halt-web-portal</name>
+			<version>${halt-web-portal.version}</version>
+			<release>${halt-web-portal.release}</release>
+			<vendor>IIROC-STG</vendor>
+            <requires>
+                <require>nodejs</require>
+            </requires>
+			<mappings>
+			  <mapping>
+				  <directory>${halt-web-portal.dir}</directory>
+				  <sources>
+					  <source>
+						  <location>${project.basedir}/build</location>
+					  </source>
+				  </sources>
+			  </mapping>
+			</mappings>
+		  </configuration>
+		</plugin>
+	  
+	  </plugins>
+	  </build>	
+		  
+  </project>

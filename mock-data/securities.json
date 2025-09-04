@@ -1,0 +1,77 @@
+[
+  {
+    "symbol": "AAPL",
+    "securityName": "Apple Inc.",
+    "listingMarket": "NASDAQ"
+  },
+  {
+    "symbol": "GOOGL",
+    "securityName": "Alphabet Inc. Class A",
+    "listingMarket": "NASDAQ"
+  },
+  {
+    "symbol": "MSFT",
+    "securityName": "Microsoft Corporation",
+    "listingMarket": "NASDAQ"
+  },
+  {
+    "symbol": "TSLA",
+    "securityName": "Tesla, Inc.",
+    "listingMarket": "NASDAQ"
+  },
+  {
+    "symbol": "AMZN",
+    "securityName": "Amazon.com, Inc.",
+    "listingMarket": "NASDAQ"
+  },
+  {
+    "symbol": "META",
+    "securityName": "Meta Platforms, Inc.",
+    "listingMarket": "NASDAQ"
+  },
+  {
+    "symbol": "NVDA",
+    "securityName": "NVIDIA Corporation",
+    "listingMarket": "NASDAQ"
+  },
+  {
+    "symbol": "JPM",
+    "securityName": "JPMorgan Chase & Co.",
+    "listingMarket": "NYSE"
+  },
+  {
+    "symbol": "JNJ",
+    "securityName": "Johnson & Johnson",
+    "listingMarket": "NYSE"
+  },
+  {
+    "symbol": "V",
+    "securityName": "Visa Inc.",
+    "listingMarket": "NYSE"
+  },
+  {
+    "symbol": "PG",
+    "securityName": "The Procter & Gamble Company",
+    "listingMarket": "NYSE"
+  },
+  {
+    "symbol": "UNH",
+    "securityName": "UnitedHealth Group Incorporated",
+    "listingMarket": "NYSE"
+  },
+  {
+    "symbol": "HD",
+    "securityName": "The Home Depot, Inc.",
+    "listingMarket": "NYSE"
+  },
+  {
+    "symbol": "MA",
+    "securityName": "Mastercard Incorporated",
+    "listingMarket": "NYSE"
+  },
+  {
+    "symbol": "BAC",
+    "securityName": "Bank of America Corporation",
+    "listingMarket": "NYSE"
+  }
+]

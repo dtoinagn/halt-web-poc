@@ -1,0 +1,37 @@
+[
+  {
+    "username": "admin",
+    "password": "password123",
+    "role": "admin",
+    "fullName": "Administrator",
+    "email": "admin@halt-portal.com"
+  },
+  {
+    "username": "trader1",
+    "password": "trader123",
+    "role": "trader",
+    "fullName": "John Smith",
+    "email": "jsmith@halt-portal.com"
+  },
+  {
+    "username": "trader2",
+    "password": "trader123",
+    "role": "trader",
+    "fullName": "Sarah Johnson",
+    "email": "sjohnson@halt-portal.com"
+  },
+  {
+    "username": "supervisor",
+    "password": "super123",
+    "role": "supervisor",
+    "fullName": "Michael Chen",
+    "email": "mchen@halt-portal.com"
+  },
+  {
+    "username": "analyst",
+    "password": "analyst123",
+    "role": "analyst",
+    "fullName": "Emily Davis",
+    "email": "edavis@halt-portal.com"
+  }
+]

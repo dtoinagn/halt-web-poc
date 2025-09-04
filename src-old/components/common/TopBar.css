@@ -1,0 +1,85 @@
+.topbar {
+    height: 56.5px;
+    background-color: #013737;
+    position: sticky;
+    top: 0;
+    z-index: 1
+}
+
+.topbar-header {
+    display: flex;
+    gap: 200px;
+    justify-content: space-between;
+    padding-left: 30px;
+    padding-top: 18px;
+    /* text-align: center; */
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    /* transform: translatex(-763px) translatey(13px); */
+}
+
+.topbar-ciro-logo {
+    height: 46.215px;
+    width: 149.186px;
+   
+    /* position: relative; */
+    /* margin-left: 0px;
+    margin-top: 15px; */
+    float: left;
+    margin-left: 0px;
+    margin-top: 3.5px;
+ 
+    /* margin-bottom: 20px; */
+}
+
+.topbar-logoutbutton {
+    justify-content: space-between;
+    float: right;
+    margin-right: 0.5em;
+    margin-top: -30px;
+    background-color: #013737;
+    color: white;
+}
+
+.topbar-menubutton {
+    justify-content: space-between;
+    float: left;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    margin-top: 10px;
+    background-color: #013737;
+    color: white;
+}
+
+.topbar-guide {
+    justify-content: space-between;
+    float: right;
+    margin-right: 0.8em;
+    margin-top: -30px;
+    background-color: #013737;
+    color: white;
+}
+
+.topbar-profilepic {
+    /* display: flex;
+    gap: 200px;
+    justify-content: space-between; */
+    float: right;
+    margin-top: -32px;
+
+    background: #6b5196;
+    color: white;
+    opacity: 1; 
+    /* content: attr(data-initials);  */
+    /* display: inline-block;  */
+    font-weight: bold; 
+    border-radius: 50%; 
+    vertical-align: middle; 
+    margin-right: 0.8em; 
+    width: 40px; 
+    height: 40px; 
+    line-height: 40px; 
+    text-align: center; 
+}

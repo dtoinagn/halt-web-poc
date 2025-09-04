@@ -1,0 +1,88 @@
+.navbar {
+  background-color: #004644;
+  color: white;
+  position: absolute;
+  float: left;
+  height: 100%;
+  width: 12%;
+  z-index: 10;
+}
+
+.navbar-narrow {
+  background-color: #004644;
+  color: white;
+  position: absolute;
+  float: left;
+  height: 95.5vh;
+  width: 68px;
+  z-index: 10;
+}
+
+.navbar-links {
+  transform: translateY(40px);
+  float: top;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-item {
+  padding-top: 20px;
+}
+
+.navbar-item:hover {
+  text-decoration: underline;
+}
+
+.navbar-item-link {
+  font-size: 14px;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  opacity: 0.6;
+  margin-left: 50px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.navbar-item-link:hover {
+  opacity: 0.8;
+}
+
+.navbar-item-link-clicked {
+  font-size: 14px;
+  color: white;
+  font-weight: bold;
+  text-decoration: underline;
+  opacity: 1;
+  margin-left: 50px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.navbar-icon {
+  transform: translateY(5px) translateX(-10px);
+}
+
+.navbar-icon-in-narrow-mode {
+  transform: translateY(5px) translateX(-26px);
+}
+
+.session-timeout-dialog {
+  min-width: 200px;
+}
+
+.session-timeout-dialog .MuiDialogTitle-root {
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.session-timeout-dialog .MuiDialogContent-root {
+  text-align: center;
+}
+
+.session-timeout-dialog .MuiDialogActions-root {
+  justify-content: center;
+}

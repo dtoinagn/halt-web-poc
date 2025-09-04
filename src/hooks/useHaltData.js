@@ -1,0 +1,153 @@
+import { useState, useEffect } from 'react';
+import { apiService } from '../services/api';
+import { processHaltData } from '../utils/haltDataUtils';
+import { sortUtils } from '../utils/storageUtils';
+
+export const useHaltData = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Processed halt data
+  const [activeRegData, setActiveRegData] = useState([]);
+  const [activeSSCBData, setActiveSSCBData] = useState([]);
+  const [liftedData, setLiftedData] = useState([]);
+  const [pendingData, setPendingData] = useState([]);
+  const [haltList, setHaltList] = useState([]);
+  const [activeRegHaltList, setActiveRegHaltList] = useState([]);
+  const [notExtendedList, setNotExtendedList] = useState([]);
+
+  // Additional data
+  const [securities, setSecurities] = useState([]);
+  const [haltReasons, setHaltReasons] = useState([]);
+
+  const fetchActiveHalts = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await apiService.fetchActiveHalts();
+      console.log("Debug active halt data", data);
+
+      const processedData = processHaltData(data);
+      
+      setHaltList(processedData.haltList);
+      setActiveRegHaltList(processedData.activeRegHaltList);
+      setActiveRegData(processedData.activeRegData);
+      setPendingData(processedData.pendingData);
+      setLiftedData(processedData.liftedData);
+      setActiveSSCBData(processedData.activeSSCBData);
+      setNotExtendedList(processedData.notExtendedList);
+      
+      console.log("Dashboard data loaded");
+    } catch (err) {
+      console.error('Failed to fetch active halts:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSecurities = async () => {
+    try {
+      const data = await apiService.fetchSecurities();
+      setSecurities(data);
+    } catch (err) {
+      console.error('Failed to fetch securities:', err);
+    }
+  };
+
+  const fetchHaltReasons = async () => {
+    try {
+      const data = await apiService.fetchHaltReasons();
+      setHaltReasons(data);
+    } catch (err) {
+      console.error('Failed to fetch halt reasons:', err);
+    }
+  };
+
+  const initializeSortPreferences = () => {
+    sortUtils.initializeSortPreferences();
+  };
+
+  const updateExtendedHaltState = async (haltId, newExtendedState) => {
+    try {
+      // Find the halt data
+      const haltData = activeRegData.find(obj => obj.haltId === haltId);
+      if (!haltData) {
+        throw new Error('Halt not found');
+      }
+
+      // Update local state optimistically
+      const updatedHaltData = { ...haltData, extendedHalt: newExtendedState };
+      const updatedActiveRegData = activeRegData.filter(obj => obj.haltId !== haltId);
+      updatedActiveRegData.push(updatedHaltData);
+      setActiveRegData(updatedActiveRegData);
+
+      // Update not extended list
+      if (newExtendedState) {
+        setNotExtendedList(prev => prev.filter(id => id !== haltId));
+      } else {
+        setNotExtendedList(prev => [...prev, haltId]);
+      }
+
+      // Send API request
+      const payload = {
+        ...updatedHaltData,
+        haltTime: '',
+        resumptionTime: '',
+        cancelTime: '',
+        createdTime: '',
+        modifiedTime: ''
+      };
+
+      await apiService.updateExtendedHaltState(payload);
+      console.log("Extended halt state updated successfully");
+      
+      return { success: true };
+    } catch (err) {
+      console.error("Error updating extended halt state:", err);
+      // Revert optimistic update on error
+      fetchActiveHalts();
+      return { success: false, error: err.message };
+    }
+  };
+
+  // Initialize data on mount
+  useEffect(() => {
+    fetchActiveHalts();
+    fetchSecurities();
+    fetchHaltReasons();
+    initializeSortPreferences();
+  }, []);
+
+  return {
+    // Data
+    activeRegData,
+    activeSSCBData,
+    liftedData,
+    pendingData,
+    haltList,
+    activeRegHaltList,
+    notExtendedList,
+    securities,
+    haltReasons,
+    
+    // State
+    loading,
+    error,
+    
+    // Actions
+    fetchActiveHalts,
+    fetchSecurities,
+    fetchHaltReasons,
+    updateExtendedHaltState,
+    
+    // Setters for SSE updates
+    setActiveRegData,
+    setActiveSSCBData,
+    setLiftedData,
+    setPendingData,
+    setActiveRegHaltList,
+    setNotExtendedList
+  };
+};

@@ -1,0 +1,42 @@
+.app {
+  overflow: auto;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.content-next-to-narrow-navbar {
+  color: #badbdb;
+  float: right;
+  width: 95%;
+  height: 100%; 
+}
+
+.content-next-to-default-navbar {
+  color: #023737;
+  float: right;
+  width: 88%;
+  height: 100%; 
+}
+
+.content-full-width {
+  color: #023737;
+  float: right;
+  width: 100%;
+  height: 100%; 
+}
+
+.content-no-navbar {
+  color: #023737;
+  float: right;
+  width: 88%;
+  height: 100%; 
+}
+
+@media screen and (max-height: 450px) {
+  .sidebar {
+    padding-top: 15px;
+  }
+  .sidebar a {
+    font-size: 18px;
+  }
+}
