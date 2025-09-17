@@ -22,6 +22,7 @@ import {
   TableSortLabel,
   Tooltip,
 } from "@mui/material";
+import ErrorDialog from "../../ui/ErrorDialog";
 import { TABLE_COLUMNS, COLUMN_KEY_MAP } from "../../../constants";
 import { sortUtils, hideExtendedUtils } from "../../../utils/storageUtils";
 
@@ -412,20 +413,11 @@ const HaltTable = ({
             </Button>
           </DialogActions>
         </Dialog>
-          <Dialog
+          <ErrorDialog
             open={errorDialog.open}
+            message={errorDialog.message}
             onClose={handleErrorDialogClose}
-          >
-            <DialogTitle>Error</DialogTitle>
-            <DialogContent>
-              {errorDialog.message}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleErrorDialogClose} color="primary" autoFocus>
-                OK
-              </Button>
-            </DialogActions>
-          </Dialog>
+          />
         </>
       )}
     </div>

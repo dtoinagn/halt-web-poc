@@ -1,0 +1,116 @@
+/* ErrorDialog Styles */
+
+.error-dialog-paper {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+}
+
+.error-dialog-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-bottom: 16px !important;
+  border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+}
+
+.error-dialog-title--error {
+  background-color: #fef2f2 !important;
+}
+
+.error-dialog-title--warning {
+  background-color: #fefdf2 !important;
+}
+
+.error-dialog-title--info {
+  background-color: #f0f9ff !important;
+}
+
+.error-dialog-title-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.error-dialog-icon {
+  font-size: 28px !important;
+}
+
+.error-dialog-icon--error {
+  color: #d32f2f !important;
+}
+
+.error-dialog-icon--warning {
+  color: #ff9800 !important;
+}
+
+.error-dialog-icon--info {
+  color: #2196f3 !important;
+}
+
+.error-dialog-title-text {
+  font-weight: 600 !important;
+  color: #1a1a1a !important;
+  font-size: 1.1rem !important;
+}
+
+.error-dialog-close-button {
+  color: rgba(0,0,0,0.4) !important;
+}
+
+.error-dialog-close-button:hover {
+  background-color: rgba(0,0,0,0.04) !important;
+}
+
+.error-dialog-content {
+  padding-top: 24px !important;
+  padding-bottom: 16px !important;
+}
+
+.error-dialog-alert {
+  border: none !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+.error-dialog-alert .MuiAlert-icon {
+  display: none !important;
+}
+
+.error-dialog-alert .MuiAlert-message {
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+.error-dialog-message {
+  color: #4a4a4a !important;
+  line-height: 1.6 !important;
+  font-size: 0.95rem !important;
+}
+
+.error-dialog-actions {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+  padding-bottom: 24px !important;
+  padding-top: 8px !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.error-dialog-ok-button {
+  background-color: #006666 !important;
+  color: white !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  border-radius: 8px !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  box-shadow: 0 2px 8px rgba(0,102,102,0.2) !important;
+}
+
+.error-dialog-ok-button:hover {
+  background-color: #004d4d !important;
+  box-shadow: 0 4px 12px rgba(0,102,102,0.3) !important;
+}

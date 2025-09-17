@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { apiService } from '../services/api';
-import { processHaltData } from '../utils/haltDataUtils';
-import { sortUtils, authUtils } from '../utils/storageUtils';
-import { act } from 'react';
-import { HALT_ACTIONS } from '../constants';
+import { useState, useEffect } from "react";
+import { apiService } from "../services/api";
+import { processHaltData } from "../utils/haltDataUtils";
+import { sortUtils, authUtils } from "../utils/storageUtils";
+import { act } from "react";
+import { HALT_ACTIONS } from "../constants";
 
 export const useHaltData = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   // Processed halt data
   const [activeRegData, setActiveRegData] = useState([]);
   const [activeSSCBData, setActiveSSCBData] = useState([]);
@@ -31,7 +31,7 @@ export const useHaltData = () => {
       console.log("Debug active halt data", data);
 
       const processedData = processHaltData(data);
-      
+
       setHaltList(processedData.haltList);
       setActiveRegHaltList(processedData.activeRegHaltList);
       setActiveRegData(processedData.activeRegData);
@@ -39,10 +39,10 @@ export const useHaltData = () => {
       setLiftedData(processedData.liftedData);
       setActiveSSCBData(processedData.activeSSCBData);
       setNotExtendedList(processedData.notExtendedList);
-      
+
       console.log("Dashboard data loaded");
     } catch (err) {
-      console.error('Failed to fetch active halts:', err);
+      console.error("Failed to fetch active halts:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -54,7 +54,7 @@ export const useHaltData = () => {
       const data = await apiService.fetchSecurities();
       setSecurities(data);
     } catch (err) {
-      console.error('Failed to fetch securities:', err);
+      console.error("Failed to fetch securities:", err);
     }
   };
 
@@ -63,7 +63,7 @@ export const useHaltData = () => {
       const data = await apiService.fetchHaltReasons();
       setHaltReasons(data);
     } catch (err) {
-      console.error('Failed to fetch halt reasons:', err);
+      console.error("Failed to fetch halt reasons:", err);
     }
   };
 
@@ -74,49 +74,64 @@ export const useHaltData = () => {
   const updateExtendedHaltState = async (haltId, newExtendedState) => {
     try {
       // Find the halt data
-      const haltData = activeRegData.find(obj => obj.haltId === haltId);
+      const haltData = activeRegData.find((obj) => obj.haltId === haltId);
       if (!haltData) {
-        throw new Error('Halt not found');
+        throw new Error("Halt not found");
       }
 
       // Update local state optimistically
       const updatedHaltData = { ...haltData, extendedHalt: newExtendedState };
-      const updatedActiveRegData = activeRegData.filter(obj => obj.haltId !== haltId);
+      const updatedActiveRegData = activeRegData.filter(
+        (obj) => obj.haltId !== haltId
+      );
       updatedActiveRegData.push(updatedHaltData);
       setActiveRegData(updatedActiveRegData);
 
       // Update not extended list
       if (newExtendedState) {
-        setNotExtendedList(prev => prev.filter(id => id !== haltId));
+        setNotExtendedList((prev) => prev.filter((id) => id !== haltId));
       } else {
-        setNotExtendedList(prev => [...prev, haltId]);
+        setNotExtendedList((prev) => [...prev, haltId]);
       }
 
       // Send API request
       const payload = {
         ...updatedHaltData,
         action: HALT_ACTIONS.EXTEND_HALT,
-        modifiedTime:'',
-        remainReason:'',
-        resumptionTime:'',
-        modifiedBy: authUtils.getLoggedInUser() || ''
+        modifiedTime: "",
+        remainReason: "",
+        resumptionTime: "",
+        modifiedBy: authUtils.getLoggedInUser() || "",
       };
 
       await apiService.updateExtendedHaltState(payload);
       console.log("Extended halt state updated successfully");
-      
+
       return { success: true };
     } catch (err) {
       console.error("Error updating extended halt state:", err);
+      console.log("Error response data:", err.response?.data);
       // Parse the error message from the response if available
       let errorMessage = err.message;
-      if (err.response?.data){
-        const { status, detailedMessage } = err.response.data;
-        if (status && detailedMessage) {
+      if (err.response?.data) {
+        const { httpStatus, status, detailedMessage, error, message } =
+          err.response.data;
+        console.log("Extracted error fields:", {
+          httpStatus,
+          status,
+          detailedMessage,
+          error,
+          message,
+        });
+        if (httpStatus && status && detailedMessage) {
+          errorMessage = `${httpStatus}: ${status} - ${detailedMessage}`;
+        } else if (status && detailedMessage) {
           errorMessage = `${status}: ${detailedMessage}`;
-        } else if (err.response.data.message) {
-          errorMessage = err.response.data.message;
-        }        
+        } else if (error) {
+          errorMessage = error;
+        } else if (message) {
+          errorMessage = message;
+        }
       }
       console.log(`Failed to update extended halt state: ${errorMessage}`);
       // Revert optimistic update on error
@@ -144,23 +159,23 @@ export const useHaltData = () => {
     notExtendedList,
     securities,
     haltReasons,
-    
+
     // State
     loading,
     error,
-    
+
     // Actions
     fetchActiveHalts,
     fetchSecurities,
     fetchHaltReasons,
     updateExtendedHaltState,
-    
+
     // Setters for SSE updates
     setActiveRegData,
     setActiveSSCBData,
     setLiftedData,
     setPendingData,
     setActiveRegHaltList,
-    setNotExtendedList
+    setNotExtendedList,
   };
 };
