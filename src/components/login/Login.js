@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import "./Login.css";
+import React, { useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import './Login.css';
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const { login, loading, error } = useAuth();
 
   const handleSubmit = async (event) => {
@@ -28,21 +28,21 @@ const Login = () => {
 
   return (
     <div>
-      <div className="login-errormsg">{error}</div>
-      <div className="login">
+      <div className='login-errormsg'>{error}</div>
+      <div className='login'>
         <form onSubmit={handleSubmit}>
-          <div className="login-header">
+          <div className='login-header'>
             <h2>Log in to Halt Portal</h2>
           </div>
 
-          <div className="login-body">
-            <div className="login-debug">
+          <div className='login-body'>
+            <div className='login-debug'>
               <div>
-                <label className="login-input-header">User ID:</label>
+                <label className='login-input-header'>User ID:</label>
                 <input
-                  className="login-input"
+                  className='login-input'
                   value={username}
-                  placeholder="Username"
+                  placeholder='Username'
                   onChange={handleUsernameChange}
                   disabled={loading}
                   required
@@ -50,12 +50,12 @@ const Login = () => {
               </div>
 
               <div>
-                <label className="login-input-header">Password:</label>
+                <label className='login-input-header'>Password:</label>
                 <input
-                  className="login-input"
+                  className='login-input'
                   value={password}
-                  type="password"
-                  placeholder="Password"
+                  type='password'
+                  placeholder='Password'
                   onChange={handlePasswordChange}
                   disabled={loading}
                   required
@@ -65,9 +65,9 @@ const Login = () => {
 
             <div>
               <input
-                className="login-submit"
-                type="submit"
-                value={loading ? "Loading..." : "Login"}
+                className='login-submit'
+                type='submit'
+                value={loading ? 'Loading...' : 'Login'}
                 disabled={loading}
               />
             </div>

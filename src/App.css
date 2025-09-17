@@ -1,5 +1,5 @@
 .app {
-  overflow: auto;
+  overflow: hidden;
   width: 100%;
   white-space: nowrap;
 }

@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from "react";
-import "./App.css";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { CssBaseline, ThemeProvider } from "@mui/material";
-import { ColorModeContext, useMode } from "./theme";
-import { LoggedInUserContext } from "./contexts/LoggedInUserContext";
-import { authUtils } from "./utils/storageUtils";
-import { ROUTE_PATHS } from "./constants";
+import React, { useState, useEffect } from 'react';
+import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { CssBaseline, ThemeProvider } from '@mui/material'
+import { ColorModeContext, useMode } from './theme'
+import { LoggedInUserContext } from './contexts/LoggedInUserContext';
+import { authUtils } from './utils/storageUtils';
+import { ROUTE_PATHS } from './constants';
 
 // Components
-import TopBar from "./components/common/TopBar";
-import NavBar from "./components/common/NavBar";
-import Dashboard from "./components/dashboard/Dashboard";
-import History from "./components/dashboard/History";
-import Login from "./components/login/Login";
-import NotLoggedIn from "./components/dashboard/NotLoggedIn";
-import UserGuide from "./components/dashboard/UserGuide";
+import TopBar from './components/common/TopBar';
+import NavBar from './components/common/NavBar';
+import Dashboard from './components/dashboard/Dashboard';
+import History from './components/dashboard/History';
+import Login from './components/login/LogIn';
+import NotLoggedIn from './components/dashboard/NotLoggedIn';
+import UserGuide from './components/dashboard/UserGuide';
 
 function App() {
-  const [loggedInUser, setLoggedInUser] = useState("notLoggedIn");
+  const [loggedInUser, setLoggedInUser] = useState('notLoggedIn');
   const [loggedIn, setLoggedIn] = useState(false);
   const [userGuideClicked, setUserGuideClicked] = useState(false);
   const [theme, colorMode] = useMode();
@@ -31,7 +31,7 @@ function App() {
     const currentUser = authUtils.getLoggedInUser();
 
     setLoggedIn(isUserLoggedIn);
-    if (currentUser && currentUser !== "notLoggedIn") {
+    if (currentUser && currentUser !== 'notLoggedIn') {
       setLoggedInUser(currentUser);
     }
   }, []);
@@ -58,17 +58,17 @@ function App() {
       <ThemeProvider theme={theme}>
         <BrowserRouter>
           <CssBaseline />
-          <div className="app" style={{ height: "100vh", overflowY: "hidden" }}>
+          <div className='app' style={{ height: '100vh', overflowY: 'hidden' }}>
             <LoggedInUserContext.Provider value={contextValue}>
               <TopBar />
               <NavBar />
               <div
                 className={
                   navbarOpen && narrowScreen
-                    ? "content-next-to-narrow-navbar"
+                    ? 'content-next-to-narrow-navbar'
                     : navbarOpen && !narrowScreen
-                      ? "content-next-to-default-navbar"
-                      : "content-full-width"
+                      ? 'content-next-to-default-navbar'
+                      : 'content-full-width'
                 }
               >
                 <Routes>

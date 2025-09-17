@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { processHaltData } from '../utils/haltDataUtils';
-import { sortUtils } from '../utils/storageUtils';
+import { sortUtils, authUtils } from '../utils/storageUtils';
+import { act } from 'react';
+import { HALT_ACTIONS } from '../constants';
 
 export const useHaltData = () => {
   const [loading, setLoading] = useState(false);
@@ -93,11 +95,11 @@ export const useHaltData = () => {
       // Send API request
       const payload = {
         ...updatedHaltData,
-        haltTime: '',
-        resumptionTime: '',
-        cancelTime: '',
-        createdTime: '',
-        modifiedTime: ''
+        action: HALT_ACTIONS.EXTEND_HALT,
+        modifiedTime:'',
+        remainReason:'',
+        resumptionTime:'',
+        modifiedBy: authUtils.getLoggedInUser() || ''
       };
 
       await apiService.updateExtendedHaltState(payload);
@@ -106,9 +108,20 @@ export const useHaltData = () => {
       return { success: true };
     } catch (err) {
       console.error("Error updating extended halt state:", err);
+      // Parse the error message from the response if available
+      let errorMessage = err.message;
+      if (err.response?.data){
+        const { status, detailedMessage } = err.response.data;
+        if (status && detailedMessage) {
+          errorMessage = `${status}: ${detailedMessage}`;
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        }        
+      }
+      console.log(`Failed to update extended halt state: ${errorMessage}`);
       // Revert optimistic update on error
       fetchActiveHalts();
-      return { success: false, error: err.message };
+      return { success: false, error: errorMessage };
     }
   };
 

@@ -24,6 +24,27 @@ export const useSSE = ({
   const [showNotification, setShowNotification] = useState(false);
   const timeoutRef = useRef(null);
 
+  // NEW: keep EventSource in a ref so it's created only once per ticket
+  const sourceRef = useRef(null);
+
+  // NEW: refs for the latest data so the SSE handler can read up-to-date values
+  const haltListRef = useRef(haltList);
+  const activeRegDataRef = useRef(activeRegData);
+  const activeRegHaltListRef = useRef(activeRegHaltList);
+  const activeSSCBDataRef = useRef(activeSSCBData);
+  const liftedDataRef = useRef(liftedData);
+  const pendingDataRef = useRef(pendingData);
+  const notExtendedListRef = useRef(notExtendedList);
+
+  // Sync incoming props/state into refs when they change (doesn't re-create EventSource)
+  useEffect(() => { haltListRef.current = haltList; }, [haltList]);
+  useEffect(() => { activeRegDataRef.current = activeRegData; }, [activeRegData]);
+  useEffect(() => { activeRegHaltListRef.current = activeRegHaltList; }, [activeRegHaltList]);
+  useEffect(() => { activeSSCBDataRef.current = activeSSCBData; }, [activeSSCBData]);
+  useEffect(() => { liftedDataRef.current = liftedData; }, [liftedData]);
+  useEffect(() => { pendingDataRef.current = pendingData; }, [pendingData]);
+  useEffect(() => { notExtendedListRef.current = notExtendedList; }, [notExtendedList]);
+
   const getSSETicket = async () => {
     try {
       const data = await apiService.getSSETicket();
@@ -57,9 +78,17 @@ export const useSSE = ({
     const { apiSSEstream } = window.runConfig || {};
     if (!apiSSEstream) return;
 
+    // If an EventSource already exists for this ticket, don't recreate it.
+    if (sourceRef.current) {
+      // If you want to handle ticket changes by recreating, close previous and null out here.
+      // For "create only once" behavior, just return.
+      return;
+    }
+
     const source = new EventSource(`${apiSSEstream}${sseTicket}`, {
       withCredentials: false,
     });
+    sourceRef.current = source;
 
     console.log("SSE connected");
 
@@ -90,6 +119,15 @@ export const useSSE = ({
       if (resumptionTime) {
         sseBody.resumptionTime = reformatDateTime(resumptionTime);
       }
+
+      // Use refs instead of stale state variables
+      const haltList = haltListRef.current;
+      const activeRegData = activeRegDataRef.current;
+      const activeRegHaltList = activeRegHaltListRef.current;
+      const activeSSCBData = activeSSCBDataRef.current;
+      const liftedData = liftedDataRef.current;
+      const pendingData = pendingDataRef.current;
+      const notExtendedList = notExtendedListRef.current;
 
       // Handle existing halt updates
       if (haltList.includes(haltId)) {
@@ -185,13 +223,18 @@ export const useSSE = ({
     source.onerror = (err) => {
       console.error("SSE error:", err);
       source.close();
+      sourceRef.current = null;
     };
 
+    // Cleanup when component unmounts or ticket changes explicitly (if you choose to recreate)
     return () => {
-      source.close();
+      if (sourceRef.current) {
+        sourceRef.current.close();
+        sourceRef.current = null;
+      }
       clearTimeout(timeoutRef.current);
     };
-  }, [sseTicket, haltList, activeRegData, activeRegHaltList, activeSSCBData, liftedData, pendingData, notExtendedList]);
+  }, [sseTicket]); // <-- only depends on sseTicket so EventSource is created once per ticket
 
   return {
     getSSETicket,

@@ -59,6 +59,11 @@ const HaltTable = ({
     haltId: null,
   });
 
+  const [errorDialog, setErrorDialog] = useState({
+    open: false,
+    message: "",
+  });
+
   // Sorting state
   const defaultOrderBy = sortUtils.getSortPreference(sortPrefKey) || "haltTime";
   const defaultOrderDirection =
@@ -120,7 +125,13 @@ const HaltTable = ({
 
   const handleDialogClose = async (confirm) => {
     if (confirm && confirmDialog.haltId && onExtendedHaltUpdate) {
-      await onExtendedHaltUpdate(confirmDialog.haltId, confirmDialog.newValue);
+      const result = await onExtendedHaltUpdate(confirmDialog.haltId, confirmDialog.newValue);
+      if (result && result.error) {
+        setErrorDialog({
+          open: true,
+          message: result.error,
+        });
+      }
     }
 
     setConfirmDialog({
@@ -128,6 +139,12 @@ const HaltTable = ({
       rowIndex: null,
       newValue: null,
       haltId: null,
+    });
+  };
+  const handleErrorDialogClose = () => {
+    setErrorDialog({
+      open: false,
+      message: "",
     });
   };
 
@@ -358,9 +375,15 @@ const HaltTable = ({
       </TableContainer>
 
       {showActionButtons && (
+        <>
         <Dialog
           open={confirmDialog.open}
-          onClose={() => handleDialogClose(false)}
+          onClose={(event, reason) => {
+            if (reason === 'backdropClick') {
+            return; // Prevent closing on backdrop click
+            }
+            handleDialogClose(false);
+       }}
         >
           <DialogTitle>Confirm Action</DialogTitle>
           <DialogContent>
@@ -389,6 +412,21 @@ const HaltTable = ({
             </Button>
           </DialogActions>
         </Dialog>
+          <Dialog
+            open={errorDialog.open}
+            onClose={handleErrorDialogClose}
+          >
+            <DialogTitle>Error</DialogTitle>
+            <DialogContent>
+              {errorDialog.message}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleErrorDialogClose} color="primary" autoFocus>
+                OK
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </>
       )}
     </div>
   );

@@ -12,6 +12,21 @@ export const HALT_TYPES = {
   SSCB: 'SSCB'
 };
 
+export const HALT_ACTIONS = {
+  CREATE_IMMEDIATE_HALT: 'CreateImmediateHalt',
+  CREATE_IMMEDIATE_RESUMPTION: 'CreateImmediateResumption',
+  CREATE_SCHEDULED_HALT: 'CreateScheduledHalt',
+  CREATE_SCHEDULED_RESUMPTION: 'CreateScheduledResumption',
+  MODIFY_SCHEDULED_HALT: 'ModifyScheduledHalt',
+  MODIFY_SCHEDULED_RESUMPTION: 'ModifyScheduledResumption',
+  CANCEL_SCHEDULED_HALT: 'CancelScheduledHalt',
+  CANCEL_SCHEDULED_RESUMPTION: 'CancelScheduledResumption',
+  EXTEND_HALT: 'ExtendHalt',
+  LIFT_HALT: 'LiftHalt',
+  CANCEL_HALT: 'CancelHalt',
+  SCHEDULE_HALT: 'ScheduleHalt'
+};
+
 export const TABLE_COLUMNS = {
   ACTIVE_REG: [
     'Halt ID', 'Symbol', 'Issue Name', 'Listing Market',

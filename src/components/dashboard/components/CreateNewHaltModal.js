@@ -15,6 +15,8 @@ import {
   MenuItem,
 } from "@mui/material";
 import { apiService } from "../../../services/api";
+import { authUtils } from "../../../utils/storageUtils";
+import { HALT_ACTIONS } from "../../../constants";
 
 const CreateNewHaltModal = ({
   open,
@@ -33,6 +35,7 @@ const CreateNewHaltModal = ({
     resumptionTime: "",
     immediateHalt: false,
     extendedHalt: false,
+    createdBy: authUtils.getLoggedInUser() || '',
     notes: "",
   });
   const [loading, setLoading] = useState(false);
@@ -50,6 +53,7 @@ const CreateNewHaltModal = ({
         resumptionTime: "",
         immediateHalt: false,
         extendedHalt: false,
+        createdBy: authUtils.getLoggedInUser() || '',
         notes: "",
       });
       setError("");
@@ -72,19 +76,28 @@ const CreateNewHaltModal = ({
       if (!formData.haltTime) {
         throw new Error("Please select a halt time");
       }
-
       const payload = {
+        haltId: '',
         symbol: formData.security.symbol || "",
         issueName: formData.issueName || "",
         listingMarket: formData.listingMarket || "",
-        haltReason: formData.haltReason.description || formData.haltReason,
-        haltTime: formData.haltTime || null,
-        resumptionTime: formData.resumptionTime || null,
+        allIssue: formData.allIssue === "Yes" ? "true" : "false",
+        haltTime: getCurrentTimeBackendFormat() || "",
+        resumptionTime: "",
+        cancelTime: "",
         extendedHalt: formData.extendedHalt,
-        allIssue: formData.allIssue === "Yes" ? true : false,
-        notes: formData.notes,
+        haltReason: formData.haltReason.description || formData.haltReason,
+        remainReason: "",
+        status: "Halted",
         haltType: "REG", // Default to REG for new halts
-        status: formData.haltTime ? "HaltPending" : "Halted",
+        createdBy: formData.createdBy || '',
+        createdTime: "",
+        modifiedBy: "",
+        modifiedTime: "",
+        sscbSrc: "",
+        responseMessage: "",
+        action: HALT_ACTIONS.CREATE_IMMEDIATE_HALT,
+        coment: formData.notes || "",
       };
 
       console.log("Creating new halt with payload:", payload);
@@ -113,6 +126,18 @@ const CreateNewHaltModal = ({
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
     return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  const getCurrentTimeBackendFormat = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    const milliseconds = String(now.getMilliseconds()).padStart(3, "0");
+    return `${year}${month}${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
   };
 
   const handleFieldChange = (field, value) => {
@@ -159,11 +184,18 @@ const CreateNewHaltModal = ({
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: { minHeight: "500px" },
+      onClose={(event, reason) => {
+        if (reason === 'backdropClick') {
+         return; // Prevent closing on backdrop click
+        }
+       handleClose();
+     }}
+      sx={{
+        '& .MuiDialog-paper': {
+          minHeight: '500px',
+        },
       }}
     >
       <DialogTitle>
@@ -186,7 +218,7 @@ const CreateNewHaltModal = ({
             <Autocomplete
               options={securities}
               getOptionLabel={(option) =>
-                `${option.symbol} - ${option.securityName || option.issueName} - ${option.listingMarket}`
+                `${option.symbol}`
               }
               value={formData.security}
               onChange={handleSymbolChange}
@@ -293,7 +325,7 @@ const CreateNewHaltModal = ({
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          {/* <Grid item xs={12} md={6}>
             <TextField
               label="Resumption Time"
               type="datetime-local"
@@ -306,24 +338,14 @@ const CreateNewHaltModal = ({
               variant="outlined"
               InputLabelProps={{ shrink: true }}
             />
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12} md={6}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={formData.extendedHalt}
-                  onChange={(e) =>
-                    handleFieldChange("extendedHalt", e.target.checked)
-                  }
-                  disabled={loading}
-                />
-              }
-              label="Extended Halt"
-              sx={{ mt: 2 }}
-            />
+            <TextField label="Halt Type" value="REG" fullWidth disabled />
           </Grid>
-
+          <Grid item xs={12} md={6}>
+            <TextField label="Created By" value={formData.createdBy} fullWidth disabled />
+          </Grid>
           <Grid item xs={12}>
             <TextField
               label="Notes"

@@ -8,7 +8,7 @@ const DashboardTabs = ({
   onNewHaltClick, 
   windowHeight 
 }) => {
-  const mainTabHeight = 0.11 * windowHeight;
+  const mainTabHeight = 0.08 * windowHeight;
 
   const tabStyle = (isActive) => ({
     onClick: () => onTabChange,
@@ -16,9 +16,9 @@ const DashboardTabs = ({
     alignItems: "center", 
     justifyContent: "center", 
     flex: 1, 
-    marginLeft: 0.4,
+    marginLeft: 0.2,
     bgcolor: isActive ? "#6d8b89" : "#b7c6c6", 
-    height: "100%",
+    height: "95%",
     color: "white",
     fontSize: 16,
     cursor: "pointer",

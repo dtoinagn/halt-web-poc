@@ -60,7 +60,7 @@ export const reformatDateTime = (dateTimeString) => {
     const seconds = String(compactDate.getSeconds()).padStart(2, '0');
     const milliseconds = String(compactDate.getMilliseconds()).padStart(3, '0');
     
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+    return `${year}${month}${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
   }
   
   return dateTimeString.replace(/T/g, ' ');
@@ -87,7 +87,7 @@ export const roundUpDateTime = (dateTimeString) => {
   const seconds = String(date.getSeconds()).padStart(2, '0');
   const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
   
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+  return `${year}${month}${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
 };
 
 export const isHaltedSameDay = (haltTime, resumptionTime) => {
