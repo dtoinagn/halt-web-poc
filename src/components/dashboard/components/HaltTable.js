@@ -23,6 +23,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import ErrorDialog from "../../ui/ErrorDialog";
+import ConfirmDialog from "../../ui/ConfirmDialog";
 import { TABLE_COLUMNS, COLUMN_KEY_MAP } from "../../../constants";
 import { sortUtils, hideExtendedUtils } from "../../../utils/storageUtils";
 
@@ -124,8 +125,8 @@ const HaltTable = ({
     });
   };
 
-  const handleDialogClose = async (confirm) => {
-    if (confirm && confirmDialog.haltId && onExtendedHaltUpdate) {
+  const handleConfirmDialog = async () => {
+    if (confirmDialog.haltId && onExtendedHaltUpdate) {
       const result = await onExtendedHaltUpdate(confirmDialog.haltId, confirmDialog.newValue);
       if (result && result.error) {
         setErrorDialog({
@@ -134,7 +135,10 @@ const HaltTable = ({
         });
       }
     }
+    handleCancelDialog();
+  };
 
+  const handleCancelDialog = () => {
     setConfirmDialog({
       open: false,
       rowIndex: null,
@@ -377,42 +381,28 @@ const HaltTable = ({
 
       {showActionButtons && (
         <>
-        <Dialog
-          open={confirmDialog.open}
-          onClose={(event, reason) => {
-            if (reason === 'backdropClick') {
-            return; // Prevent closing on backdrop click
+          <ConfirmDialog
+            open={confirmDialog.open}
+            title="Confirm Action"
+            message={
+              confirmDialog.newValue ? (
+                <>
+                  Are you sure you want to <strong>extend</strong> this halt with
+                  halt ID <strong>{confirmDialog.haltId}</strong>?
+                </>
+              ) : (
+                <>
+                  Are you sure you want to <strong>cancel the extend</strong> of
+                  this halt with halt ID <strong>{confirmDialog.haltId}</strong>?
+                </>
+              )
             }
-            handleDialogClose(false);
-       }}
-        >
-          <DialogTitle>Confirm Action</DialogTitle>
-          <DialogContent>
-            {confirmDialog.newValue ? (
-              <>
-                Are you sure you want to <strong>extend</strong> this halt with
-                halt ID <strong>{confirmDialog.haltId}</strong>?
-              </>
-            ) : (
-              <>
-                Are you sure you want to <strong>cancel the extend</strong> of
-                this halt with halt ID <strong>{confirmDialog.haltId}</strong>?
-              </>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => handleDialogClose(false)} color="error">
-              No
-            </Button>
-            <Button
-              onClick={() => handleDialogClose(true)}
-              color="primary"
-              autoFocus
-            >
-              Yes
-            </Button>
-          </DialogActions>
-        </Dialog>
+            onConfirm={handleConfirmDialog}
+            onCancel={handleCancelDialog}
+            confirmText="Yes"
+            cancelText="No"
+            severity="warning"
+          />
           <ErrorDialog
             open={errorDialog.open}
             message={errorDialog.message}
