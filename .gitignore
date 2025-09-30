@@ -13,6 +13,7 @@
 /target
 /look-and-feel
 /node
+/scripts
 
 # misc
 .DS_Store

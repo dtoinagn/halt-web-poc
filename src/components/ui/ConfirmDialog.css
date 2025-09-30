@@ -116,3 +116,12 @@
   background-color: #004d4d !important;
   box-shadow: 0 4px 12px rgba(0, 102, 102, 0.3) !important;
 }
+
+.confirm-dialog-confirm-button:disabled,
+.confirm-dialog-confirm-button.disabled {
+  background-color: #bdbdbd !important;
+  color: #f5f5f5 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  opacity: 0.7 !important;
+}

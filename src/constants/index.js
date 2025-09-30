@@ -29,35 +29,35 @@ export const HALT_ACTIONS = {
 
 export const TABLE_COLUMNS = {
   ACTIVE_REG: [
-    'Halt ID', 'Symbol', 'Issue Name', 'Listing Market',
-    'All Issues', 'Created By', 'Halt Time', 'Resumption Time',
-    'Extended Halt', ' ', '   '
+    'Halt Event ID', 'Symbol', 'Issue Name', 'Listing Mkt',
+    'All Issues', 'Created By', 'Halt Time', 'Sched Resumption Time',
+    'Extd', 'Action'
   ],
   ACTIVE_SSCB: [
-    'Halt ID', 'Symbol', 'Issue Name', 'Listing Market',
-    'All Issues', 'Created By', 'Halt Time', 'Resumption Time'
+    'Halt Event ID', 'Symbol', 'Issue Name', 'Listing Mkt',
+    'All Issues', 'Created By', 'Halt Time', 'Sched Resumption Time', 'Action'
   ],
   PENDING: [
-    'Halt ID', 'Symbol', 'Issue Name', 'Listing Market',
-    'All Issues', 'Created By', 'Scheduled Halt Time'
+    'Halt Event ID', 'Symbol', 'Issue Name', 'Listing Mkt',
+    'All Issues', 'Created By', 'Sched Halt Time', 'Action'
   ],
   LIFTED: [
-    'Halt ID', 'Symbol', 'Issue Name', 'Listing Market',
-    'All Issues', 'Created By', 'Halt Time', 'Resumption Time'
+    'Halt Event ID', 'Symbol', 'Issue Name', 'Listing Mkt',
+    'All Issues', 'Created By', 'Halt Time', 'Sched Resumption Time'
   ]
 };
 
 export const COLUMN_KEY_MAP = {
-  "Halt ID": "haltId",
+  "Halt Event ID": "haltId",
   "Symbol": "symbol",
   "Issue Name": "issueName",
-  "Listing Market": "listingMarket",
+  "Listing Mkt": "listingMarket",
   "All Issues": "allIssue",
   "Created By": "createdBy",
   "Halt Time": "haltTime",
-  "Resumption Time": "resumptionTime",
-  "Extended Halt": "extendedHalt",
-  "Scheduled Halt Time": "haltTime"
+  "Sched Resumption Time": "resumptionTime",
+  "Extd": "extendedHalt",
+  "Sched Halt Time": "haltTime"
 };
 
 export const DEFAULT_SORT_PREFERENCES = {

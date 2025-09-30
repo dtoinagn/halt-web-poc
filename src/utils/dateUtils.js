@@ -1,3 +1,22 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const EST_ZONE = 'America/New_York';
+
+export const formatDashboard = (dateTimeString) => {
+  if (!dateTimeString) return null;
+
+  const date = dayjs.tz(dateTimeString, EST_ZONE);
+  return date.format('YYYY-MM-DD HH:mm:ss');
+};
+// Format to EST
+const estDateString = dayjs(new Date()).tz(EST_ZONE).format('YYYY-MM-DD HH:mm:ss');
+console.log(estDateString); 
+
 const parseCompactDateTime = (compactString) => {
   if (!compactString || typeof compactString !== 'string') return null;
   

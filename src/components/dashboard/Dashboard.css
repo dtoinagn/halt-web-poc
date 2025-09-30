@@ -13,6 +13,24 @@
   justify-content: center;
 }
 
+.halt-action-button {
+  background-color: #006666 !important;
+  color: white;
+  font-size: 0.7rem;
+  padding: 1px 4px;
+  white-space: nowrap;
+  margin-left: 8px;
+  cursor: pointer;
+  border: 2px solid white;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 102, 102, 0.2) !important;
+}
+
+.halt-action-button:hover {
+  background-color: #004d4d !important;
+  box-shadow: 0 4px 12px rgba(0, 102, 102, 0.3) !important;
+}
+
 .newhalt-button {
   background-color: #013737;
   color: white;

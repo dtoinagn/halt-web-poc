@@ -17,6 +17,7 @@ import {
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS } from "../../../constants";
+import ConfirmDialog from "../../ui/ConfirmDialog";
 
 const CreateNewHaltModal = ({
   open,
@@ -40,6 +41,7 @@ const CreateNewHaltModal = ({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleClose = () => {
     if (!loading) {
@@ -61,6 +63,20 @@ const CreateNewHaltModal = ({
     }
   };
 
+  // Show confirmation dialog before submitting
+  const handleCreateClick = () => {
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setConfirmOpen(false);
+  };
+
+  const handleConfirmOk = async () => {
+    setConfirmOpen(false);
+    await handleSubmit();
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     setError("");
@@ -76,19 +92,40 @@ const CreateNewHaltModal = ({
       if (!formData.haltTime) {
         throw new Error("Please select a halt time");
       }
+      let newHaltTime = null;
+      if (formData.immediateHalt) {
+        // For immediate halt, set halt time to current time
+        newHaltTime = getCurrentTimeBackendFormat();
+      } else {
+        console.log("Scheduled halt time:", formData.haltTime);
+        const haltDate = new Date(formData.haltTime);
+        // If not immediate halt, halt time is scheduled for future
+        if (haltDate < new Date()) {
+          throw new Error("Halt time must be in the future");
+        } else{
+          const now = new Date();
+          const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+          if (haltDate > endOfToday) {
+            throw new Error("Halt time must be within today");
+          }
+
+          newHaltTime = getCurrentTimeBackendFormat(new Date(formData.haltTime));
+        }
+      } 
+
       const payload = {
         haltId: '',
         symbol: formData.security.symbol || "",
         issueName: formData.issueName || "",
         listingMarket: formData.listingMarket || "",
         allIssue: formData.allIssue === "Yes" ? "true" : "false",
-        haltTime: getCurrentTimeBackendFormat() || "",
+        haltTime: newHaltTime,
         resumptionTime: "",
         cancelTime: "",
         extendedHalt: formData.extendedHalt,
         haltReason: formData.haltReason.description || formData.haltReason,
         remainReason: "",
-        status: "Halted",
+        status: formData.immediateHalt ? "Halted" : "HaltPending",
         haltType: "REG", // Default to REG for new halts
         createdBy: formData.createdBy || '',
         createdTime: "",
@@ -96,8 +133,11 @@ const CreateNewHaltModal = ({
         modifiedTime: "",
         sscbSrc: "",
         responseMessage: "",
-        action: HALT_ACTIONS.CREATE_IMMEDIATE_HALT,
+        action: formData.immediateHalt
+        ? HALT_ACTIONS.CREATE_IMMEDIATE_HALT
+        : HALT_ACTIONS.CREATE_SCHEDULED_HALT,
         coment: formData.notes || "",
+        type:formData.immediateHalt ? "live" : "schedule"
       };
 
       console.log("Creating new halt with payload:", payload);
@@ -128,8 +168,8 @@ const CreateNewHaltModal = ({
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
-  const getCurrentTimeBackendFormat = () => {
-    const now = new Date();
+  const getCurrentTimeBackendFormat = (now) => {
+    now = now ? new Date(now) : new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
@@ -181,7 +221,13 @@ const CreateNewHaltModal = ({
     }
   };
 
+  // Confirmation dialog message based on immediateHalt
+  const confirmMessage = formData.immediateHalt
+    ? "Please confirm creation of the immediate halt. Once the halt is created, it cannot be cancelled."
+    : "Please confirm creation of the scheduled halt.";
+
   return (
+  <>
     <Dialog
       open={open}
       maxWidth="md"
@@ -362,11 +408,11 @@ const CreateNewHaltModal = ({
       </DialogContent>
 
       <DialogActions sx={{ p: 3, pt: 1 }}>
-        <Button onClick={handleClose} disabled={loading} color="secondary">
+        <Button onClick={handleClose} disabled={loading} className="confirm-dialog-confirm-button">
           Cancel
         </Button>
         <Button
-          onClick={handleSubmit}
+          onClick={handleCreateClick}
           disabled={
             loading ||
             !formData.security ||
@@ -374,13 +420,23 @@ const CreateNewHaltModal = ({
             !formData.allIssue ||
             !formData.haltTime
           }
-          variant="contained"
-          color="primary"
+          className="confirm-dialog-confirm-button"
         >
           {loading ? "Creating..." : "Create Halt"}
         </Button>
       </DialogActions>
     </Dialog>
+
+     <ConfirmDialog
+       open={confirmOpen}
+       title="Confirm Create Halt"
+       message={confirmMessage}
+       onCancel={handleConfirmCancel}
+       onConfirm={handleConfirmOk}
+       confirmText="Yes"
+       cancelText="No"
+     />
+  </>
   );
 };
 

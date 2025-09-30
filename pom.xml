@@ -10,7 +10,7 @@
   
 	  <properties>
 		  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		  <halt-web-portal.version>0.3.0</halt-web-portal.version>
+		  <halt-web-portal.version>0.4.0</halt-web-portal.version>
 		  <halt-web-portal.release>rc1</halt-web-portal.release>
           <halt-web-portal.dir>/var/www/haltweb_html</halt-web-portal.dir>
 
