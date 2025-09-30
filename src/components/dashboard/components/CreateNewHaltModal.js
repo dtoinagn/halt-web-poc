@@ -18,12 +18,14 @@ import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import ConfirmDialog from "../../ui/ConfirmDialog";
+import { compareDateTimeToSecond } from '../../../utils/dateUtils';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+const EST_ZONE = 'America/New_York';
 
 const CreateNewHaltModal = ({
   open,
@@ -69,9 +71,46 @@ const CreateNewHaltModal = ({
     }
   };
 
-  // Show confirmation dialog before submitting
+  // Validate and show confirmation dialog before submitting
   const handleCreateClick = () => {
-    setConfirmOpen(true);
+    setError("");
+    try {
+      // Validate required fields
+      if (!formData.security) {
+        throw new Error("Please select a security");
+      }
+      if (!formData.haltReason) {
+        throw new Error("Please select a halt reason");
+      }
+      if (! formData.immediateHalt && !formData.haltTime) {
+        throw new Error("Please select a halt time for scheduled halt");
+      }
+      if(!formData.allIssue){
+        throw new Error("Please select if halt is for all issues");
+      }
+      //Validate halt time for scheduled halts
+      if (!formData.immediateHalt) {
+        const haltDateEST = dayjs.tz(formData.haltTime, EST_ZONE);
+        const nowEST = dayjs().tz(EST_ZONE);
+        const endOfTodayEST = nowEST.endOf('day'); 
+        console.log("Form Halt Time:", formData.haltTime);
+        console.log("Selected Halt Date:", haltDateEST);
+        console.log("Now EST:", nowEST);
+        console.log("End of Today:", endOfTodayEST);
+
+        if (compareDateTimeToSecond(haltDateEST, nowEST) < 0) {
+          throw new Error("Halt time must be in the future");
+        }
+        if (compareDateTimeToSecond(haltDateEST, endOfTodayEST) > 0) {
+          throw new Error("Halt time must be within today");
+        }
+      } 
+      // If all validations pass, open confirmation dialog
+      setConfirmOpen(true);
+    } catch (error) {
+      setError(error.message);
+      return;
+    }
   };
 
   const handleConfirmCancel = () => {
@@ -88,37 +127,13 @@ const CreateNewHaltModal = ({
     setError("");
 
     try {
-      // Validate required fields
-      if (!formData.security) {
-        throw new Error("Please select a security");
-      }
-      if (!formData.haltReason) {
-        throw new Error("Please select a halt reason");
-      }
-      if (!formData.haltTime) {
-        throw new Error("Please select a halt time");
-      }
+      // Prepare halt time
       let newHaltTime = null;
       if (formData.immediateHalt) {
-        // For immediate halt, set halt time to current time
         newHaltTime = getCurrentTimeBackendFormat();
       } else {
-        console.log("Scheduled halt time:", formData.haltTime);
-        const haltDate = new Date(formData.haltTime);
-        // If not immediate halt, halt time is scheduled for future
-        if (haltDate < new Date()) {
-          throw new Error("Halt time must be in the future");
-        } else{
-          const now = new Date();
-          const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-          if (haltDate > endOfToday) {
-            throw new Error("Halt time must be within today");
-          }
-
-          newHaltTime = getCurrentTimeBackendFormat(new Date(formData.haltTime));
-        }
-      } 
-
+        newHaltTime = getCurrentTimeBackendFormat(new Date(formData.haltTime));
+      }
       const payload = {
         haltId: '',
         symbol: formData.security.symbol || "",
@@ -165,9 +180,8 @@ const CreateNewHaltModal = ({
   };
 
   const getCurrentDateTime = () => {
-    // Get current time in EST timezone and format for datetime-local input
-    const estTime = dayjs().tz('America/New_York');
-    return estTime.format('YYYY-MM-DDTHH:mm');
+    //Get current time in EST timezone and format for date-time-local input
+    return dayjs().tz(EST_ZONE).format('YYYY-MM-DD HH:mm');
   };
 
   const getCurrentTimeBackendFormat = (now) => {
@@ -326,7 +340,7 @@ const CreateNewHaltModal = ({
 
           <Grid item xs={12} md={6}>
             <TextField
-              label="Halt Time * (EST/EDT)"
+              label="Halt Time *"
               type="datetime-local"
               value={formData.haltTime}
               onChange={(e) => handleFieldChange("haltTime", e.target.value)}
@@ -335,6 +349,9 @@ const CreateNewHaltModal = ({
               variant="outlined"
               error={!formData.haltTime && error}
               InputLabelProps={{ shrink: true }}
+              inputProps={{ 
+                // Set default value in EST when popup opens
+                value: formData.haltTime || getCurrentDateTime(), }} 
             />
           </Grid>
 
