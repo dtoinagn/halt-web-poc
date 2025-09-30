@@ -18,6 +18,12 @@ import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import ConfirmDialog from "../../ui/ConfirmDialog";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const CreateNewHaltModal = ({
   open,
@@ -159,13 +165,9 @@ const CreateNewHaltModal = ({
   };
 
   const getCurrentDateTime = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    // Get current time in EST timezone and format for datetime-local input
+    const estTime = dayjs().tz('America/New_York');
+    return estTime.format('YYYY-MM-DDTHH:mm');
   };
 
   const getCurrentTimeBackendFormat = (now) => {
@@ -324,7 +326,7 @@ const CreateNewHaltModal = ({
 
           <Grid item xs={12} md={6}>
             <TextField
-              label="Halt Time *"
+              label="Halt Time * (EST/EDT)"
               type="datetime-local"
               value={formData.haltTime}
               onChange={(e) => handleFieldChange("haltTime", e.target.value)}
