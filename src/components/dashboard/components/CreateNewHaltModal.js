@@ -18,7 +18,12 @@ import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import ConfirmDialog from "../../ui/ConfirmDialog";
-import { compareDateTimeToSecond } from '../../../utils/dateUtils';
+import {
+  compareDateTimeToSecond,
+  getCurrentESTDateTime,
+  formatForBackend,
+  DATETIME_FORMATS
+} from '../../../utils/dateUtils';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -132,7 +137,7 @@ const CreateNewHaltModal = ({
       if (formData.immediateHalt) {
         newHaltTime = getCurrentTimeBackendFormat();
       } else {
-        newHaltTime = getCurrentTimeBackendFormat(new Date(formData.haltTime));
+        newHaltTime = getCurrentTimeBackendFormat(formData.haltTime);
       }
       const payload = {
         haltId: '',
@@ -180,20 +185,16 @@ const CreateNewHaltModal = ({
   };
 
   const getCurrentDateTime = () => {
-    //Get current time in EST timezone and format for date-time-local input
-    return dayjs().tz(EST_ZONE).format('YYYY-MM-DD HH:mm');
+    // Get current time in EST timezone and format for datetime-local input
+    return getCurrentESTDateTime(DATETIME_FORMATS.DATETIME_LOCAL);
   };
 
-  const getCurrentTimeBackendFormat = (now) => {
-    now = now ? new Date(now) : new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const seconds = String(now.getSeconds()).padStart(2, "0");
-    const milliseconds = String(now.getMilliseconds()).padStart(3, "0");
-    return `${year}${month}${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
+  const getCurrentTimeBackendFormat = (dateTime) => {
+    // If dateTime is provided, format it, otherwise use current EST time
+    if (dateTime) {
+      return formatForBackend(dateTime);
+    }
+    return getCurrentESTDateTime(DATETIME_FORMATS.BACKEND);
   };
 
   const handleFieldChange = (field, value) => {

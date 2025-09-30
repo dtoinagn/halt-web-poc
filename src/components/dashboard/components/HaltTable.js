@@ -123,7 +123,11 @@ const HaltTable = ({
 
   const handleConfirmDialog = async () => {
     if (confirmDialog.haltId && onExtendedHaltUpdate) {
-      const result = await onExtendedHaltUpdate(confirmDialog.haltId, confirmDialog.newValue, confirmDialog.symbol);
+      const result = await onExtendedHaltUpdate(
+        confirmDialog.haltId,
+        confirmDialog.newValue,
+        confirmDialog.symbol
+      );
       if (result && result.error) {
         setErrorDialog({
           open: true,
@@ -161,6 +165,27 @@ const HaltTable = ({
 
     // Handle special columns
     switch (columnHeader) {
+      case "Halt Time":
+      case "Sched Resumption Time":
+      case "Sched Halt Time":
+        // Data should already be formatted by processHaltData, so just display it
+        return (
+          <TableCell
+            key={idx}
+            sx={{
+              padding: "2px 4px",
+              fontSize: "0.75rem",
+              minWidth: "120px",
+              maxWidth: "150px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {cellContent || ""}
+          </TableCell>
+        );
+
       case "Extd":
         return (
           <TableCell
@@ -181,14 +206,18 @@ const HaltTable = ({
             key={idx}
             sx={{ padding: "2px 4px", minWidth: "100px", maxWidth: "300px" }}
           >
-             <Tooltip title={`Schedule a resumption: ${row.symbol}-${row.haltId}`} arrow>
-                <button  className="halt-action-button">
-                  Resume Trading
-                </button>
-              </Tooltip>
+            <Tooltip
+              title={`Schedule a resumption: ${row.symbol}-${row.haltId}`}
+              arrow
+            >
+              <button className="halt-action-button">Resume Trading</button>
+            </Tooltip>
             {row.resumptionTime ? (
-              <Tooltip title={`Cancel scheduled resumption: ${row.symbol}-${row.haltId}`} arrow>
-                <button  className="halt-action-button">
+              <Tooltip
+                title={`Cancel scheduled resumption: ${row.symbol}-${row.haltId}`}
+                arrow
+              >
+                <button className="halt-action-button">
                   Cancel Resumption
                 </button>
               </Tooltip>
@@ -344,8 +373,8 @@ const HaltTable = ({
             {sortedRows.map((row, idx) => (
               <TableRow
                 key={idx}
-                sx={{ 
-                  backgroundColor: "white", 
+                sx={{
+                  backgroundColor: "white",
                   height: "40px",
                   "&:hover": { backgroundColor: "#f0f8f8" },
                 }}
@@ -367,13 +396,15 @@ const HaltTable = ({
             message={
               confirmDialog.newValue ? (
                 <>
-                  Are you sure you want to <strong>extend</strong> this halt with
-                  halt ID <strong>{confirmDialog.haltId}</strong> for symbol <strong>{confirmDialog.symbol}</strong>?
+                  Are you sure you want to <strong>extend</strong> this halt
+                  with halt ID <strong>{confirmDialog.haltId}</strong> for
+                  symbol <strong>{confirmDialog.symbol}</strong>?
                 </>
               ) : (
                 <>
                   Are you sure you want to <strong>cancel the extend</strong> of
-                  this halt with halt ID <strong>{confirmDialog.haltId}</strong> for symbol <strong>{confirmDialog.symbol}</strong>?
+                  this halt with halt ID <strong>{confirmDialog.haltId}</strong>{" "}
+                  for symbol <strong>{confirmDialog.symbol}</strong>?
                 </>
               )
             }

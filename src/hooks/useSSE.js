@@ -1,7 +1,54 @@
 import { useState, useEffect, useRef } from 'react';
 import { apiService } from '../services/api';
 import { HALT_STATUSES, HALT_TYPES } from '../constants';
-import { reformatDateTime, getCurrentDateTime } from '../utils/dateUtils';
+import { getCurrentDateTime, DATETIME_FORMATS } from '../utils/dateUtils';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const EST_ZONE = 'America/New_York';
+
+// Helper function to safely format datetime for dashboard display (same as in haltDataUtils)
+const formatDateTimeForDashboard = (dateTimeString) => {
+  if (!dateTimeString) return null;
+
+  try {
+    // Handle different possible formats
+    let date;
+
+    // Check if it's already in compact format (YYYYMMDD-HH:mm:ss.SSS)
+    const compactMatch = dateTimeString.match(/^(\d{8})-(\d{2}):(\d{2}):(\d{2})\.(\d{3})$/);
+    if (compactMatch) {
+      const [, dateStr, hours, minutes, seconds, milliseconds] = compactMatch;
+      const year = dateStr.substring(0, 4);
+      const month = dateStr.substring(4, 6);
+      const day = dateStr.substring(6, 8);
+
+      // Create a proper ISO string for parsing
+      const isoString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
+      date = dayjs.tz(isoString, EST_ZONE);
+    } else {
+      // Try to parse as regular datetime string
+      date = dayjs.tz(dateTimeString, EST_ZONE);
+    }
+
+    // Validate the parsed date
+    if (!date.isValid()) {
+      console.warn('Invalid datetime in SSE:', dateTimeString);
+      return dateTimeString; // Return original if can't parse
+    }
+
+    // Format for dashboard display (YYYY-MM-DD HH:mm:ss)
+    return date.format(DATETIME_FORMATS.DASHBOARD);
+
+  } catch (error) {
+    console.error('Error formatting datetime in SSE:', error, 'Input:', dateTimeString);
+    return dateTimeString; // Return original on error
+  }
+};
 
 export const useSSE = ({ 
   haltList, 
@@ -112,12 +159,12 @@ export const useSSE = ({
       const extendedStatus = sseBody.extendedHalt;
       const symbol = sseBody.symbol;
 
-      // Format times
+      // Format times for dashboard display (YYYY-MM-DD HH:mm:ss without milliseconds)
       if (haltTime) {
-        sseBody.haltTime = reformatDateTime(haltTime);
+        sseBody.haltTime = formatDateTimeForDashboard(haltTime);
       }
       if (resumptionTime) {
-        sseBody.resumptionTime = reformatDateTime(resumptionTime);
+        sseBody.resumptionTime = formatDateTimeForDashboard(resumptionTime);
       }
 
       // Use refs instead of stale state variables
