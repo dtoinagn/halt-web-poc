@@ -38,6 +38,11 @@
   max-width: calc(100% - 60px);
 }
 
+.login-error-icon {
+  font-size: 16px;
+  margin-right: 4px;
+}
+
 .login-submit {
   background-color: #004644;
   color: white;

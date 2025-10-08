@@ -96,9 +96,9 @@ app.post("/auth/login", (req, res) => {
   if (!user) {
     console.log("Login failed: Invalid credentials");
     return res.status(401).json({
-      status: "FAIL",
-      httpStatus: "UNAUTHORIZED",
-      message: "Invalid credentials",
+      status: "401",
+      error: "Unauthorized",
+      message: "Invalid username or password",
     });
   }
 

@@ -5,7 +5,7 @@ import './Login.css';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { login, loading, error } = useAuth();
+  const { login, loading, error, clearError } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -20,10 +20,12 @@ const Login = () => {
 
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
+    if (error) clearError();
   };
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
+    if (error) clearError();
   };
 
   return (
@@ -34,7 +36,11 @@ const Login = () => {
             <h2>Log in to Halt Portal</h2>
           </div>
 
-          {error && <div className='login-errormsg'>{error}</div>}
+          {error && (
+            <div className='login-errormsg'>
+              <span className='login-error-icon'>⚠</span> {error}
+            </div>
+          )}
 
           <div className='login-body'>
             <div className='login-debug'>

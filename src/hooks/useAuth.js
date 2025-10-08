@@ -90,10 +90,15 @@ export const useAuth = () => {
     return !!userCookie;
   };
 
+  const clearError = () => {
+    setError('');
+  };
+
   return {
     login,
     logout,
     checkSession,
+    clearError,
     loading,
     error,
     isAuthenticated: authUtils.isLoggedIn(),
