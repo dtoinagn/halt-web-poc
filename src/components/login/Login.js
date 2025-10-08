@@ -28,12 +28,13 @@ const Login = () => {
 
   return (
     <div>
-      <div className='login-errormsg'>{error}</div>
       <div className='login'>
         <form onSubmit={handleSubmit}>
           <div className='login-header'>
             <h2>Log in to Halt Portal</h2>
           </div>
+
+          {error && <div className='login-errormsg'>{error}</div>}
 
           <div className='login-body'>
             <div className='login-debug'>
