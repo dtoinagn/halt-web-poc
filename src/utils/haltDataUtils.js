@@ -1,58 +1,7 @@
+import { common } from "@mui/material/colors";
 import { HALT_STATUSES, HALT_TYPES } from "../constants";
-import { isHaltedSameDay, DATETIME_FORMATS } from "./dateUtils";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
-const EST_ZONE = "America/New_York";
-
-// Helper function to safely format datetime for dashboard display
-const formatDateTimeForDashboard = (dateTimeString) => {
-  if (!dateTimeString) return null;
-
-  try {
-    // Handle different possible formats
-    let date;
-
-    // Check if it's already in compact format (YYYYMMDD-HH:mm:ss.SSS)
-    const compactMatch = dateTimeString.match(
-      /^(\d{8})-(\d{2}):(\d{2}):(\d{2})\.(\d{3})$/
-    );
-    if (compactMatch) {
-      const [, dateStr, hours, minutes, seconds, milliseconds] = compactMatch;
-      const year = dateStr.substring(0, 4);
-      const month = dateStr.substring(4, 6);
-      const day = dateStr.substring(6, 8);
-
-      // Create a proper ISO string for parsing
-      const isoString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
-      date = dayjs.tz(isoString, EST_ZONE);
-    } else {
-      // Try to parse as regular datetime string
-      date = dayjs.tz(dateTimeString, EST_ZONE);
-    }
-
-    // Validate the parsed date
-    if (!date.isValid()) {
-      console.warn("Invalid datetime in processHaltData:", dateTimeString);
-      return dateTimeString; // Return original if can't parse
-    }
-
-    // Format for dashboard display (YYYY-MM-DD HH:mm:ss)
-    return date.format(DATETIME_FORMATS.DASHBOARD);
-  } catch (error) {
-    console.error(
-      "Error formatting datetime in processHaltData:",
-      error,
-      "Input:",
-      dateTimeString
-    );
-    return dateTimeString; // Return original on error
-  }
-};
+import { isHaltedSameDay, formatForBackend } from "./dateUtils";
+import { authUtils } from "./storageUtils";
 
 export const processHaltData = (data) => {
   const processedData = {
@@ -79,15 +28,6 @@ export const processHaltData = (data) => {
       : false;
     const extendedStatus = item.extendedHalt;
 
-    // Format times for dashboard display (YYYY-MM-DD HH:mm:ss without milliseconds)
-    if (item.haltTime) {
-      item.haltTime = formatDateTimeForDashboard(item.haltTime);
-    }
-
-    if (item.resumptionTime) {
-      item.resumptionTime = formatDateTimeForDashboard(item.resumptionTime);
-    }
-
     // Truncate issue name if too long
     if (typeof item.issueName === "string" && item.issueName.length > 25) {
       item.issueName = item.issueName.slice(0, 25);
@@ -109,7 +49,7 @@ export const processHaltData = (data) => {
       haltType === HALT_TYPES.SSCB
     ) {
       processedData.activeSSCBData.push(item);
-    } else if (haltStatus === HALT_STATUSES.HALT_PENDING) {
+    } else if (haltStatus === HALT_STATUSES.HALT_PENDING || haltStatus === HALT_STATUSES.HALT_SCHEDULED) {
       processedData.pendingData.push(item);
     }
 
@@ -134,21 +74,25 @@ export const buildHaltPayload = (haltData) => {
     issueName: haltData.issueName || "",
     listingMarket: haltData.listingMarket || "",
     allIssue: haltData.allIssue || "",
-    haltTime: "",
-    resumptionTime: "",
-    cancelTime: "",
+    // Format haltTime for backend: "YYYYMMDD-HH:mm:ss.SSS" in EST
+    haltTime: haltData.haltTime
+      ? formatForBackend(haltData.haltTime)
+      : "",
+    resumptionTime: haltData.resumptionTime
+      ? formatForBackend(haltData.resumptionTime)
+      : "",
     extendedHalt: haltData.extendedHalt,
     haltReason: haltData.haltReason || "",
     remainReason: haltData.remainReason || "",
     status: haltData.status || "",
     haltType: haltData.haltType || "",
     createdBy: haltData.createdBy || "",
-    createdTime: "",
-    modifiedBy: haltData.modifiedBy || "",
-    modifiedTime: "",
+    createdTime: haltData.createdTime ? formatForBackend(haltData.createdTime) : "",
+    lastModifiedBy: authUtils.getLoggedInUser() || '',
+    lastModifiedTime: haltData.lastModifiedTime ? formatForBackend(haltData.lastModifiedTime) : "",
     sscbSrc: haltData.sscbSrc || "",
     responseMessage: haltData.responseMessage || "",
-    id: haltData.id || "",
+    comment: haltData.comment || "",
   };
 
   return payload;

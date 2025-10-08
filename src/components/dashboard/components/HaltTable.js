@@ -21,6 +21,7 @@ import ErrorDialog from "../../ui/ErrorDialog";
 import ConfirmDialog from "../../ui/ConfirmDialog";
 import { TABLE_COLUMNS, COLUMN_KEY_MAP } from "../../../constants";
 import { sortUtils, hideExtendedUtils } from "../../../utils/storageUtils";
+import {formatDateTimeForDashboard} from "../../../utils/dateUtils";
 
 const HaltTable = ({
   tableType,
@@ -100,17 +101,6 @@ const HaltTable = ({
       : data;
 
   const sortedRows = sortRows(visibleRows);
-
-  // Debug logging
-  console.log("HaltTable Debug:", {
-    tableType,
-    tableTypeKey,
-    columns,
-    dataLength: data.length,
-    sortedRowsLength: sortedRows.length,
-    firstRow: sortedRows[0],
-  });
-
   const handleExtendHalt = (row, index) => {
     setConfirmDialog({
       open: true,
@@ -182,7 +172,7 @@ const HaltTable = ({
               textOverflow: "ellipsis",
             }}
           >
-            {cellContent || ""}
+            {cellContent ? formatDateTimeForDashboard(cellContent) : ""}
           </TableCell>
         );
 

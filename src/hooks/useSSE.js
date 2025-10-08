@@ -1,62 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { apiService } from '../services/api';
 import { HALT_STATUSES, HALT_TYPES } from '../constants';
-import { getCurrentDateTime, DATETIME_FORMATS } from '../utils/dateUtils';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
+import { getCurrentDateTime, formatDateTimeForDashboard } from '../utils/dateUtils';
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
-const EST_ZONE = 'America/New_York';
-
-// Helper function to safely format datetime for dashboard display (same as in haltDataUtils)
-const formatDateTimeForDashboard = (dateTimeString) => {
-  if (!dateTimeString) return null;
-
-  try {
-    // Handle different possible formats
-    let date;
-
-    // Check if it's already in compact format (YYYYMMDD-HH:mm:ss.SSS)
-    const compactMatch = dateTimeString.match(/^(\d{8})-(\d{2}):(\d{2}):(\d{2})\.(\d{3})$/);
-    if (compactMatch) {
-      const [, dateStr, hours, minutes, seconds, milliseconds] = compactMatch;
-      const year = dateStr.substring(0, 4);
-      const month = dateStr.substring(4, 6);
-      const day = dateStr.substring(6, 8);
-
-      // Create a proper ISO string for parsing
-      const isoString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
-      date = dayjs.tz(isoString, EST_ZONE);
-    } else {
-      // Try to parse as regular datetime string
-      date = dayjs.tz(dateTimeString, EST_ZONE);
-    }
-
-    // Validate the parsed date
-    if (!date.isValid()) {
-      console.warn('Invalid datetime in SSE:', dateTimeString);
-      return dateTimeString; // Return original if can't parse
-    }
-
-    // Format for dashboard display (YYYY-MM-DD HH:mm:ss)
-    return date.format(DATETIME_FORMATS.DASHBOARD);
-
-  } catch (error) {
-    console.error('Error formatting datetime in SSE:', error, 'Input:', dateTimeString);
-    return dateTimeString; // Return original on error
-  }
-};
-
-export const useSSE = ({ 
-  haltList, 
-  activeRegData, 
-  activeRegHaltList, 
-  activeSSCBData, 
-  liftedData, 
-  pendingData, 
+export const useSSE = ({
+  haltList,
+  activeRegData,
+  activeRegHaltList,
+  activeSSCBData,
+  liftedData,
+  pendingData,
   notExtendedList,
   setActiveRegData,
   setActiveSSCBData,
@@ -106,7 +59,7 @@ export const useSSE = ({
   const showNotificationMessage = (message) => {
     setNotification(message);
     setShowNotification(true);
-    
+
     clearTimeout(timeoutRef.current);
     const { notificationTimeout } = window.runConfig || { notificationTimeout: 3000 };
     timeoutRef.current = setTimeout(() => {
@@ -143,7 +96,6 @@ export const useSSE = ({
       const dataObj = JSON.parse(event.data);
 
       if (dataObj.heartbeat) {
-        console.log("SSE heartbeat received", dataObj);
         return;
       }
 
@@ -179,11 +131,10 @@ export const useSSE = ({
       // Handle existing halt updates
       if (haltList.includes(haltId)) {
         const prev = activeRegData.find(obj => obj.haltId === haltId);
-
+        if (prev) console.log("Find previous obj", prev);
         // Extended status change
-        if (activeRegHaltList.includes(haltId) && prev && extendedStatus !== prev.extendedHalt && 
-            (haltStatus === HALT_STATUSES.RESUMPTION_PENDING || haltStatus === HALT_STATUSES.HALTED)) {
-          
+        if (activeRegHaltList.includes(haltId) && prev && extendedStatus !== prev.extendedHalt &&
+          (haltStatus === HALT_STATUSES.RESUMPTION_PENDING || haltStatus === HALT_STATUSES.HALTED)) {
           let tempNotExtend = [...notExtendedList];
           if (extendedStatus) {
             tempNotExtend = tempNotExtend.filter(obj => obj !== haltId);
@@ -202,7 +153,6 @@ export const useSSE = ({
         else if (haltStatus === HALT_STATUSES.RESUMED && haltType === HALT_TYPES.REG) {
           const newActive = activeRegData.filter(obj => obj.haltId !== haltId);
           setActiveRegData(newActive);
-
           if (!resumptionTime) {
             sseBody.resumptionTime = getCurrentDateTime();
           }
@@ -210,7 +160,7 @@ export const useSSE = ({
           const tempLifted = [...liftedData, sseBody];
           setLiftedData(tempLifted);
           showNotificationMessage(`Halt has been resumed for ${symbol}`);
-          
+
           const tempActiveRegHaltList = activeRegHaltList.filter(id => id !== haltId);
           setActiveRegHaltList(tempActiveRegHaltList);
         }
@@ -218,7 +168,6 @@ export const useSSE = ({
         else if (haltStatus === HALT_STATUSES.RESUMED && haltType === HALT_TYPES.SSCB) {
           const newSSCB = activeSSCBData.filter(obj => obj.haltId !== haltId);
           setActiveSSCBData(newSSCB);
-          
           const tempLifted = [...liftedData, sseBody];
           setLiftedData(tempLifted);
           showNotificationMessage(`Halt has been resumed for ${symbol}`);
@@ -231,10 +180,19 @@ export const useSSE = ({
           showNotificationMessage(`Resumption time has been set for ${symbol}`);
         }
         // Halt activated
-        else if (haltStatus === HALT_STATUSES.HALTED && haltType === HALT_TYPES.REG && prev && extendedStatus === prev.extendedHalt) {
-          const newPending = pendingData.filter(obj => obj.haltId !== haltId);
-          setPendingData(newPending);
-          
+        else if (haltStatus === HALT_STATUSES.HALTED && haltType === HALT_TYPES.REG) {
+          const prevPending = pendingData.find(obj => obj.haltId === haltId);
+          if (prevPending) {
+            // Remove from pending if exists 
+            console.log("Find previous pending obj", prevPending);
+            const newPending = pendingData.filter(obj => obj.haltId !== haltId);
+            setPendingData(newPending);
+            if (!haltList.includes(haltId)) {
+              const tempNotExtend = [...notExtendedList, haltId];
+              setNotExtendedList(tempNotExtend);
+            }
+          }
+
           const tempActiveReg = [...activeRegData, sseBody];
           setActiveRegData(tempActiveReg);
           showNotificationMessage(`Halt is now active for ${symbol}`);
@@ -248,18 +206,21 @@ export const useSSE = ({
       }
       // Handle new halts
       else {
+        // Add the new haltId to the list to track it
+        haltList.push(haltId);
         if (haltStatus === HALT_STATUSES.HALTED && haltType === HALT_TYPES.REG) {
           const tempActiveReg = [...activeRegData, sseBody];
           setActiveRegData(tempActiveReg);
           showNotificationMessage(`New regulatory halt has been created for ${symbol}`);
-          
+
           const tempActiveList = [...activeRegHaltList, haltId];
           setActiveRegHaltList(tempActiveList);
+          notExtendedList.push(haltId);
         } else if (haltStatus === HALT_STATUSES.RESUMPTION_PENDING && haltType === HALT_TYPES.SSCB) {
           const tempActiveSSCB = [...activeSSCBData, sseBody];
           setActiveSSCBData(tempActiveSSCB);
           showNotificationMessage(`New SSCB halt has been created for ${symbol}`);
-        } else if (haltStatus === HALT_STATUSES.HALT_PENDING) {
+        } else if (haltStatus === HALT_STATUSES.HALT_PENDING || haltStatus === HALT_STATUSES.HALT_SCHEDULED) {
           const tempPending = [...pendingData, sseBody];
           setPendingData(tempPending);
           showNotificationMessage(`New regulatory halt has been scheduled for ${symbol}`);

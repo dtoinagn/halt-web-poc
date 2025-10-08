@@ -15,6 +15,51 @@ export const DATETIME_FORMATS = {
   DATETIME_LOCAL: "YYYY-MM-DDTHH:mm", // For datetime-local inputs
 };
 
+// Helper function to safely format datetime for dashboard display
+export const formatDateTimeForDashboard = (dateTimeString) => {
+  if (!dateTimeString) return null;
+
+  try {
+    // Handle different possible formats
+    let date;
+
+    // Check if it's already in compact format (YYYYMMDD-HH:mm:ss.SSS)
+    const compactMatch = dateTimeString.match(
+      /^(\d{8})-(\d{2}):(\d{2}):(\d{2})\.(\d{3})$/
+    );
+    if (compactMatch) {
+      const [, dateStr, hours, minutes, seconds, milliseconds] = compactMatch;
+      const year = dateStr.substring(0, 4);
+      const month = dateStr.substring(4, 6);
+      const day = dateStr.substring(6, 8);
+
+      // Create a proper ISO string for parsing
+      const isoString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
+      date = dayjs.tz(isoString, EST_ZONE);
+    } else {
+      // Try to parse as regular datetime string
+      date = dayjs.tz(dateTimeString, EST_ZONE);
+    }
+
+    // Validate the parsed date
+    if (!date.isValid()) {
+      console.warn("Invalid datetime in processHaltData:", dateTimeString);
+      return dateTimeString; // Return original if can't parse
+    }
+
+    // Format for dashboard display (YYYY-MM-DD HH:mm:ss)
+    return date.format(DATETIME_FORMATS.DASHBOARD);
+  } catch (error) {
+    console.error(
+      "Error formatting datetime in processHaltData:",
+      error,
+      "Input:",
+      dateTimeString
+    );
+    return dateTimeString; // Return original on error
+  }
+};
+
 // Generic function to format datetime in EST timezone
 export const formatDateTimeEST = (
   dateTimeString,
@@ -23,6 +68,14 @@ export const formatDateTimeEST = (
   if (!dateTimeString) return null;
 
   try {
+
+    // Check if it's already in compact format (YYYYMMDD-HH:mm:ss.SSS)
+    const compactMatch = dateTimeString.match(
+      /^(\d{8})-(\d{2}):(\d{2}):(\d{2})\.(\d{3})$/
+    );
+    if (compactMatch) {
+      return dateTimeString; // Already in backend format
+    }
     // Parse and convert to EST timezone
     const date = dayjs.tz(dateTimeString, EST_ZONE);
 

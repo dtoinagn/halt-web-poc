@@ -50,7 +50,7 @@ const CreateNewHaltModal = ({
     immediateHalt: false,
     extendedHalt: false,
     createdBy: authUtils.getLoggedInUser() || '',
-    notes: "",
+    comment: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -69,7 +69,7 @@ const CreateNewHaltModal = ({
         immediateHalt: false,
         extendedHalt: false,
         createdBy: authUtils.getLoggedInUser() || '',
-        notes: "",
+        comment: "",
       });
       setError("");
       onClose();
@@ -147,7 +147,6 @@ const CreateNewHaltModal = ({
         allIssue: formData.allIssue === "Yes" ? "true" : "false",
         haltTime: newHaltTime,
         resumptionTime: "",
-        cancelTime: "",
         extendedHalt: formData.extendedHalt,
         haltReason: formData.haltReason.description || formData.haltReason,
         remainReason: "",
@@ -155,14 +154,14 @@ const CreateNewHaltModal = ({
         haltType: "REG", // Default to REG for new halts
         createdBy: formData.createdBy || '',
         createdTime: "",
-        modifiedBy: "",
-        modifiedTime: "",
+        lastModifiedBy: formData.createdBy || '',
+        lastModifiedTime: "",
         sscbSrc: "",
         responseMessage: "",
         action: formData.immediateHalt
         ? HALT_ACTIONS.CREATE_IMMEDIATE_HALT
         : HALT_ACTIONS.CREATE_SCHEDULED_HALT,
-        coment: formData.notes || "",
+        comment: formData.comment || "",
         type:formData.immediateHalt ? "live" : "schedule"
       };
 
@@ -279,6 +278,7 @@ const CreateNewHaltModal = ({
         <Grid container spacing={3} sx={{ mt: 1 }}>
           <Grid item xs={12} md={6}>
             <Autocomplete
+              freeSolo={true} // Allow free text input
               options={securities}
               getOptionLabel={(option) =>
                 `${option.symbol}`
@@ -415,8 +415,8 @@ const CreateNewHaltModal = ({
           <Grid item xs={12}>
             <TextField
               label="Notes"
-              value={formData.notes}
-              onChange={(e) => handleFieldChange("notes", e.target.value)}
+              value={formData.comment}
+              onChange={(e) => handleFieldChange("comment", e.target.value)}
               disabled={loading}
               fullWidth
               multiline

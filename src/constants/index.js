@@ -4,6 +4,7 @@ export const HALT_STATUSES = {
   HALTED: 'Halted',
   RESUMED: 'Resumed',
   RESUMPTION_PENDING: 'ResumptionPending',
+  HALT_SCHEDULED: 'HaltScheduled',
   HALT_PENDING: 'HaltPending'
 };
 

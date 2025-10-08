@@ -127,7 +127,6 @@ const Dashboard = () => {
           onClose={handleNewHaltModalClose}
           securities={securities}
           haltReasons={haltReasons}
-          onHaltCreated={fetchActiveHalts}
         />
 
         <Box

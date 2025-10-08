@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiService } from "../services/api";
-import { processHaltData } from "../utils/haltDataUtils";
+import { processHaltData, buildHaltPayload } from "../utils/haltDataUtils";
 import { sortUtils, authUtils } from "../utils/storageUtils";
 import { act } from "react";
 import { HALT_ACTIONS } from "../constants";
@@ -96,12 +96,13 @@ export const useHaltData = () => {
 
       // Send API request
       const payload = {
-        ...updatedHaltData,
+        ...buildHaltPayload(updatedHaltData),
         action: HALT_ACTIONS.EXTEND_HALT,
-        modifiedTime: "",
+        lastModifiedTime: "",
         remainReason: "",
         resumptionTime: "",
-        modifiedBy: authUtils.getLoggedInUser() || "",
+        lastModifiedBy: authUtils.getLoggedInUser() || "",
+        type: "update"
       };
 
       await apiService.updateExtendedHaltState(payload);
