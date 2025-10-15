@@ -183,7 +183,7 @@ export const useSSE = ({
         else if (haltStatus === HALT_STATUSES.HALTED && haltType === HALT_TYPES.REG) {
           const prevPending = pendingData.find(obj => obj.haltId === haltId);
           if (prevPending) {
-            // Remove from pending if exists 
+            // Remove from pending if exists
             console.log("Find previous pending obj", prevPending);
             const newPending = pendingData.filter(obj => obj.haltId !== haltId);
             setPendingData(newPending);
@@ -193,7 +193,17 @@ export const useSSE = ({
             }
           }
 
-          const tempActiveReg = [...activeRegData, sseBody];
+          // Check if halt already exists in activeRegData
+          const existingActiveHalt = activeRegData.find(obj => obj.haltId === haltId);
+          let tempActiveReg;
+          if (existingActiveHalt) {
+            // Update existing halt
+            tempActiveReg = activeRegData.filter(obj => obj.haltId !== haltId);
+            tempActiveReg.push(sseBody);
+          } else {
+            // Add new halt
+            tempActiveReg = [...activeRegData, sseBody];
+          }
           setActiveRegData(tempActiveReg);
           showNotificationMessage(`Halt is now active for ${symbol}`);
 
