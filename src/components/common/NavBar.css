@@ -21,16 +21,12 @@
 .navbar-links {
   transform: translateY(40px);
   float: top;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
 }
 
 .navbar-item {
   padding-top: 20px;
-}
-
-.navbar-item:hover {
-  text-decoration: underline;
 }
 
 .navbar-item-link {
@@ -41,7 +37,8 @@
   opacity: 0.6;
   margin-left: 50px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  gap: 8px;
   cursor: pointer;
 }
 
@@ -53,16 +50,17 @@
   font-size: 14px;
   color: white;
   font-weight: bold;
-  text-decoration: underline;
+  text-decoration: none;
   opacity: 1;
   margin-left: 50px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  gap: 8px;
   cursor: pointer;
 }
 
 .navbar-icon {
-  transform: translateY(5px) translateX(-10px);
+  transform: translateY(-3px) translateX(-10px);
 }
 
 .navbar-icon-in-narrow-mode {

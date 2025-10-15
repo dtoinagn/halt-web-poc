@@ -286,6 +286,11 @@ const CreateNewHaltModal = ({
               value={formData.security}
               onChange={handleSymbolChange}
               disabled={loading}
+              filterOptions={(options, { inputValue }) =>
+                options.filter(option =>
+                  option.symbol.toLowerCase().startsWith(inputValue.toLowerCase())
+                )
+              }
               renderInput={(params) => (
                 <TextField
                   {...params}

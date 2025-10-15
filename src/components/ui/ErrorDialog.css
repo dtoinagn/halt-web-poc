@@ -86,6 +86,7 @@
   color: #4a4a4a !important;
   line-height: 1.6 !important;
   font-size: 0.95rem !important;
+  white-space: pre-wrap !important;
 }
 
 .error-dialog-actions {

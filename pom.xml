@@ -13,7 +13,7 @@
 		  <halt-web-portal.version>0.4.0</halt-web-portal.version>
 		  <halt-web-portal.release>rc1</halt-web-portal.release>
           <halt-web-portal.dir>/var/www/haltweb_html</halt-web-portal.dir>
-
+		  <halt-web-portal.environment>dev</halt-web-portal.environment>
 	  </properties> 
 	  
 	  <build>
@@ -42,7 +42,7 @@
 			<group>Application/IIROC-STG</group>
 			<name>halt-web-portal</name>
 			<version>${halt-web-portal.version}</version>
-			<release>${halt-web-portal.release}</release>
+			<release>${halt-web-portal.release}.${halt-web-portal.environment}</release>
 			<vendor>IIROC-STG</vendor>
             <requires>
                 <require>nodejs</require>
@@ -59,7 +59,6 @@
 			</mappings>
 		  </configuration>
 		</plugin>
-	  
 	  </plugins>
 	  </build>	
 		  

@@ -15,7 +15,6 @@ import {
   InputLabel,
   Select,
   TableSortLabel,
-  Tooltip,
 } from "@mui/material";
 import ErrorDialog from "../../ui/ErrorDialog";
 import ConfirmDialog from "../../ui/ConfirmDialog";
@@ -32,6 +31,7 @@ const HaltTable = ({
   showControls = false,
   showExtendedCheckbox = false,
   showActionButtons = false,
+  renderActionCell, // Optional custom cell renderer for action column
 }) => {
   // Get table-specific columns and sort preferences
   const tableTypeKey =
@@ -196,22 +196,7 @@ const HaltTable = ({
             key={idx}
             sx={{ padding: "2px 4px", minWidth: "100px", maxWidth: "300px" }}
           >
-            <Tooltip
-              title={`Schedule a resumption: ${row.symbol}-${row.haltId}`}
-              arrow
-            >
-              <button className="halt-action-button">Resume Trading</button>
-            </Tooltip>
-            {row.resumptionTime ? (
-              <Tooltip
-                title={`Cancel scheduled resumption: ${row.symbol}-${row.haltId}`}
-                arrow
-              >
-                <button className="halt-action-button">
-                  Cancel Resumption
-                </button>
-              </Tooltip>
-            ) : null}
+            {renderActionCell ? renderActionCell(row) : null}
           </TableCell>
         );
       default:

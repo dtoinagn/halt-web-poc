@@ -111,29 +111,8 @@ export const useHaltData = () => {
       return { success: true };
     } catch (err) {
       console.error("Error updating extended halt state:", err);
-      console.log("Error response data:", err.response?.data);
       // Parse the error message from the response if available
       let errorMessage = err.message;
-      if (err.response?.data) {
-        const { httpStatus, status, detailedMessage, error, message } =
-          err.response.data;
-        console.log("Extracted error fields:", {
-          httpStatus,
-          status,
-          detailedMessage,
-          error,
-          message,
-        });
-        if (httpStatus && status && detailedMessage) {
-          errorMessage = `${httpStatus}: ${status} - ${detailedMessage}`;
-        } else if (status && detailedMessage) {
-          errorMessage = `${status}: ${detailedMessage}`;
-        } else if (error) {
-          errorMessage = error;
-        } else if (message) {
-          errorMessage = message;
-        }
-      }
       console.log(`Failed to update extended halt state: ${errorMessage}`);
       // Revert optimistic update on error
       fetchActiveHalts();

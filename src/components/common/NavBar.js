@@ -100,6 +100,7 @@ const NavBar = () => {
                       : "navbar-item-link"
                   } 
                   onClick={toDashboardTab}
+                  style={{ display: 'flex', alignItems: 'flex-end' }} 
                 > 
                   <HomeIcon className="navbar-icon" />
                   Dashboard
@@ -131,6 +132,7 @@ const NavBar = () => {
                       : "navbar-item-link"
                   } 
                   onClick={toHistoryTab}
+                  style={{ display: 'flex', alignItems: 'flex-end' }} 
                 > 
                   <CalendarMonthIcon className="navbar-icon" />
                   History

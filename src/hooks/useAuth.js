@@ -18,13 +18,6 @@ export const useAuth = () => {
     try {
       const response = await apiService.login(credentials);
 
-      // Handle 401 error response structure
-      if (response.status === 401 || response.error === "Unauthorized") {
-        const errorMessage = response.message || "Invalid username or password";
-        setError(errorMessage);
-        return { success: false, error: errorMessage };
-      }
-
       if (response.status === "SUCCESS") {
         // Update context
         if (context) {
@@ -46,21 +39,21 @@ export const useAuth = () => {
             ),
           });
         }
-
         navigate(ROUTE_PATHS.DASHBOARD, { replace: true });
         return { success: true };
-      } else if (response.status === "FAIL") {
-        let errorMessage = "Login failed. Please try again.";
-
-        if (response.httpStatus === "UNAUTHORIZED") {
-          errorMessage =
-            "Login Failed. The username or password you entered is incorrect. Please try again or contact support team for assistance.";
-        } else if (response.httpStatus === "FORBIDDEN") {
+      } else {
+        let errorMessage = response.message;
+        if (response.status === 401 || response.error === "Unauthorized") {
+          errorMessage = response.message || "Invalid username or password";
+          setError(errorMessage);
+        } else if (response.status === 403) {
           errorMessage =
             "Access Denied. Please contact the Support Team for access.";
-        } else if (response.httpStatus === "INTERNAL_SERVER_ERROR") {
+        } else if (response.status === 500) {
           errorMessage =
-            "Connection lost. Please contact the Support Team for further assistance.";
+            "Internal Server Error. Please contact the Support Team for further assistance.";
+        } else if (response.status >= 400) {
+          errorMessage = response.message || "Bad Request. Please try again.";
         }
 
         setError(errorMessage);
