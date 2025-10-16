@@ -187,7 +187,8 @@ export const useSSE = ({
             console.log("Find previous pending obj", prevPending);
             const newPending = pendingData.filter(obj => obj.haltId !== haltId);
             setPendingData(newPending);
-            if (!haltList.includes(haltId)) {
+            // Add to notExtendedList if not extended
+            if (!notExtendedList.includes(haltId) && !extendedStatus) {
               const tempNotExtend = [...notExtendedList, haltId];
               setNotExtendedList(tempNotExtend);
             }
