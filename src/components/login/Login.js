@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import './Login.css';
 
@@ -55,7 +55,6 @@ const Login = () => {
                   required
                 />
               </div>
-
               <div>
                 <label className='login-input-header'>Password:</label>
                 <input

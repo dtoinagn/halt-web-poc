@@ -12,7 +12,7 @@ import TopBar from './components/common/TopBar';
 import NavBar from './components/common/NavBar';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/dashboard/History';
-import Login from './components/login/LogIn';
+import Login from './components/login/Login';
 import NotLoggedIn from './components/dashboard/NotLoggedIn';
 import UserGuide from './components/dashboard/UserGuide';
 
