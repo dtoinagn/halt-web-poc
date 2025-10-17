@@ -4,13 +4,13 @@ import { HALT_STATUSES, HALT_TYPES } from '../constants';
 import { getCurrentDateTime, formatDateTimeForDashboard } from '../utils/dateUtils';
 
 export const useSSE = ({
-  haltList,
-  activeRegData,
-  activeRegHaltList,
-  activeSSCBData,
-  liftedData,
-  pendingData,
-  notExtendedList,
+  haltList, /** Array of all halt IDs received so far */
+  activeRegData, /** Array of active regulatory halts (status: HALTED or RESUMPTION_PENDING) */
+  activeRegHaltList, /** Array of halt IDs that are regulatory and currently active */
+  activeSSCBData, /** Array of active SSCB halts (status: HALTED or RESUMPTION_PENDING) */
+  liftedData, /** Recently resumed halts (moved from active when status become RESUMED) */
+  pendingData, /** Scheduled/pending halts not yet active (status: HALT_PENDING or HALT_SCHEDULED) */
+  notExtendedList, /** Halt IDs that are not extended */
   setActiveRegData,
   setActiveSSCBData,
   setLiftedData,
@@ -204,10 +204,14 @@ export const useSSE = ({
           } else {
             // Add new halt
             tempActiveReg = [...activeRegData, sseBody];
+            // Add to activeReghaltList
+            const tempActiveRegHaltList = [...activeRegHaltList, haltId];
+            setActiveRegHaltList(tempActiveRegHaltList)
+            //Only show notification for newly activated halt.
+            showNotificationMessage(`Halt is now active for ${symbol}`);
           }
           setActiveRegData(tempActiveReg);
-          showNotificationMessage(`Halt is now active for ${symbol}`);
-
+          
           if (notExtendedList.includes(haltId) && extendedStatus === true) {
             const tempNotExtend = notExtendedList.filter(obj => obj !== haltId);
             setNotExtendedList(tempNotExtend);
