@@ -20,7 +20,7 @@ import ErrorDialog from "../../ui/ErrorDialog";
 import ConfirmDialog from "../../ui/ConfirmDialog";
 import { TABLE_COLUMNS, COLUMN_KEY_MAP } from "../../../constants";
 import { sortUtils, hideExtendedUtils } from "../../../utils/storageUtils";
-import {formatDateTimeForDashboard} from "../../../utils/dateUtils";
+import { formatDateTimeForDashboard } from "../../../utils/dateUtils";
 
 const HaltTable = ({
   tableType,
@@ -223,73 +223,35 @@ const HaltTable = ({
     <div>
       {showControls && (
         <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 3,
-            mt: 5,
-            mr: 2,
-            flexWrap: "wrap",
-          }}
+          display="flex"
+          justifyContent="flex-end"
+          alignItems="center"
+          textAlign="center"
+          width="95%"
+          marginTop={1}
+          flex={1}
+          position="relative"
         >
-          <Box sx={{ display: "flex", gap: 3 }}>
-            <FormControl sx={{ minWidth: 140 }}>
-              <InputLabel>Sort By</InputLabel>
-              <Select
-                value={orderBy}
-                label="Sort By"
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setOrderBy(val);
-                  sortUtils.setSortPreference(sortPrefKey, val);
-                }}
-              >
-                {Object.entries(COLUMN_KEY_MAP).map(([label, value]) => (
-                  <MenuItem key={value} value={value}>
-                    {label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl sx={{ minWidth: 140 }}>
-              <InputLabel>Direction</InputLabel>
-              <Select
-                value={orderDirection}
-                label="Direction"
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setOrderDirection(val);
-                  sortUtils.setSortPreference(sortDirPrefKey, val);
-                }}
-              >
-                <MenuItem value="asc">Ascending</MenuItem>
-                <MenuItem value="desc">Descending</MenuItem>
-              </Select>
-            </FormControl>
-
-            {showExtendedCheckbox && (
-              <>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={hideExtended}
-                      onChange={toggleHideExtended}
-                      color="default"
-                    />
-                  }
-                  label="Hide extended halt"
-                  sx={{ m: 0 }}
-                />
-                {hideExtended && (
-                  <button className="hidden-halt-num">
-                    {activeRegHaltList.length - notExtendedList.length}
-                  </button>
-                )}
-              </>
-            )}
-          </Box>
+          {showExtendedCheckbox && (
+            <>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={hideExtended}
+                    onChange={toggleHideExtended}
+                    color="default"
+                  />
+                }
+                label="Hide extended halt"
+                sx={{ marginLeft: 1 }}
+              />
+              {hideExtended && (
+                <button className="hidden-halt-num">
+                  {activeRegHaltList.length - notExtendedList.length}
+                </button>
+              )}
+            </>
+          )}
         </Box>
       )}
 
