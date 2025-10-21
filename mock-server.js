@@ -41,7 +41,7 @@ const verifyToken = (token) => {
 // Mock authentication middleware
 app.use((req, res, next) => {
   // Skip auth for OPTIONS requests and auth endpoints
-  if (req.method === "OPTIONS" || req.path.startsWith("/auth/") || req.path === "/api/auth/request-sse-ticket") {
+  if (req.method === "OPTIONS" || req.path.startsWith("/auth/")) {
     return next();
   }
 
@@ -96,12 +96,12 @@ app.post("/auth/login", (req, res) => {
   if (!user) {
     console.log("Login failed: Invalid credentials");
     return res.status(401).json({
-      timestamp: "2025-10-08T17:51:53.932338233",
-      status: 401,
-      error: "Unauthorized",
-      message: "Invalid username or password",
-      path: "/auth/login",
-      username: "test",
+      "timestamp": "2025-10-08T17:51:53.932338233",
+      "status": 401,
+      "error": "Unauthorized",
+      "message": "Invalid username or password",
+      "path": "/auth/login",
+      "username": "test"
     });
   }
 
@@ -181,8 +181,8 @@ app.get("/api/halt-reasons", (req, res) => {
 });
 
 // Fetch active halts endpoint
-app.get("/api/halts/activelist", (req, res) => {
-  console.log("GET /api/halts/activelist");
+app.get("/api/halts/active", (req, res) => {
+  console.log("GET /api/halts/active");
   const activeHalts = readJsonFile("active-halts.json");
   res.json(activeHalts);
 });
@@ -210,36 +210,37 @@ app.post("/api/halt/update", (req, res) => {
   if (req.body.haltId === "HALT009") {
     console.log("Simulating error for HALT009");
     return res.status(400).json({
-      timestamp: "2025-10-06T15:33:50.9823724",
-      status: 400,
-      error: "Bad Request",
-      message: "Validation failed",
-      path: "/api/halt/update",
-      username: "admin",
-      fieldErrors: {
-        haltType: "haltType cannot be empty.",
-        action: "action cannot be null",
-      },
+      "timestamp": "2025-10-06T15:33:50.9823724",
+      "status": 400,
+      "error": "Bad Request",
+      "message": "Validation failed",
+      "path": "/api/halt/update",
+      "username": "admin",
+      "fieldErrors": {
+        "haltType": "haltType cannot be empty.",
+        "action": "action cannot be null"
+      }
     });
   } else if (req.body.haltId === "HALT021") {
     console.log("Simulating server error for HALT021");
     return res.status(500).json({
-      timestamp: "2025-10-06T15:33:50.9823724",
-      status: 500,
-      error: "Internal Server Error",
-      message: "An unexpected error occurred",
-      path: "/api/halt/update",
-      username: "admin",
+      "timestamp": "2025-10-06T15:33:50.9823724",
+      "status": 500,
+      "error": "Internal Server Error",
+      "message": "An unexpected error occurred",
+      "path": "/api/halt/update",
+      "username": "admin"
     });
   } else if (req.body.haltId === "HALT004") {
     console.log("Simulating unauthorized error for HALT022");
     return res.status(401).json({
-      timestamp: "2025-10-06T15:32:41.321567",
-      status: 400,
-      error: "Bad Request",
-      message: "Unknown property: cancelDate",
-      path: "/api/halt/create",
-      username: "bdapcevic",
+      "timestamp": "2025-10-06T15:32:41.321567",
+      "status": 400,
+      "error": "Bad Request",
+      "message": "Unknown property: cancelDate",
+      "path": "/api/halt/create",
+      "username": "bdapcevic"
+
     });
   }
 
@@ -251,17 +252,16 @@ app.post("/api/halt/update", (req, res) => {
 });
 
 // SSE ticket endpoint (mock)
-app.post("/api/auth/request-sse-ticket", (req, res) => {
-  console.log("POST /api/auth/request-sse-ticket");
+app.post("/api/sse/ticket", (req, res) => {
+  console.log("POST /api/sse/ticket");
   res.json({
-    success: true,
     sseTicket: "mock-sse-ticket-" + Date.now(),
   });
 });
 
 // SSE stream endpoint (mock)
-app.get("/api/sse?ticket=", (req, res) => {
-  console.log(`GET /api/sse?ticket=${req.params.ticket}`);
+app.get("/api/sse/stream/:ticket", (req, res) => {
+  console.log(`GET /api/sse/stream/${req.params.ticket}`);
 
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
@@ -309,7 +309,7 @@ app.listen(PORT, () => {
   console.log("  GET  /api/halt-reasons");
   console.log("  GET  /api/halts/active");
   console.log("  POST /api/halt/create");
-  console.log("  POST /api/halt/update");
+  console.log("  POST /api/halt/update-extended");
   console.log("  POST /api/sse/ticket");
   console.log("  GET  /api/sse/stream/:ticket");
   console.log("");
