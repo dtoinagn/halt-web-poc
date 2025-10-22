@@ -13,11 +13,17 @@ import {
   Typography,
   Box,
   MenuItem,
+  IconButton,
 } from "@mui/material";
+import {
+  AddCircleOutline as AddIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import ConfirmDialog from "../../ui/ConfirmDialog";
+import "./CreateNewHaltModal.css";
 import {
   compareDateTimeToSecond,
   getCurrentESTDateTime,
@@ -299,22 +305,42 @@ const CreateNewHaltModal = ({
           }
           handleClose();
         }}
+        slotProps={{
+          paper: {
+            className: "create-halt-dialog-paper",
+          },
+        }}
         sx={{
           "& .MuiDialog-paper": {
             minHeight: "500px",
           },
         }}
       >
-        <DialogTitle>
-          <Typography variant="h5" component="div" fontWeight="bold">
-            Create New Trading Halt
-          </Typography>
+        <DialogTitle className="create-halt-dialog-title">
+          <Box className="create-halt-dialog-title-content">
+            <AddIcon className="create-halt-dialog-icon" />
+            <Typography
+              variant="h6"
+              component="div"
+              className="create-halt-dialog-title-text"
+            >
+              Create New Trading Halt
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={handleClose}
+            size="small"
+            className="create-halt-dialog-close-button"
+            disabled={loading}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
 
-        <DialogContent>
+        <DialogContent className="create-halt-dialog-content">
           {error && (
-            <Box mb={2}>
-              <Typography color="error" variant="body2">
+            <Box className="create-halt-error-message">
+              <Typography className="create-halt-error-text">
                 {error}
               </Typography>
             </Box>
@@ -486,18 +512,19 @@ const CreateNewHaltModal = ({
           </Grid>
         </DialogContent>
 
-        <DialogActions sx={{ p: 3, pt: 1 }}>
+        <DialogActions className="create-halt-dialog-actions">
           <Button
             onClick={handleClose}
             disabled={loading}
-            className="confirm-dialog-confirm-button"
+            className="create-halt-cancel-button"
           >
             Cancel
           </Button>
           <Button
             onClick={handleCreateClick}
             disabled={isSubmitDisabled}
-            className="confirm-dialog-confirm-button"
+            variant="contained"
+            className="create-halt-submit-button"
           >
             {loading ? "Creating..." : "Create Halt"}
           </Button>

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(if not exist \"c:\\project\\ciro\\halt-portal\\src\\__tests__\" mkdir \"c:\\project\\ciro\\halt-portal\\src\\__tests__\")",
+      "Bash(npm test:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
