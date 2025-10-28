@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { apiService } from "../services/api";
 import { processHaltData, buildHaltPayload } from "../utils/haltDataUtils";
 import { sortUtils, authUtils } from "../utils/storageUtils";
-import { act } from "react";
 import { HALT_ACTIONS } from "../constants";
 
 export const useHaltData = () => {

@@ -10,10 +10,6 @@ import {
   Paper,
   Checkbox,
   FormControlLabel,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
   TableSortLabel,
 } from "@mui/material";
 import ErrorDialog from "../../ui/ErrorDialog";

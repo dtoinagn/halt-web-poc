@@ -23,15 +23,15 @@ export const authUtils = {
   getToken: () => storage.get('token'),
   setToken: (token) => storage.set('token', token),
   removeToken: () => storage.remove('token'),
-  
+
   getLoggedInUser: () => storage.get('loggedInUser'),
   setLoggedInUser: (user) => storage.set('loggedInUser', user),
   removeLoggedInUser: () => storage.remove('loggedInUser'),
-  
-  isLoggedIn: () => storage.get('loggedIn') === 'true',
+
+  isLoggedIn: () => { return storage.get('loggedIn') === 'true' && cookieUtils.get('userLogInCookie') !== null },
   setLoggedIn: (status) => storage.set('loggedIn', status),
   removeLoggedIn: () => storage.remove('loggedIn'),
-  
+
   logout: () => {
     storage.remove('token');
     storage.remove('loggedIn');
@@ -50,7 +50,7 @@ export const sortUtils = {
       }
     }
   },
-  
+
   getSortPreference: (key) => storage.get(key),
   setSortPreference: (key, value) => storage.set(key, value)
 };

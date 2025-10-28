@@ -1,4 +1,3 @@
-import React from 'react';
 import HaltTable from './HaltTable';
 import { Tooltip } from "@mui/material";
 const ActiveRegTable = ({
