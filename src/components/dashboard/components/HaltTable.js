@@ -28,6 +28,7 @@ const HaltTable = ({
   showExtendedCheckbox = false,
   showActionButtons = false,
   renderActionCell, // Optional custom cell renderer for action column
+  onHaltIdClick, // Optional click handler for Halt Event ID
 }) => {
   // Get table-specific columns and sort preferences
   const tableTypeKey =
@@ -151,6 +152,49 @@ const HaltTable = ({
 
     // Handle special columns
     switch (columnHeader) {
+      case "Halt Event ID":
+        return (
+          <TableCell
+            key={idx}
+            sx={{
+              padding: "2px 4px",
+              fontSize: "0.75rem",
+              minWidth: "10px",
+              maxWidth: "120px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {onHaltIdClick ? (
+              <Box
+                component="span"
+                onClick={() => onHaltIdClick(row)}
+                sx={{
+                  color: "#1976d2",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  textDecoration: "none",
+                  borderBottom: "1px solid transparent",
+                  transition: "all 0.2s ease",
+                  padding: "2px 0",
+                  "&:hover": {
+                    color: "#1565c0",
+                    borderBottomColor: "#1565c0",
+                  },
+                  "&:active": {
+                    color: "#0d47a1",
+                  }
+                }}
+              >
+                {cellContent}
+              </Box>
+            ) : (
+              cellContent
+            )}
+          </TableCell>
+        );
+
       case "Halt Time":
       case "Sched Resumption Time":
       case "Sched Halt Time":

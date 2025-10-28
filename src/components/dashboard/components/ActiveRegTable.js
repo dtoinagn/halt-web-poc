@@ -4,7 +4,8 @@ const ActiveRegTable = ({
   data,
   activeRegHaltList,
   notExtendedList,
-  onExtendedHaltUpdate
+  onExtendedHaltUpdate,
+  onHaltIdClick
 }) => {
   return (
     <HaltTable
@@ -17,6 +18,7 @@ const ActiveRegTable = ({
       showExtendedCheckbox={true}
       showActionButtons={true}
       renderActionCell={renderActiveRegAction}
+      onHaltIdClick={onHaltIdClick}
     />
   );
 };

@@ -1,27 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Box } from '@mui/material';
-import './Dashboard.css';
-import { useHaltData } from '../../hooks/useHaltData';
-import { useSSE } from '../../hooks/useSSE';
-import LoadingSpinner from '../ui/LoadingSpinner';
-import ErrorMessage from '../ui/ErrorMessage';
-import Notification from '../ui/Notification';
-import DashboardTabs from './components/DashboardTabs';
-import ActiveRegTable from './components/ActiveRegTable';
-import ActiveSSCBTable from './components/ActiveSSCBTable';
-import PendingTable from './components/PendingTable';
-import LiftedTable from './components/LiftedTable';
-import CreateNewHaltModal from './components/CreateNewHaltModal';
+import { useState, useEffect } from "react";
+import { Box } from "@mui/material";
+import "./Dashboard.css";
+import { useHaltData } from "../../hooks/useHaltData";
+import { useSSE } from "../../hooks/useSSE";
+import LoadingSpinner from "../ui/LoadingSpinner";
+import ErrorMessage from "../ui/ErrorMessage";
+import Notification from "../ui/Notification";
+import DashboardTabs from "./components/DashboardTabs";
+import ActiveRegTable from "./components/ActiveRegTable";
+import ActiveSSCBTable from "./components/ActiveSSCBTable";
+import PendingTable from "./components/PendingTable";
+import LiftedTable from "./components/LiftedTable";
+import CreateNewHaltModal from "./components/CreateNewHaltModal";
+import HaltDetailModal from "./components/HaltDetailModal";
 
 const Dashboard = () => {
   // Tab state
-  const [activeTab, setActiveTab] = useState('reg');
+  const [activeTab, setActiveTab] = useState("reg");
   const [newHaltModalOpen, setNewHaltModalOpen] = useState(false);
+  const [haltDetailModalOpen, setHaltDetailModalOpen] = useState(false);
+  const [selectedHalt, setSelectedHalt] = useState(null);
 
   // Window dimensions for responsive design
   const [windowDimensions, setWindowDimensions] = useState({
     height: window.innerHeight,
-    width: window.innerWidth
+    width: window.innerWidth,
   });
 
   // Custom hooks
@@ -44,29 +47,25 @@ const Dashboard = () => {
     setLiftedData,
     setPendingData,
     setActiveRegHaltList,
-    setNotExtendedList
+    setNotExtendedList,
   } = useHaltData();
 
-  const {
-    getSSETicket,
-    notification,
-    showNotification,
-    hideNotification
-  } = useSSE({
-    haltList,
-    activeRegData,
-    activeRegHaltList,
-    activeSSCBData,
-    liftedData,
-    pendingData,
-    notExtendedList,
-    setActiveRegData,
-    setActiveSSCBData,
-    setLiftedData,
-    setPendingData,
-    setActiveRegHaltList,
-    setNotExtendedList
-  });
+  const { getSSETicket, notification, showNotification, hideNotification } =
+    useSSE({
+      haltList,
+      activeRegData,
+      activeRegHaltList,
+      activeSSCBData,
+      liftedData,
+      pendingData,
+      notExtendedList,
+      setActiveRegData,
+      setActiveSSCBData,
+      setLiftedData,
+      setPendingData,
+      setActiveRegHaltList,
+      setNotExtendedList,
+    });
 
   // Initialize SSE on mount
   useEffect(() => {
@@ -78,7 +77,7 @@ const Dashboard = () => {
     const updateDimensions = () => {
       setWindowDimensions({
         height: window.innerHeight,
-        width: window.innerWidth
+        width: window.innerWidth,
       });
     };
 
@@ -94,11 +93,27 @@ const Dashboard = () => {
     setNewHaltModalOpen(false);
   };
 
+  const handleHaltIdClick = (haltData) => {
+    setSelectedHalt(haltData);
+    setHaltDetailModalOpen(true);
+  };
+
+  const handleHaltDetailModalClose = () => {
+    setHaltDetailModalOpen(false);
+    setSelectedHalt(null);
+  };
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
 
-  if (loading && (!activeRegData.length && !activeSSCBData.length && !pendingData.length && !liftedData.length)) {
+  if (
+    loading &&
+    !activeRegData.length &&
+    !activeSSCBData.length &&
+    !pendingData.length &&
+    !liftedData.length
+  ) {
     return <LoadingSpinner message="Loading dashboard data..." />;
   }
 
@@ -116,7 +131,7 @@ const Dashboard = () => {
             activeReg: activeRegData.length,
             activeSSCB: activeSSCBData.length,
             pending: pendingData.length,
-            lifted: liftedData.length
+            lifted: liftedData.length,
           }}
           onNewHaltClick={handleNewHaltModalOpen}
           windowHeight={windowDimensions.height}
@@ -138,25 +153,32 @@ const Dashboard = () => {
             marginLeft: 2,
             marginRight: 1,
             padding: 1,
-            flex: 1
+            flex: 1,
           }}
         >
-          {activeTab === 'reg' && (
+          {activeTab === "reg" && (
             <ActiveRegTable
               data={activeRegData}
               activeRegHaltList={activeRegHaltList}
               notExtendedList={notExtendedList}
               onExtendedHaltUpdate={updateExtendedHaltState}
+              onHaltIdClick={handleHaltIdClick}
             />
           )}
-          {activeTab === 'sscb' && (
-            <ActiveSSCBTable data={activeSSCBData} />
+          {activeTab === "sscb" && (
+            <ActiveSSCBTable
+              data={activeSSCBData}
+              onHaltIdClick={handleHaltIdClick}
+            />
           )}
-          {activeTab === 'pending' && (
-            <PendingTable data={pendingData} />
+          {activeTab === "pending" && (
+            <PendingTable
+              data={pendingData}
+              onHaltIdClick={handleHaltIdClick}
+            />
           )}
-          {activeTab === 'lifted' && (
-            <LiftedTable data={liftedData} />
+          {activeTab === "lifted" && (
+            <LiftedTable data={liftedData} onHaltIdClick={handleHaltIdClick} />
           )}
         </Box>
 
@@ -166,6 +188,12 @@ const Dashboard = () => {
           onClose={hideNotification}
           severity="info"
           autoHideDuration={window.runConfig?.notificationTimeout || 3000}
+        />
+
+        <HaltDetailModal
+          open={haltDetailModalOpen}
+          onClose={handleHaltDetailModalClose}
+          haltData={selectedHalt}
         />
       </div>
     </div>

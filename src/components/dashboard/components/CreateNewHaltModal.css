@@ -10,7 +10,7 @@
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  padding-bottom: 16px !important;
+  padding-bottom: 10px !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
   background-color: #597f7f !important;
 }
@@ -110,4 +110,64 @@
   cursor: not-allowed !important;
   box-shadow: none !important;
   opacity: 0.7 !important;
+}
+
+/* Halt Detail Modal Specific Styles */
+
+/* Dialog Paper Styles */
+.halt-detail-dialog-paper {
+  min-height: 400px !important;
+}
+
+/* Field Row Styles */
+.halt-detail-field-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-left: 44px;
+  padding-right: 44px;
+}
+
+.halt-detail-label {
+  font-size: 0.8125rem;
+  color: #666;
+  font-weight: 500;
+  min-width: 120px;
+  max-width: 120px;
+  margin-right: 8px;
+}
+
+.halt-detail-value-box {
+  flex: 1;
+  border-radius: 4px;
+  padding: 6px 20px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.halt-detail-value-box-gray {
+  background-color: #d3d3d3;
+}
+
+.halt-detail-value-box-white {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+}
+
+.halt-detail-value-text {
+  font-size: 0.8125rem;
+  color: #333;
+  font-weight: 400;
+  word-break: break-word;
+}
+
+.halt-detail-value-text-blue {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+/* Content Grid Spacing */
+.halt-detail-content-grid {
+  margin-top: 0 !important;
 }

@@ -1,6 +1,6 @@
 import HaltTable from './HaltTable';
 
-const LiftedTable = ({ data }) => {
+const LiftedTable = ({ data, onHaltIdClick }) => {
   return (
     <HaltTable
       tableType="lifted"
@@ -8,6 +8,7 @@ const LiftedTable = ({ data }) => {
       showControls={false}
       showExtendedCheckbox={false}
       showActionButtons={false}
+      onHaltIdClick={onHaltIdClick}
     />
   );
 };

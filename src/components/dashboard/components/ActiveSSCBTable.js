@@ -1,6 +1,6 @@
 import HaltTable from './HaltTable';
 
-const ActiveSSCBTable = ({ data }) => {
+const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
   return (
     <HaltTable
       tableType="activeSSCB"
@@ -8,6 +8,7 @@ const ActiveSSCBTable = ({ data }) => {
       showControls={false}
       showExtendedCheckbox={false}
       showActionButtons={false}
+      onHaltIdClick={onHaltIdClick}
     />
   );
 };

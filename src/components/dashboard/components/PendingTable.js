@@ -1,7 +1,7 @@
 import HaltTable from './HaltTable';
 import { Tooltip } from "@mui/material";
 
-const PendingTable = ({ data }) => {
+const PendingTable = ({ data, onHaltIdClick }) => {
   return (
     <HaltTable
       tableType="pending"
@@ -10,6 +10,7 @@ const PendingTable = ({ data }) => {
       showExtendedCheckbox={false}
       showActionButtons={false}
       renderActionCell={renderPendingAction}
+      onHaltIdClick={onHaltIdClick}
     />
   );
 };
