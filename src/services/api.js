@@ -85,8 +85,8 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async updateExtendedHaltState(payload) {
-    const response = await fetch(this.config.apiUpdateExtendedHaltState, {
+  async updateHaltState(payload) {
+    const response = await fetch(this.config.apiUpdateHaltState, {
       method: "POST",
       headers: this.getAuthHeader(),
       body: JSON.stringify(payload),
@@ -113,11 +113,11 @@ class ApiService {
   }
 
   /**
- * Parses API error responses into a user-friendly error message.
- * Handles various error formats from the backend.
- * @param {Object} errorResponse - The error response data from err.response.data
- * @returns {string} - Formatted error message
- */
+   * Parses API error responses into a user-friendly error message.
+   * Handles various error formats from the backend.
+   * @param {Object} errorResponse - The error response data from err.response.data
+   * @returns {string} - Formatted error message
+   */
   parseApiError = (errorResponse) => {
     if (!errorResponse) return "An unknown error occurred.";
 
@@ -125,11 +125,11 @@ class ApiService {
     let errorMessage = "";
 
     // Prioritize detailed message if available
-    if (message && typeof message === 'string') {
+    if (message && typeof message === "string") {
       errorMessage += message;
 
       // Handle field-specific validation errors
-      if (fieldErrors && typeof fieldErrors === 'object') {
+      if (fieldErrors && typeof fieldErrors === "object") {
         const fieldErrorMessages = Object.entries(fieldErrors)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join("\n");
@@ -149,7 +149,6 @@ class ApiService {
     }
     return errorMessage;
   };
-
 }
 
 export const apiService = new ApiService();

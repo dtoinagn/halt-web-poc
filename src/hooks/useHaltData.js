@@ -101,10 +101,10 @@ export const useHaltData = () => {
         remainReason: "",
         resumptionTime: "",
         lastModifiedBy: authUtils.getLoggedInUser() || "",
-        type: "update"
+        type: "update",
       };
 
-      await apiService.updateExtendedHaltState(payload);
+      await apiService.updateHaltState(payload);
       console.log("Extended halt state updated successfully");
 
       return { success: true };

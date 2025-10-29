@@ -12,7 +12,7 @@
   justify-content: space-between !important;
   padding-bottom: 10px !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-  background-color: #597f7f !important;
+  background-color: #95b2b2 !important;
 }
 
 .create-halt-dialog-title-content {
@@ -170,4 +170,117 @@
 /* Content Grid Spacing */
 .halt-detail-content-grid {
   margin-top: 0 !important;
+}
+
+/* Cancel Halt Modal Styles */
+
+.cancel-halt-dialog-paper {
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+  border: 2px solid rgba(0, 0, 0, 0.2) !important;
+  min-width: 500px !important;
+  max-width: 500px !important;
+}
+
+.cancel-halt-dialog-title {
+  padding: 14px 20px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  background-color: #95b2b2 !important;
+}
+
+.cancel-halt-dialog-title-text {
+  font-weight: 600 !important;
+  color: #1a1a1a !important;
+  font-size: 1.1rem !important;
+}
+
+.cancel-halt-dialog-content {
+  padding: 20px 20px 16px 20px !important;
+}
+
+.cancel-halt-confirmation-text {
+  font-size: 0.875rem !important;
+  color: #333 !important;
+  margin-bottom: 20px !important;
+  line-height: 1 !important;
+}
+
+.cancel-halt-field-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cancel-halt-label {
+  font-size: 0.8rem !important;
+  color: #1a1a1a !important;
+  font-weight: 400 !important;
+  min-width: 110px !important;
+  max-width: 110px !important;
+  margin-right: 12px !important;
+}
+
+.cancel-halt-value-box {
+  flex: 1;
+  background-color: #d3d3d3;
+  border-radius: 2px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancel-halt-value-text {
+  font-size: 0.8rem !important;
+  color: #1a1a1a !important;
+  font-weight: 400 !important;
+}
+
+.cancel-halt-dialog-actions {
+  padding: 12px 20px 18px 20px !important;
+  justify-content: right !important;
+  gap: 12px !important;
+}
+
+.cancel-halt-close-button {
+  background-color: white !important;
+  color: #666 !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  border-radius: 6px !important;
+  padding: 5px 32px !important;
+  min-width: 110px !important;
+  font-size: 0.875rem !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+}
+
+.cancel-halt-close-button:hover {
+  background-color: #f5f5f5 !important;
+  border-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.cancel-halt-close-button:disabled {
+  background-color: #e0e0e0 !important;
+  color: #999 !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.cancel-halt-confirm-button {
+  background-color: #6c8f8f !important;
+  color: white !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  border-radius: 6px !important;
+  padding: 5px 32px !important;
+  min-width: 110px !important;
+  font-size: 0.875rem !important;
+}
+
+.cancel-halt-confirm-button:hover {
+  background-color: #5a7a7a !important;
+}
+
+.cancel-halt-confirm-button:disabled {
+  background-color: #bdbdbd !important;
+  color: #f5f5f5 !important;
 }
