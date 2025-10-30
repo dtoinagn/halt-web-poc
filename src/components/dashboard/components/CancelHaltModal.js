@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
+import { formatForBackend } from "../../../utils/dateUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import "./CreateNewHaltModal.css";
 
@@ -36,7 +37,7 @@ const CancelHaltModal = ({ open, onClose, haltData, onHaltCancelled }) => {
         issueName: haltData.issueName || "",
         listingMarket: haltData.listingMarket || "",
         allIssue: haltData.allIssue === "Yes" || haltData.allIssue === true,
-        haltTime: haltData.haltTime || "",
+        haltTime: formatForBackend(haltData.haltTime) || "",
         resumptionTime: haltData.resumptionTime || "",
         extendedHalt: haltData.extendedHalt || false,
         haltReason: haltData.haltReason || "",
