@@ -172,7 +172,7 @@ const HaltTable = ({
                 onClick={() => onHaltIdClick(row)}
                 sx={{
                   color: "#1976d2",
-                  fontWeight: 500,
+                  fontWeight: 550,
                   cursor: "pointer",
                   textDecoration: "none",
                   borderBottom: "1px solid transparent",

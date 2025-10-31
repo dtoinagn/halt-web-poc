@@ -47,7 +47,7 @@
     "issueName": "Meta Platforms, Inc.",
     "listingMarket": "NASDAQ",
     "allIssue": "true",
-    "haltTime": "20250115-09:45:00.766",
+    "haltTime": "20250115-09:45:00.000",
     "resumptionTime": "20250115-10:15:00.000",
     "cancelTime": null,
     "extendedHalt": false,
@@ -236,7 +236,7 @@
     "issueName": "Procter & Gamble Company",
     "listingMarket": "NYSE",
     "allIssue": "false",
-    "haltTime": "2025-01-15 17:00:00.728",
+    "haltTime": "20250115-17:00:00.000",
     "resumptionTime": null,
     "cancelTime": null,
     "extendedHalt": false,
@@ -380,7 +380,7 @@
   {
     "haltId": "HALT019",
     "symbol": "CRM",
-    "issueName": "Salesforce, Inc.",
+    "issueName": "Test Cancel Failure Corp.",
     "listingMarket": "NYSE",
     "allIssue": "true",
     "haltTime": "20250115-16:45:00.000",
@@ -396,7 +396,8 @@
     "lastModifiedBy": "",
     "lastModifiedTime": "",
     "sscbSrc": "",
-    "responseMessage": ""
+    "responseMessage": "",
+    "state": "HaltPendingCancelled"
   },
   {
     "haltId": "HALT020",
@@ -490,7 +491,7 @@
     "allIssue": "false",
     "haltTime": "20251002-15:23:00.000",
     "resumptionTime": "",
-    "createdTime": "20251002-15:20:45.632",
+    "createdTime": "2025-10-30 15:22:55:231",
     "lastModifiedTime": "20251002-15:20:45.632",
     "extendedHalt": false,
     "haltReason": "Failure to Complete a Qualifying Transaction within 24 Months Of Listing",
@@ -505,8 +506,7 @@
     "comment": "#1 new scheduled halt is created",
     "ipAddress": "172.20.1.45",
     "state": "HaltPending"
-  },
-  {
+},{
     "haltId": "AAAJ.P_20251002_83",
     "symbol": "AAAJ.P",
     "issueName": "AAJ Capital 3 Corp.",
@@ -529,15 +529,15 @@
     "comment": "#2 The requested halt is scheduled successfully",
     "ipAddress": "172.20.1.45",
     "state": "HaltScheduled"
-  },
+},
   {
-    "haltId": "AAAJ.P_20251002_83",
+    "haltId": "AAAJ.P_20251002_84",
     "symbol": "AAAJ.P",
     "issueName": "AAJ Capital 3 Corp.",
     "listingMarket": "CDX",
     "allIssue": "false",
-    "haltTime": "20251002-15:23:00.000",
-    "resumptionTime": "",
+    "haltTime": "2025-10-02 15:23:00.000",
+    "resumptionTime": "2025-10-02 16:23:00.078",
     "createdTime": "20251002-15:20:45.632",
     "lastModifiedTime": "20251002-15:23:00.010",
     "extendedHalt": false,
@@ -553,5 +553,5 @@
     "comment": "#3 The scheduled halt is triggered successfully",
     "ipAddress": "172.20.1.45",
     "state": "Halted"
-  }
+}
 ]

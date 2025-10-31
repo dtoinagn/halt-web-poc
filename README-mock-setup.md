@@ -11,7 +11,7 @@ This setup allows you to test the frontend without running the actual backend se
 
 2. **Option A - Run both frontend and mock server together:**
    ```bash
-   npm run dev
+   npm run local
    ```
 
 3. **Option B - Run separately:**
@@ -49,7 +49,7 @@ The mock server runs on `http://localhost:3001` and provides these endpoints:
 - `GET /api/halt-reasons` - Returns mock halt reasons
 - `GET /api/halts/active` - Returns mock active halts data  
 - `POST /api/halt/create` - Mock endpoint for creating halts
-- `POST /api/halt/update-extended` - Mock endpoint for updating halt state
+- `POST /api/halt/update` - Mock endpoint for updating halt state
 - `POST /api/sse/ticket` - Mock SSE ticket endpoint
 - `GET /api/sse/stream/:ticket` - Mock SSE stream endpoint
 

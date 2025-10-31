@@ -16,28 +16,35 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
     setCancelModalOpen(false);
     setSelectedHalt(null);
   };
+  const renderPendingAction = (row) => {
+    // Hide both Edit and Cancel when the halt has been cancelled
+    if (row.state === "HaltPendingCancelled" || row.state === "HaltPendingCancelling") {
+      return null;
+    }
 
-  const renderPendingAction = (row) => (
-    <>
-      <Tooltip
-        title={`Edit Halt: ${row.symbol}-${row.haltId}`}
-        arrow
-      >
-        <button className="halt-action-button">Edit</button>
-      </Tooltip>
-      <Tooltip
-        title={`Cancel Halt: ${row.symbol}-${row.haltId}`}
-        arrow
-      >
-        <button
-          className="halt-action-button-red"
-          onClick={() => handleCancelClick(row)}
+    return (
+      <>
+        <Tooltip
+          title={`Edit Halt: ${row.symbol}-${row.haltId}`}
+          arrow
         >
-          Cancel
-        </button>
-      </Tooltip>
-    </>
-  );
+          <button className="halt-action-button">Edit</button>
+        </Tooltip>
+
+        <Tooltip
+          title={`Cancel Halt: ${row.symbol}-${row.haltId}`}
+          arrow
+        >
+          <button
+            className="halt-action-button-red"
+            onClick={() => handleCancelClick(row)}
+          >
+            Cancel
+          </button>
+        </Tooltip>
+      </>
+    );
+  };
 
   return (
     <>

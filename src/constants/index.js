@@ -5,7 +5,8 @@ export const HALT_STATUSES = {
   RESUMED: 'Resumed',
   RESUMPTION_PENDING: 'ResumptionPending',
   HALT_SCHEDULED: 'HaltScheduled',
-  HALT_PENDING: 'HaltPending'
+  HALT_PENDING: 'HaltPending',
+  HALT_PENDING_CANCELLED: 'HaltPendingCancelled'
 };
 
 export const HALT_TYPES = {
@@ -39,7 +40,7 @@ export const TABLE_COLUMNS = {
     'All Issues', 'Created By', 'Halt Time', 'Sched Resumption Time', 'Action'
   ],
   PENDING: [
-    'Halt Event ID', 'Symbol', 'Issue Name', 'Listing Mkt',
+    'Halt Event ID', 'Symbol','Status', 'Issue Name', 'Listing Mkt',
     'All Issues', 'Created By', 'Sched Halt Time', 'Action'
   ],
   LIFTED: [
@@ -51,6 +52,7 @@ export const TABLE_COLUMNS = {
 export const COLUMN_KEY_MAP = {
   "Halt Event ID": "haltId",
   "Symbol": "symbol",
+  "Status": "status",
   "Issue Name": "issueName",
   "Listing Mkt": "listingMarket",
   "All Issues": "allIssue",

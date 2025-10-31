@@ -49,7 +49,7 @@ export const processHaltData = (data) => {
       haltType === HALT_TYPES.SSCB
     ) {
       processedData.activeSSCBData.push(item);
-    } else if (haltStatus === HALT_STATUSES.HALT_PENDING || haltStatus === HALT_STATUSES.HALT_SCHEDULED) {
+    } else if (haltStatus === HALT_STATUSES.HALT_PENDING || haltStatus === HALT_STATUSES.HALT_SCHEDULED || haltStatus === HALT_STATUSES.HALT_PENDING_CANCELLED) {
       processedData.pendingData.push(item);
     }
 

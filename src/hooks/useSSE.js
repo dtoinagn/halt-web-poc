@@ -217,6 +217,10 @@ export const useSSE = ({
             setNotExtendedList(tempNotExtend);
             showNotificationMessage(`Halt has been marked as extended for ${symbol}`);
           }
+        } else if (haltStatus === HALT_STATUSES.HALT_PENDING || haltStatus === HALT_STATUSES.HALT_PENDING_CANCELLED) {
+          // Update pending halt
+          const tempPending = pendingData.map(obj => obj.haltId === haltId ? sseBody : obj);
+          setPendingData(tempPending);
         }
       }
       // Handle new halts

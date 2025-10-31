@@ -383,7 +383,7 @@ const CreateNewHaltModal = ({
                 label="Issue Name"
                 value={formData.issueName}
                 onChange={(e) => handleFieldChange("issueName", e.target.value)}
-                disabled={loading}
+                disabled={true}
                 fullWidth
                 variant="outlined"
               />
@@ -394,7 +394,7 @@ const CreateNewHaltModal = ({
                 label="Listing Market"
                 value={formData.listingMarket}
                 onChange={(e) => handleFieldChange("listingMarket", e.target.value)}
-                disabled={loading}
+                disabled={true}
                 fullWidth
                 variant="outlined"
               />

@@ -101,7 +101,7 @@ export const useHaltData = () => {
         remainReason: "",
         resumptionTime: "",
         lastModifiedBy: authUtils.getLoggedInUser() || "",
-        type: "update",
+        type: "update"
       };
 
       await apiService.updateHaltState(payload);

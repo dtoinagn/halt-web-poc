@@ -242,6 +242,17 @@ app.post("/api/halt/update", (req, res) => {
       "username": "bdapcevic"
 
     });
+  } else if (req.body.haltId === "HALT019") {
+    console.log("Simulating Cancellation error for HALT019");
+    return res.status(500).json({
+      "timestamp": "2025-10-06T15:32:41.321567",
+      "status": 500,
+      "error": "Scheduler Error",
+      "message": "Something wrong with the halt scheduler, please call support",
+      "path": "/api/halt/update",
+      "username": "bdapcevic"
+
+    });
   }
 
   // Mock successful response for all other halts
@@ -309,7 +320,7 @@ app.listen(PORT, () => {
   console.log("  GET  /api/halt-reasons");
   console.log("  GET  /api/halts/active");
   console.log("  POST /api/halt/create");
-  console.log("  POST /api/halt/update-extended");
+  console.log("  POST /api/halt/update");
   console.log("  POST /api/sse/ticket");
   console.log("  GET  /api/sse/stream/:ticket");
   console.log("");
