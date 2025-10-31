@@ -2,14 +2,26 @@ import { useState } from 'react';
 import HaltTable from './HaltTable';
 import { Tooltip } from "@mui/material";
 import CancelHaltModal from './CancelHaltModal';
+import EditHaltModal from './EditHaltModal';
 
 const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedHalt, setSelectedHalt] = useState(null);
+
+  const handleEditClick = (row) => {
+    setSelectedHalt(row);
+    setEditModalOpen(true);
+  };
 
   const handleCancelClick = (row) => {
     setSelectedHalt(row);
     setCancelModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setEditModalOpen(false);
+    setSelectedHalt(null);
   };
 
   const handleCancelModalClose = () => {
@@ -28,7 +40,12 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
           title={`Edit Halt: ${row.symbol}-${row.haltId}`}
           arrow
         >
-          <button className="halt-action-button">Edit</button>
+          <button
+            className="halt-action-button"
+            onClick={() => handleEditClick(row)}
+          >
+            Edit
+          </button>
         </Tooltip>
 
         <Tooltip
@@ -56,6 +73,12 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
         showActionButtons={false}
         renderActionCell={renderPendingAction}
         onHaltIdClick={onHaltIdClick}
+      />
+      <EditHaltModal
+        open={editModalOpen}
+        onClose={handleEditModalClose}
+        haltData={selectedHalt}
+        onHaltUpdated={onHaltCancelled}
       />
       <CancelHaltModal
         open={cancelModalOpen}

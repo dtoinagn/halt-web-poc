@@ -68,16 +68,28 @@ export const formatDateTimeEST = (
   if (!dateTimeString) return null;
 
   try {
+    let date;
 
     // Check if it's already in compact format (YYYYMMDD-HH:mm:ss.SSS)
     const compactMatch = dateTimeString.match(
       /^(\d{8})-(\d{2}):(\d{2}):(\d{2})\.(\d{3})$/
     );
     if (compactMatch) {
-      return dateTimeString; // Already in backend format
+      // If requesting backend format and already in that format, return as-is
+      if (format === DATETIME_FORMATS.BACKEND) {
+        return dateTimeString;
+      }
+      // Parse the compact format for other formats
+      const [, dateStr, hours, minutes, seconds, milliseconds] = compactMatch;
+      const year = dateStr.substring(0, 4);
+      const month = dateStr.substring(4, 6);
+      const day = dateStr.substring(6, 8);
+      const isoString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
+      date = dayjs.tz(isoString, EST_ZONE);
+    } else {
+      // Parse and convert to EST timezone
+      date = dayjs.tz(dateTimeString, EST_ZONE);
     }
-    // Parse and convert to EST timezone
-    const date = dayjs.tz(dateTimeString, EST_ZONE);
 
     // Check if the parsed date is valid
     if (!date.isValid()) {
