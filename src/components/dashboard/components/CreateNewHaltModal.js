@@ -168,8 +168,6 @@ const CreateNewHaltModal = ({
         type: formData.immediateHalt ? "live" : "schedule",
       };
 
-      console.log("Creating new halt with payload:", payload);
-
       await apiService.createNewHalt(payload);
 
       // Refresh the dashboard data
@@ -346,7 +344,7 @@ const CreateNewHaltModal = ({
             </Box>
           )}
 
-          <Grid container spacing={2} sx={{ mt: 0.5 }}>
+          <Grid container spacing={3} sx={{ mt: 1 }}>
             <Grid item xs={12} md={6}>
               <Autocomplete
                 freeSolo={true} // Allow free text input
@@ -373,7 +371,6 @@ const CreateNewHaltModal = ({
                     fullWidth
                     variant="outlined"
                     error={!symbolInput && !!error}
-                    size="small"
                   />
                 )}
               />
@@ -387,7 +384,6 @@ const CreateNewHaltModal = ({
                 disabled={true}
                 fullWidth
                 variant="outlined"
-                size="small"
               />
             </Grid>
 
@@ -399,7 +395,6 @@ const CreateNewHaltModal = ({
                 disabled={true}
                 fullWidth
                 variant="outlined"
-                size="small"
               />
             </Grid>
 
@@ -414,7 +409,6 @@ const CreateNewHaltModal = ({
                 variant="outlined"
                 error={!formData.allIssue && !!error}
                 required
-                size="small"
               >
                 <MenuItem value="Yes">Yes</MenuItem>
                 <MenuItem value="No">No</MenuItem>
@@ -432,7 +426,6 @@ const CreateNewHaltModal = ({
                 variant="outlined"
                 error={!formData.haltTime && !!error}
                 InputLabelProps={{ shrink: true }}
-                size="small"
                 inputProps={{
                   // Set default value in EST when popup opens
                   value: formData.haltTime || getCurrentDateTime(),
@@ -465,14 +458,12 @@ const CreateNewHaltModal = ({
                   handleFieldChange("haltReason", newValue)
                 }
                 disabled={loading}
-                size="small"
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     label="Halt Reason"
                     fullWidth
                     variant="outlined"
-                    size="small"
                   />
                 )}
               />
@@ -494,7 +485,7 @@ const CreateNewHaltModal = ({
           </Grid> */}
 
             <Grid item xs={12} md={6}>
-              <TextField label="Halt Type" value="REG" fullWidth disabled size="small" />
+              <TextField label="Halt Type" value="REG" fullWidth disabled />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
@@ -502,7 +493,6 @@ const CreateNewHaltModal = ({
                 value={formData.createdBy}
                 fullWidth
                 disabled
-                size="small"
               />
             </Grid>
             <Grid item xs={12}>
@@ -513,9 +503,8 @@ const CreateNewHaltModal = ({
                 disabled={loading}
                 fullWidth
                 multiline
-                rows={2}
+                rows={3}
                 variant="outlined"
-                size="small"
               />
             </Grid>
           </Grid>

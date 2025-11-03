@@ -88,7 +88,7 @@ export const COLUMN_KEY_MAP = {
   "Halt Time": "haltTime",
   "Sched Resumption Time": "resumptionTime",
   Extd: "extendedHalt",
-  "Sched Halt Time": "haltTime",
+  "Sched Halt Time": "haltTime"
 };
 
 export const DEFAULT_SORT_PREFERENCES = {

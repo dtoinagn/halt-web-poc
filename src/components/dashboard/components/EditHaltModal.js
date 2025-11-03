@@ -29,7 +29,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     haltTime: haltData?.haltTime || "",
-    allIssue: haltData?.allIssue === "Yes" || haltData?.allIssue === true ? "Yes" : "No",
+    allIssue: haltData?.allIssue === "Yes" || haltData?.allIssue === "true" ? "Yes" : "No",
   });
 
   // Update form data when haltData changes
@@ -40,7 +40,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
       console.log("Formatted haltTime:", formattedHaltTime);
       setFormData({
         haltTime: formattedHaltTime || "",
-        allIssue: haltData.allIssue === "Yes" || haltData.allIssue === true ? "Yes" : "No",
+        allIssue: haltData.allIssue === "Yes" || haltData.allIssue === "true" ? "Yes" : "No",
       });
     }
   }, [haltData]);
@@ -87,7 +87,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
         symbol: haltData.symbol || "",
         issueName: haltData.issueName || "",
         listingMarket: haltData.listingMarket || "",
-        allIssue: formData.allIssue === "Yes",
+        allIssue: formData.allIssue === "Yes" ? "true" : "false",
         haltTime: formatForBackend(formData.haltTime) || "",
         resumptionTime: formatForBackend(haltData.resumptionTime) || "",
         extendedHalt: haltData.extendedHalt || false,
@@ -220,7 +220,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
           onClick={handleConfirm}
           disabled={loading}
           variant="contained"
-          className="cancel-halt-confirm-button"
+          className="create-halt-submit-button"
         >
           {loading ? "Updating..." : "Confirm"}
         </Button>
