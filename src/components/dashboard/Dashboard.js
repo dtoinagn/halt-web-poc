@@ -163,6 +163,7 @@ const Dashboard = () => {
               notExtendedList={notExtendedList}
               onExtendedHaltUpdate={updateExtendedHaltState}
               onHaltIdClick={handleHaltIdClick}
+              securities={securities}
             />
           )}
           {activeTab === "sscb" && (

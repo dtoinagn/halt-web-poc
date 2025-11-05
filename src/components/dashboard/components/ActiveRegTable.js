@@ -8,7 +8,8 @@ const ActiveRegTable = ({
   activeRegHaltList,
   notExtendedList,
   onExtendedHaltUpdate,
-  onHaltIdClick
+  onHaltIdClick,
+  securities = []
 }) => {
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
   const [selectedHalt, setSelectedHalt] = useState(null);
@@ -68,6 +69,7 @@ const ActiveRegTable = ({
         onClose={handleResumeModalClose}
         haltData={selectedHalt}
         onHaltUpdated={onExtendedHaltUpdate}
+        securities={securities}
       />
     </>
   );

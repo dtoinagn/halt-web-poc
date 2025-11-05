@@ -10,6 +10,7 @@ import {
   TextField,
   Checkbox,
   FormControlLabel,
+  Autocomplete,
 } from "@mui/material";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
@@ -25,11 +26,14 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const EST_ZONE = "America/New_York";
 
-const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
+const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = [] }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [symbolInput, setSymbolInput] = useState("");
   const [formData, setFormData] = useState({
-    symbol: "",
+    security: null,
+    issueName: "",
+    listingMarket: "",
     immediateResumption: false,
     resumptionTime: "",
   });
@@ -40,13 +44,22 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
       const formattedResumptionTime = formatForDateTimeLocal(haltData.resumptionTime);
       console.log("Original resumptionTime:", haltData.resumptionTime);
       console.log("Formatted resumptionTime:", formattedResumptionTime);
+
+      // Find matching security
+      const matchedSecurity = securities.find(
+        (sec) => sec.symbol.toLowerCase() === (haltData.symbol || "").toLowerCase()
+      );
+
+      setSymbolInput(haltData.symbol || "");
       setFormData({
-        symbol: haltData.symbol || "",
+        security: matchedSecurity || null,
+        issueName: haltData.issueName || "",
+        listingMarket: haltData.listingMarket || "",
         immediateResumption: false,
         resumptionTime: formattedResumptionTime || "",
       });
     }
-  }, [haltData]);
+  }, [haltData, securities]);
 
   const handleClose = useCallback(() => {
     if (!loading) {
@@ -62,6 +75,61 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
     }));
   }, []);
 
+  const handleSymbolChange = useCallback((event, newValue) => {
+    // newValue is the selected option (object from dropdown or null)
+    if (newValue && typeof newValue === "object") {
+      // User selected from dropdown
+      setFormData((prev) => ({
+        ...prev,
+        security: newValue,
+        issueName: newValue.securityName || newValue.issueName || "",
+        listingMarket: newValue.listingMarket || "",
+      }));
+      setSymbolInput(newValue.symbol || "");
+    } else {
+      // User cleared the selection
+      setFormData((prev) => ({
+        ...prev,
+        security: null,
+        issueName: "",
+        listingMarket: "",
+      }));
+      setSymbolInput("");
+    }
+  }, []);
+
+  const handleSymbolInputChange = useCallback(
+    (event, newInputValue) => {
+      // newInputValue is the typed text
+      setSymbolInput(newInputValue);
+
+      // Check if the input matches any security from the dropdown
+      const matchedSecurity = securities.find(
+        (sec) => sec.symbol.toLowerCase() === newInputValue.toLowerCase()
+      );
+
+      if (matchedSecurity) {
+        // If it matches a security, set it
+        setFormData((prev) => ({
+          ...prev,
+          security: matchedSecurity,
+          issueName:
+            matchedSecurity.securityName || matchedSecurity.issueName || "",
+          listingMarket: matchedSecurity.listingMarket || "",
+        }));
+      } else {
+        // If it doesn't match, clear security but keep the input
+        setFormData((prev) => ({
+          ...prev,
+          security: null,
+          issueName: "",
+          listingMarket: "",
+        }));
+      }
+    },
+    [securities]
+  );
+
   const handleImmediateResumptionChange = useCallback((checked) => {
     setFormData((prev) => ({
       ...prev,
@@ -76,7 +144,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
 
     try {
       // Validate symbol
-      if (!formData.symbol || !formData.symbol.trim()) {
+      if (!symbolInput || !symbolInput.trim()) {
         throw new Error("Please enter a symbol");
       }
 
@@ -114,9 +182,9 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
       // Build the payload matching the update request structure
       const payload = {
         haltId: haltData.haltId || "",
-        symbol: formData.symbol.trim() || "",
-        issueName: haltData.issueName || "",
-        listingMarket: haltData.listingMarket || "",
+        symbol: symbolInput.trim() || "",
+        issueName: formData.issueName || "",
+        listingMarket: formData.listingMarket || "",
         allIssue: haltData.allIssue === "Yes" ? "true" : "false",
         haltTime: formatForBackend(haltData.haltTime) || "",
         resumptionTime: formData.immediateResumption
@@ -155,7 +223,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
     } finally {
       setLoading(false);
     }
-  }, [haltData, formData, onHaltUpdated, handleClose]);
+  }, [haltData, formData, symbolInput, onHaltUpdated, handleClose]);
 
   return (
     <Dialog
@@ -201,21 +269,44 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
           <Typography className="cancel-halt-label">
             Symbol <span style={{ color: "red" }}>*</span>
           </Typography>
-          <TextField
-            fullWidth
-            value={formData.symbol}
-            onChange={(e) => handleFieldChange("symbol", e.target.value)}
-            disabled={loading}
-            InputLabelProps={{ shrink: true }}
-            InputProps={{
-              style: { backgroundColor: "white", height: "36px" },
-            }}
-          />
+          <Box sx={{ flex: 1 }}>
+            <Autocomplete
+              freeSolo={true} // Allow free text input
+              options={securities}
+              getOptionLabel={(option) => {
+                return option.symbol || "";
+              }}
+              value={formData.security}
+              inputValue={symbolInput}
+              onChange={handleSymbolChange}
+              onInputChange={handleSymbolInputChange}
+              disabled={loading}
+              filterOptions={(options, { inputValue }) =>
+                options.filter((option) =>
+                  option.symbol
+                    .toLowerCase()
+                    .startsWith(inputValue.toLowerCase())
+                )
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  fullWidth
+                  variant="outlined"
+                  error={!symbolInput && !!error}
+                  InputProps={{
+                    ...params.InputProps,
+                    style: { backgroundColor: "white", height: "36px" },
+                  }}
+                />
+              )}
+            />
+          </Box>
         </Box>
 
-        <HaltModalField label="Issue Name" value={haltData?.issueName} />
+        <HaltModalField label="Issue Name" value={formData.issueName} />
 
-        <HaltModalField label="Listing Market" value={haltData?.listingMarket} />
+        <HaltModalField label="Listing Market" value={formData.listingMarket} />
 
         <HaltModalField
           label="All Issues"
