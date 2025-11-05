@@ -30,6 +30,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [symbolInput, setSymbolInput] = useState("");
+  const [originalSymbol, setOriginalSymbol] = useState("");
   const [formData, setFormData] = useState({
     security: null,
     issueName: "",
@@ -50,7 +51,9 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
         (sec) => sec.symbol.toLowerCase() === (haltData.symbol || "").toLowerCase()
       );
 
-      setSymbolInput(haltData.symbol || "");
+      const originalSymbolValue = haltData.symbol || "";
+      setOriginalSymbol(originalSymbolValue);
+      setSymbolInput(originalSymbolValue);
       setFormData({
         security: matchedSecurity || null,
         issueName: haltData.issueName || "",
@@ -128,6 +131,41 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
       }
     },
     [securities]
+  );
+
+  const handleSymbolKeyDown = useCallback(
+    (event) => {
+      if (event.key === "Escape") {
+        // Restore original symbol value
+        setSymbolInput(originalSymbol);
+
+        // Find the original security
+        const originalSecurity = securities.find(
+          (sec) => sec.symbol.toLowerCase() === originalSymbol.toLowerCase()
+        );
+
+        if (originalSecurity) {
+          setFormData((prev) => ({
+            ...prev,
+            security: originalSecurity,
+            issueName: originalSecurity.securityName || originalSecurity.issueName || "",
+            listingMarket: originalSecurity.listingMarket || "",
+          }));
+        } else {
+          // If original symbol doesn't match any security, restore with original halt data
+          setFormData((prev) => ({
+            ...prev,
+            security: null,
+            issueName: haltData?.issueName || "",
+            listingMarket: haltData?.listingMarket || "",
+          }));
+        }
+
+        // Prevent the ESC from closing the modal
+        event.stopPropagation();
+      }
+    },
+    [originalSymbol, securities, haltData]
   );
 
   const handleImmediateResumptionChange = useCallback((checked) => {
@@ -294,9 +332,14 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
                   fullWidth
                   variant="outlined"
                   error={!symbolInput && !!error}
+                  onKeyDown={handleSymbolKeyDown}
+                  helperText="Press ESC to restore original value"
                   InputProps={{
                     ...params.InputProps,
                     style: { backgroundColor: "white", height: "36px" },
+                  }}
+                  FormHelperTextProps={{
+                    style: { fontSize: "0.7rem", marginTop: "2px" }
                   }}
                 />
               )}
