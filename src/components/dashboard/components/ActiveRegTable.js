@@ -29,7 +29,7 @@ const renderActiveRegAction = (row) => (
       title={`Schedule a resumption: ${row.symbol}-${row.haltId}`}
       arrow
     >
-      <button className="halt-action-button">Resume Trading</button>
+      <button className="halt-action-button">Create/Edit Resumption</button>
     </Tooltip>
     {row.resumptionTime ? (
       <Tooltip

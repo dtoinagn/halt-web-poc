@@ -411,7 +411,7 @@
     "extendedHalt": false,
     "haltReason": "Single Stock Trading Pause in Effect",
     "remainReason": "",
-    "status": "Resumed",
+    "status": "ResumptionPending",
     "haltType": "SSCB",
     "createdBy": "yjohnson",
     "createdTime": "20250115-08:30:00.000",

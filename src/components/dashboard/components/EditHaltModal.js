@@ -29,7 +29,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     haltTime: haltData?.haltTime || "",
-    allIssue: haltData?.allIssue === "Yes" || haltData?.allIssue === "true" ? "Yes" : "No",
+    allIssue: (haltData?.allIssue === "Yes" || haltData?.allIssue === "true") ? "Yes" : "No",
   });
 
   // Update form data when haltData changes
@@ -40,7 +40,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
       console.log("Formatted haltTime:", formattedHaltTime);
       setFormData({
         haltTime: formattedHaltTime || "",
-        allIssue: haltData.allIssue === "Yes" || haltData.allIssue === "true" ? "Yes" : "No",
+        allIssue: (haltData.allIssue === "Yes" || haltData.allIssue === "true") ? "Yes" : "No",
       });
     }
   }, [haltData]);
