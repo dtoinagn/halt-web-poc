@@ -152,7 +152,9 @@ const Dashboard = () => {
             marginTop: -0.1,
             marginLeft: 2,
             marginRight: 1,
-            padding: 1,
+            paddingX: 1,
+            paddingTop: 0.5,
+            paddingBottom: 1,
             flex: 1,
           }}
         >
