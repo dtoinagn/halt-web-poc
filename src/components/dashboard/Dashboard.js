@@ -149,7 +149,7 @@ const Dashboard = () => {
             height: "100%",
             width: "98%",
             bgcolor: "#6d8b89",
-            marginTop: -0.9,
+            marginTop: -0.1,
             marginLeft: 2,
             marginRight: 1,
             padding: 1,

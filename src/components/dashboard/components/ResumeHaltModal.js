@@ -14,7 +14,11 @@ import {
 } from "@mui/material";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
-import { formatForBackend, formatForDateTimeLocal, compareDateTimeToSecond } from "../../../utils/dateUtils";
+import {
+  formatForBackend,
+  formatForDateTimeLocal,
+  compareDateTimeToSecond,
+} from "../../../utils/dateUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import HaltModalField from "./HaltModalField";
 import "./CreateNewHaltModal.css";
@@ -26,7 +30,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const EST_ZONE = "America/New_York";
 
-const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = [] }) => {
+const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [symbolInput, setSymbolInput] = useState("");
@@ -42,13 +46,16 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
   // Update form data when haltData changes
   useEffect(() => {
     if (haltData) {
-      const formattedResumptionTime = formatForDateTimeLocal(haltData.resumptionTime);
+      const formattedResumptionTime = formatForDateTimeLocal(
+        haltData.resumptionTime
+      );
       console.log("Original resumptionTime:", haltData.resumptionTime);
       console.log("Formatted resumptionTime:", formattedResumptionTime);
 
       // Find matching security
       const matchedSecurity = securities.find(
-        (sec) => sec.symbol.toLowerCase() === (haltData.symbol || "").toLowerCase()
+        (sec) =>
+          sec.symbol.toLowerCase() === (haltData.symbol || "").toLowerCase()
       );
 
       const originalSymbolValue = haltData.symbol || "";
@@ -148,7 +155,8 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
           setFormData((prev) => ({
             ...prev,
             security: originalSecurity,
-            issueName: originalSecurity.securityName || originalSecurity.issueName || "",
+            issueName:
+              originalSecurity.securityName || originalSecurity.issueName || "",
             listingMarket: originalSecurity.listingMarket || "",
           }));
         } else {
@@ -249,11 +257,6 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
 
       await apiService.updateHaltState(payload);
 
-      // Refresh the dashboard data
-      if (onHaltUpdated) {
-        await onHaltUpdated();
-      }
-
       handleClose();
     } catch (err) {
       console.error("Failed to resume halt:", err);
@@ -261,7 +264,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
     } finally {
       setLoading(false);
     }
-  }, [haltData, formData, symbolInput, onHaltUpdated, handleClose]);
+  }, [haltData, formData, symbolInput, handleClose]);
 
   return (
     <Dialog
@@ -339,7 +342,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
                     style: { backgroundColor: "white", height: "36px" },
                   }}
                   FormHelperTextProps={{
-                    style: { fontSize: "0.7rem", marginTop: "2px" }
+                    style: { fontSize: "0.7rem", marginTop: "2px" },
                   }}
                 />
               )}
@@ -353,15 +356,26 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
 
         <HaltModalField
           label="All Issues"
-          value={haltData?.allIssue === "Yes" || haltData?.allIssue === "true" ? "Yes" : "No"}
+          value={
+            haltData?.allIssue === "Yes" || haltData?.allIssue === "true"
+              ? "Yes"
+              : "No"
+          }
         />
 
         <HaltModalField
           label="Halt Time"
-          value={haltData?.haltTime ? dayjs(haltData.haltTime).format("YYYY-MM-DD HH:mm:ss.SSS") : ""}
+          value={
+            haltData?.haltTime
+              ? dayjs(haltData.haltTime).format("YYYY-MM-DD HH:mm:ss.SSS")
+              : ""
+          }
         />
 
-        <Box className="cancel-halt-field-container" sx={{ alignItems: "flex-start" }}>
+        <Box
+          className="cancel-halt-field-container"
+          sx={{ alignItems: "flex-start" }}
+        >
           <Typography className="cancel-halt-label" sx={{ paddingTop: "8px" }}>
             Immediate Resumption
           </Typography>
@@ -369,7 +383,9 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
             control={
               <Checkbox
                 checked={formData.immediateResumption}
-                onChange={(e) => handleImmediateResumptionChange(e.target.checked)}
+                onChange={(e) =>
+                  handleImmediateResumptionChange(e.target.checked)
+                }
                 disabled={loading}
               />
             }
@@ -386,7 +402,9 @@ const ResumeHaltModal = ({ open, onClose, haltData, onHaltUpdated, securities = 
             fullWidth
             type="datetime-local"
             value={formData.resumptionTime}
-            onChange={(e) => handleFieldChange("resumptionTime", e.target.value)}
+            onChange={(e) =>
+              handleFieldChange("resumptionTime", e.target.value)
+            }
             disabled={loading || formData.immediateResumption}
             InputLabelProps={{ shrink: true }}
             InputProps={{
