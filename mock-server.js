@@ -180,6 +180,13 @@ app.get("/api/halt-reasons", (req, res) => {
   res.json(haltReasons);
 });
 
+// Fetch halt remain reasons endpoint
+app.get("/api/halt-remain-reasons", (req, res) => {
+  console.log("GET /api/halt-remain-reasons");
+  const haltRemainReasons = readJsonFile("halt-remain-reasons.json");
+  res.json(haltRemainReasons);
+});
+
 // Fetch active halts endpoint
 app.get("/api/halts/active", (req, res) => {
   console.log("GET /api/halts/active");
@@ -318,6 +325,7 @@ app.listen(PORT, () => {
   console.log("API:");
   console.log("  GET  /api/securities");
   console.log("  GET  /api/halt-reasons");
+  console.log("  GET  /api/halt-remain-reasons");
   console.log("  GET  /api/halts/active");
   console.log("  POST /api/halt/create");
   console.log("  POST /api/halt/update");

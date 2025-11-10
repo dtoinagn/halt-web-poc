@@ -118,6 +118,38 @@ export const useHaltData = () => {
     }
   };
 
+  const updateRemainedHaltState = async (haltId, remainedHalt, remainReason) => {
+    try {
+      // Find the halt data
+      const haltData = activeRegData.find((obj) => obj.haltId === haltId);
+      if (!haltData) {
+        throw new Error("Halt not found");
+      }
+
+      // Update local state optimistically
+      const updatedHaltData = {
+        ...haltData,
+        remained: remainedHalt,
+        remainReason: remainReason
+      };
+      const updatedActiveRegData = activeRegData.map((obj) =>
+        obj.haltId === haltId ? updatedHaltData : obj
+      );
+      setActiveRegData(updatedActiveRegData);
+
+      console.log("Remained halt state updated successfully in local state");
+
+      return { success: true };
+    } catch (err) {
+      console.error("Error updating remained halt state:", err);
+      let errorMessage = err.message;
+      console.log(`Failed to update remained halt state: ${errorMessage}`);
+      // Revert optimistic update on error
+      fetchActiveHalts();
+      return { success: false, error: errorMessage };
+    }
+  };
+
   // Initialize data on mount
   useEffect(() => {
     fetchActiveHalts();
@@ -147,6 +179,7 @@ export const useHaltData = () => {
     fetchSecurities,
     fetchHaltReasons,
     updateExtendedHaltState,
+    updateRemainedHaltState,
 
     // Setters for SSE updates
     setActiveRegData,

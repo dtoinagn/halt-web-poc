@@ -42,6 +42,7 @@ const Dashboard = () => {
     error,
     fetchActiveHalts,
     updateExtendedHaltState,
+    updateRemainedHaltState,
     setActiveRegData,
     setActiveSSCBData,
     setLiftedData,
@@ -162,6 +163,7 @@ const Dashboard = () => {
               activeRegHaltList={activeRegHaltList}
               notExtendedList={notExtendedList}
               onExtendedHaltUpdate={updateExtendedHaltState}
+              onRemainedHaltUpdate={updateRemainedHaltState}
               onHaltIdClick={handleHaltIdClick}
               securities={securities}
             />

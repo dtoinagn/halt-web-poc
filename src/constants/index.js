@@ -28,6 +28,7 @@ export const HALT_ACTIONS = {
   CANCEL_HALT: "CancelHalt",
   SCHEDULE_HALT: "ScheduleHalt",
   EDIT_SCHEDULED_HALT: "ModifyScheduledHalt",
+  REMAINED_HALT: "RemainedHalt",
 };
 
 export const TABLE_COLUMNS = {

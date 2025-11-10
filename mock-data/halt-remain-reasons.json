@@ -1,0 +1,30 @@
+[
+  {
+    "id": "REMAIN001",
+    "description": "Pending regulatory review"
+  },
+  {
+    "id": "REMAIN002",
+    "description": "Awaiting company disclosure"
+  },
+  {
+    "id": "REMAIN003",
+    "description": "Investigation in progress"
+  },
+  {
+    "id": "REMAIN004",
+    "description": "Additional information required"
+  },
+  {
+    "id": "REMAIN005",
+    "description": "Market stability concerns"
+  },
+  {
+    "id": "REMAIN006",
+    "description": "Exchange technical issues"
+  },
+  {
+    "id": "REMAIN007",
+    "description": "Awaiting third-party verification"
+  }
+]

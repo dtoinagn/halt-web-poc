@@ -85,6 +85,23 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  async fetchHaltRemainReasons() {
+    const response = await fetch(this.config.apiFetchHaltRemainReasons, {
+      method: "GET",
+      headers: this.getAuthHeader(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateHalt(payload) {
+    const response = await fetch(this.config.apiHaltUpdate, {
+      method: "POST",
+      headers: this.getAuthHeader(),
+      body: JSON.stringify(payload),
+    });
+    return this.handleResponse(response);
+  }
+
   async updateHaltState(payload) {
     const response = await fetch(this.config.apiUpdateHaltState, {
       method: "POST",

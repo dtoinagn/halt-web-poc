@@ -8,6 +8,7 @@ const ActiveRegTable = ({
   activeRegHaltList,
   notExtendedList,
   onExtendedHaltUpdate,
+  onRemainedHaltUpdate,
   onHaltIdClick,
   securities = []
 }) => {
@@ -58,6 +59,7 @@ const ActiveRegTable = ({
         activeRegHaltList={activeRegHaltList}
         notExtendedList={notExtendedList}
         onExtendedHaltUpdate={onExtendedHaltUpdate}
+        onRemainedHaltUpdate={onRemainedHaltUpdate}
         showControls={true}
         showExtendedCheckbox={true}
         showActionButtons={true}
