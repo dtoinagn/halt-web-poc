@@ -5,6 +5,8 @@ window.runConfig = {
   apiFetchHaltReasons: "http://localhost:3001/api/halt-reasons",
   apiNewHalt: "http://localhost:3001/api/halt/create",
   apiUpdateHaltState: "http://localhost:3001/api/halt/update",
+  apiCreateResumption: 'http://localhost:3001/api/resume/create',
+  apiUpdateResumption: 'http://localhost:3001/api/resume/update',
   apiSSEticket: "http://localhost:3001/api/sse/ticket",
   apiSSEstream: "http://localhost:3001/api/sse/stream/",
 

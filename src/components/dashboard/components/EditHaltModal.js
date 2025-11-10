@@ -92,6 +92,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
         resumptionTime: formatForBackend(haltData.resumptionTime) || "",
         extendedHalt: haltData.extendedHalt || false,
         haltReason: haltData.haltReason || "",
+        remained: haltData.remained || false,
         remainReason: haltData.remainReason || "",
         status: haltData.status || "HaltPending",
         state: haltData.state || "HaltScheduled",
@@ -104,7 +105,6 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
         responseMessage: haltData.responseMessage || "",
         action: HALT_ACTIONS.EDIT_SCHEDULED_HALT,
         comment: "",
-        type: "update",
       };
 
       console.log("Editing halt with payload:", payload);

@@ -68,7 +68,6 @@ const ActiveRegTable = ({
         open={resumeModalOpen}
         onClose={handleResumeModalClose}
         haltData={selectedHalt}
-        onHaltUpdated={onExtendedHaltUpdate}
         securities={securities}
       />
     </>

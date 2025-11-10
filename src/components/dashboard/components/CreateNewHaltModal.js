@@ -114,8 +114,13 @@ const CreateNewHaltModal = ({
           throw new Error("Halt time must be within today");
         }
       }
-      // If all validations pass, open confirmation dialog
-      setConfirmOpen(true);
+      // If all validations pass, open confirmation dialog for immediate halt only
+      if (formData.immediateHalt) {
+        setConfirmOpen(true);
+      } else{
+        // Directly submit for scheduled halts
+        handleSubmit();
+      }
     } catch (error) {
       setError(error.message);
     }
@@ -165,7 +170,6 @@ const CreateNewHaltModal = ({
           ? HALT_ACTIONS.CREATE_IMMEDIATE_HALT
           : HALT_ACTIONS.CREATE_SCHEDULED_HALT,
         comment: formData.comment || "",
-        type: formData.immediateHalt ? "live" : "schedule",
       };
 
       await apiService.createNewHalt(payload);

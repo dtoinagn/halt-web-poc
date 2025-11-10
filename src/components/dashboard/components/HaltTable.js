@@ -107,6 +107,16 @@ const HaltTable = ({
       symbol: row.symbol,
     });
   };
+  const handleRemainChange = (row, index) => {
+    // Directly update remained state without confirmation
+    setConfirmDialog({
+      open: true,
+      rowIndex: index,
+      newValue: !row.remained,
+      haltId: row.haltId,
+      symbol: row.symbol,
+    });
+  };
 
   const handleConfirmDialog = async () => {
     if (confirmDialog.haltId && onExtendedHaltUpdate) {
@@ -229,7 +239,19 @@ const HaltTable = ({
             />
           </TableCell>
         );
-
+      case "Remained":
+        return (
+          <TableCell
+            key={idx}
+            sx={{ padding: "2px 4px", minWidth: "40px", maxWidth: "60px" }}
+          >
+            <Checkbox
+              checked={row.remained || false}
+              onChange={() => handleRemainChange(row, idx)}
+              size="small"
+            />
+          </TableCell>
+        );
       case "Action":
         return (
           <TableCell

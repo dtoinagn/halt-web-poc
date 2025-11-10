@@ -41,6 +41,7 @@ export const TABLE_COLUMNS = {
     "Halt Time",
     "Sched Resumption Time",
     "Extd",
+    "Remained",
     "Action",
   ],
   ACTIVE_SSCB: [
@@ -88,6 +89,7 @@ export const COLUMN_KEY_MAP = {
   "Halt Time": "haltTime",
   "Sched Resumption Time": "resumptionTime",
   Extd: "extendedHalt",
+  Remained: "remained",
   "Sched Halt Time": "haltTime"
 };
 

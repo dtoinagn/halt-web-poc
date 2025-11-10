@@ -53,7 +53,6 @@ const CancelHaltModal = ({ open, onClose, haltData, onHaltCancelled }) => {
         responseMessage: haltData.responseMessage || "",
         action: HALT_ACTIONS.CANCEL_SCHEDULED_HALT,
         comment: "",
-        type: "update",
       };
 
       console.log("Cancelling halt with payload:", payload);
