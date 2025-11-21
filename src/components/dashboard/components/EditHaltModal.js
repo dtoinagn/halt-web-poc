@@ -24,7 +24,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const EST_ZONE = "America/New_York";
 
-const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
+const EditHaltModal = ({ open, onClose, haltData }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
@@ -104,16 +104,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
         action: HALT_ACTIONS.EDIT_SCHEDULED_HALT,
         comment: "",
       };
-
-      console.log("Editing halt with payload:", payload);
-
       await apiService.updateHalt(payload);
-
-      // Refresh the dashboard data
-      if (onHaltUpdated) {
-        await onHaltUpdated();
-      }
-
       handleClose();
     } catch (err) {
       console.error("Failed to edit halt:", err);
@@ -121,7 +112,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
     } finally {
       setLoading(false);
     }
-  }, [haltData, formData, onHaltUpdated, handleClose]);
+  }, [haltData, formData, handleClose]);
 
   return (
     <Dialog

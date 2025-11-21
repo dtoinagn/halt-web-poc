@@ -59,7 +59,7 @@ const CreateNewHaltModal = ({
   securities = [],
   haltReasons = [],
   onHaltCreated,
-  checkExistingHaltsForSymbol,
+  checkExistingHaltsForSymbol
 }) => {
   const [formData, setFormData] = useState(getInitialFormData);
   const [symbolInput, setSymbolInput] = useState("");
@@ -67,7 +67,6 @@ const CreateNewHaltModal = ({
   const [error, setError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [symbolError, setSymbolError] = useState("");
-  const [existingHaltsWarning, setExistingHaltsWarning] = useState(null);
 
   // Memoize helper functions
   const getCurrentDateTime = useCallback(() => {
@@ -90,68 +89,6 @@ const CreateNewHaltModal = ({
       onClose();
     }
   }, [loading, onClose]);
-
-  // Validate and show confirmation dialog before submitting
-  const handleCreateClick = useCallback(() => {
-    setError("");
-    try {
-      // Validate required fields
-      if (!symbolInput || symbolInput.trim() === "") {
-        throw new Error("Please enter a symbol");
-      }
-
-      // Check for existing active or pending halts for the symbol
-      const existingActiveHalts = checkExistingHaltsForSymbol(symbolInput);
-      if (existingActiveHalts.hasActiveHalts) {
-        throw new Error(
-          `An active halt already exists for symbol ${symbolInput}`
-        );
-      }
-      if (existingActiveHalts.hasScheduledHalts) {
-        throw new Error(
-          `A scheduled halt already exists for symbol ${symbolInput}, please cancel it before creating a new halt.`
-        );
-      }
-
-      if (!formData.immediateHalt && !formData.haltTime) {
-        throw new Error("Please select a halt time for scheduled halt");
-      }
-      if (!formData.allIssue) {
-        throw new Error("Please select if halt is for all issues");
-      }
-      // Validate halt time for scheduled halts
-      if (!formData.immediateHalt) {
-        const haltDateEST = dayjs.tz(formData.haltTime, EST_ZONE);
-        const nowEST = dayjs().tz(EST_ZONE);
-        const endOfTodayEST = nowEST.endOf("day");
-
-        if (compareDateTimeToSecond(haltDateEST, nowEST) < 0) {
-          throw new Error("Halt time must be in the future");
-        }
-        if (compareDateTimeToSecond(haltDateEST, endOfTodayEST) > 0) {
-          throw new Error("Halt time must be within today");
-        }
-      }
-      // If all validations pass, open confirmation dialog for immediate halt only
-      if (formData.immediateHalt) {
-        setConfirmOpen(true);
-      } else{
-        // Directly submit for scheduled halts
-        handleSubmit();
-      }
-    } catch (error) {
-      setError(error.message);
-    }
-  }, [
-    symbolInput,
-    formData.immediateHalt,
-    formData.haltTime,
-    formData.allIssue,
-  ]);
-
-  const handleConfirmCancel = useCallback(() => {
-    setConfirmOpen(false);
-  }, []);
 
   const handleSubmit = useCallback(async () => {
     setLoading(true);
@@ -213,6 +150,70 @@ const CreateNewHaltModal = ({
     handleClose,
   ]);
 
+  // Validate and show confirmation dialog before submitting
+  const handleCreateClick = useCallback(() => {
+    setError("");
+    try {
+      // Validate required fields
+      if (!symbolInput || symbolInput.trim() === "") {
+        throw new Error("Please enter a symbol");
+      }
+
+      // Check for existing active or pending halts for the symbol
+      const existingActiveHalts = checkExistingHaltsForSymbol(symbolInput);
+      if (existingActiveHalts.hasActiveHalts) {
+        throw new Error(
+          `An active halt already exists for symbol ${symbolInput}`
+        );
+      }
+      if (existingActiveHalts.hasScheduledHalts) {
+        throw new Error(
+          `A scheduled halt already exists for symbol ${symbolInput}, please cancel it before creating a new halt.`
+        );
+      }
+
+      if (!formData.immediateHalt && !formData.haltTime) {
+        throw new Error("Please select a halt time for scheduled halt");
+      }
+      if (!formData.allIssue) {
+        throw new Error("Please select if halt is for all issues");
+      }
+      // Validate halt time for scheduled halts
+      if (!formData.immediateHalt) {
+        const haltDateEST = dayjs.tz(formData.haltTime, EST_ZONE);
+        const nowEST = dayjs().tz(EST_ZONE);
+        const endOfTodayEST = nowEST.endOf("day");
+
+        if (compareDateTimeToSecond(haltDateEST, nowEST) < 0) {
+          throw new Error("Halt time must be in the future");
+        }
+        if (compareDateTimeToSecond(haltDateEST, endOfTodayEST) > 0) {
+          throw new Error("Halt time must be within today");
+        }
+      }
+      // If all validations pass, open confirmation dialog for immediate halt only
+      if (formData.immediateHalt) {
+        setConfirmOpen(true);
+      } else{
+        // Directly submit for scheduled halts
+        handleSubmit();
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  }, [
+    symbolInput,
+    formData.immediateHalt,
+    formData.haltTime,
+    formData.allIssue,
+    checkExistingHaltsForSymbol,
+    handleSubmit
+  ]);
+
+  const handleConfirmCancel = useCallback(() => {
+    setConfirmOpen(false);
+  }, []);
+
   const handleConfirmOk = useCallback(async () => {
     setConfirmOpen(false);
     await handleSubmit();
@@ -256,6 +257,20 @@ const CreateNewHaltModal = ({
         listingMarket: newValue.listingMarket || "",
       }));
       setSymbolInput(newValue.symbol || "");
+
+      // Check for existing active or pending halts for the symbol
+      const existingActiveHalts = checkExistingHaltsForSymbol(newValue.symbol);
+      if (existingActiveHalts.hasActiveHalts) {
+        setSymbolError(
+          `An active halt already exists for symbol ${newValue.symbol}`
+        );
+      } else if (existingActiveHalts.hasScheduledHalts) {
+        setSymbolError(
+          `A scheduled halt already exists for symbol ${newValue.symbol}, please cancel it before creating a new halt.`
+        );
+      } else {
+        setSymbolError("");
+      }      
     } else {
       // User cleared the selection
       setFormData((prev) => ({
@@ -266,7 +281,7 @@ const CreateNewHaltModal = ({
       }));
       setSymbolInput("");
     }
-  }, []);
+  }, [checkExistingHaltsForSymbol]);
 
   const handleSymbolInputChange = useCallback(
     (event, newInputValue) => {
@@ -297,8 +312,22 @@ const CreateNewHaltModal = ({
           listingMarket: "",
         }));
       }
+
+      // Check for existing active or pending halts for the symbol
+      const existingActiveHalts = checkExistingHaltsForSymbol(newInputValue);
+      if (existingActiveHalts.hasActiveHalts) {
+        setSymbolError(
+          `An active halt already exists for symbol ${newInputValue}`
+        );
+      } else if (existingActiveHalts.hasScheduledHalts) {
+        setSymbolError(
+          `A scheduled halt already exists for symbol ${newInputValue}, please cancel it before creating a new halt.`
+        );
+      } else {
+        setSymbolError(""); 
+      }
     },
-    [securities]
+    [securities, checkExistingHaltsForSymbol]
   );
 
   // Memoize confirmation dialog message
