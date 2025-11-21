@@ -1,6 +1,6 @@
 [
   {
-    "haltId": "HALT001",
+    "haltId": "AAPL.P_20251111_099",
     "symbol": "AAPL",
     "issueName": "Apple Inc.",
     "listingMarket": "NASDAQ",
@@ -157,7 +157,8 @@
     "cancelTime": null,
     "extendedHalt": true,
     "haltReason": "Halt - Extraordinary Market Activity",
-    "remainReason": "",
+    "remainedHalt": true,
+    "remainReason": "Change of business",
     "status": "Halted",
     "haltType": "REG",
     "createdBy": "bwilson",

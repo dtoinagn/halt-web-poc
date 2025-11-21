@@ -6,7 +6,7 @@ import ResumeHaltModal from './ResumeHaltModal';
 const ActiveRegTable = ({
   data,
   activeRegHaltList,
-  notExtendedList,
+  extendedRegHaltIds,
   onExtendedHaltUpdate,
   onRemainedHaltUpdate,
   onHaltIdClick,
@@ -57,7 +57,7 @@ const ActiveRegTable = ({
         tableType="activeReg"
         data={data}
         activeRegHaltList={activeRegHaltList}
-        notExtendedList={notExtendedList}
+        extendedRegHaltIds={extendedRegHaltIds}
         onExtendedHaltUpdate={onExtendedHaltUpdate}
         onRemainedHaltUpdate={onRemainedHaltUpdate}
         showControls={true}

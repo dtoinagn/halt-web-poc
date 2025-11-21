@@ -54,8 +54,6 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
   useEffect(() => {
     if (haltData) {
       const formattedResumptionTime = formatForDateTimeLocal(haltData.resumptionTime);
-      console.log("Original resumptionTime:", haltData.resumptionTime);
-      console.log("Formatted resumptionTime:", formattedResumptionTime);
 
       // Find matching security
       const matchedSecurity = securities.find(
@@ -164,7 +162,6 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
       const action = formData.immediateResumption
         ? HALT_ACTIONS.CREATE_IMMEDIATE_RESUMPTION
         : HALT_ACTIONS.CREATE_SCHEDULED_RESUMPTION;
-      const nowEST = dayjs().tz(EST_ZONE);
       // Validate resumption time for scheduled resumption
       if (!formData.immediateResumption) {
         if (!formData.resumptionTime) {
@@ -220,13 +217,9 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
         sscbSrc: haltData.sscbSrc || "",
         responseMessage: haltData.responseMessage || "",
         action: action,
-        comment: "",
+        comment: haltData.comment || "",
       };
-
-      console.log("Resuming halt with payload:", payload);
-
       await apiService.createResumption(payload);
-
       handleClose();
     } catch (err) {
       console.error("Failed to resume halt:", err);

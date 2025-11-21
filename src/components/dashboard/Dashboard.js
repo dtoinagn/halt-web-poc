@@ -35,7 +35,7 @@ const Dashboard = () => {
     pendingData,
     haltList,
     activeRegHaltList,
-    notExtendedList,
+    extendedRegHaltIds,
     securities,
     haltReasons,
     loading,
@@ -48,7 +48,7 @@ const Dashboard = () => {
     setLiftedData,
     setPendingData,
     setActiveRegHaltList,
-    setNotExtendedList,
+    setExtendedRegHaltIds,
   } = useHaltData();
 
   const { getSSETicket, notification, showNotification, hideNotification } =
@@ -59,19 +59,19 @@ const Dashboard = () => {
       activeSSCBData,
       liftedData,
       pendingData,
-      notExtendedList,
+      extendedRegHaltIds,
       setActiveRegData,
       setActiveSSCBData,
       setLiftedData,
       setPendingData,
       setActiveRegHaltList,
-      setNotExtendedList,
+      setExtendedRegHaltIds,
     });
 
   // Initialize SSE on mount
   useEffect(() => {
     getSSETicket();
-  }, []);
+  }, [getSSETicket]);
 
   // Handle window resize
   useEffect(() => {
@@ -161,7 +161,7 @@ const Dashboard = () => {
             <ActiveRegTable
               data={activeRegData}
               activeRegHaltList={activeRegHaltList}
-              notExtendedList={notExtendedList}
+              extendedRegHaltIds={extendedRegHaltIds}
               onExtendedHaltUpdate={updateExtendedHaltState}
               onRemainedHaltUpdate={updateRemainedHaltState}
               onHaltIdClick={handleHaltIdClick}

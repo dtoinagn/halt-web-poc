@@ -59,6 +59,11 @@
   line-height: 1.5 !important;
 }
 
+.create-halt-error-text-light {
+  color: #991b1b !important;
+  font-size: 0.7rem !important;
+  line-height: 1.5 !important;
+}
 .create-halt-dialog-actions {
   padding-left: 24px !important;
   padding-right: 24px !important;

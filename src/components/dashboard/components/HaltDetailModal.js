@@ -106,7 +106,7 @@ const HaltDetailModal = ({ open, onClose, haltData }) => {
           />
           <FieldRow
             label="Remain Halt"
-            value={haltData.extendedHalt ? "Yes" : "No"}
+            value={haltData.remainedHalt ? "Yes" : "No"}
             isGray={true}
             isBlue={false}
           />

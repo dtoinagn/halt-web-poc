@@ -52,7 +52,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "mock-server": "node mock-server.js",
-    "local": "concurrently \"npm run mock-server\" \"npm start\""
+    "local": "concurrently \"npm run mock-server\" \"npm start\"",
+    "test-dev" : "env-cmd -f .env.dev react-scripts start"
   },
   "eslintConfig": {
     "extends": [

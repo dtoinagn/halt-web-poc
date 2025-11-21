@@ -36,8 +36,6 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
   useEffect(() => {
     if (haltData) {
       const formattedHaltTime = formatForDateTimeLocal(haltData.haltTime);
-      console.log("Original haltTime:", haltData.haltTime);
-      console.log("Formatted haltTime:", formattedHaltTime);
       setFormData({
         haltTime: formattedHaltTime || "",
         allIssue: (haltData.allIssue === "Yes" || haltData.allIssue === "true") ? "Yes" : "No",
@@ -92,7 +90,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
         resumptionTime: formatForBackend(haltData.resumptionTime) || "",
         extendedHalt: haltData.extendedHalt || false,
         haltReason: haltData.haltReason || "",
-        remained: haltData.remained || false,
+        remainedHalt: haltData.remainedHalt || false,
         remainReason: haltData.remainReason || "",
         status: haltData.status || "HaltPending",
         state: haltData.state || "HaltScheduled",
@@ -109,7 +107,7 @@ const EditHaltModal = ({ open, onClose, haltData, onHaltUpdated }) => {
 
       console.log("Editing halt with payload:", payload);
 
-      await apiService.updateHaltState(payload);
+      await apiService.updateHalt(payload);
 
       // Refresh the dashboard data
       if (onHaltUpdated) {

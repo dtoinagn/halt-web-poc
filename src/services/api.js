@@ -101,16 +101,7 @@ class ApiService {
     });
     return this.handleResponse(response);
   }
-
-  async updateHaltState(payload) {
-    const response = await fetch(this.config.apiUpdateHaltState, {
-      method: "POST",
-      headers: this.getAuthHeader(),
-      body: JSON.stringify(payload),
-    });
-    return this.handleResponse(response);
-  }
-
+  
   async createNewHalt(payload) {
     const response = await fetch(this.config.apiNewHalt, {
       method: "POST",

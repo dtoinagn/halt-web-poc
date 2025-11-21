@@ -41,6 +41,7 @@ const CancelHaltModal = ({ open, onClose, haltData, onHaltCancelled }) => {
         resumptionTime: formatForBackend(haltData.resumptionTime) || "",
         extendedHalt: haltData.extendedHalt || false,
         haltReason: haltData.haltReason || "",
+        remainedHalt: haltData.remainedHalt || false,
         remainReason: haltData.remainReason || "",
         status: haltData.status || "HaltPending",
         state: haltData.state || "HaltScheduled",
@@ -55,9 +56,7 @@ const CancelHaltModal = ({ open, onClose, haltData, onHaltCancelled }) => {
         comment: "",
       };
 
-      console.log("Cancelling halt with payload:", payload);
-
-      await apiService.updateHaltState(payload);
+      await apiService.updateHalt(payload);
 
       // Refresh the dashboard data
       if (onHaltCancelled) {

@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
+import { useHaltData } from "../../../hooks/useHaltData";
 import {
   Dialog,
   DialogTitle,
@@ -60,11 +61,14 @@ const CreateNewHaltModal = ({
   haltReasons = [],
   onHaltCreated,
 }) => {
+  const { checkExistingHaltsForSymbol } = useHaltData();
   const [formData, setFormData] = useState(getInitialFormData);
   const [symbolInput, setSymbolInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [symbolError, setSymbolError] = useState("");
+  const [existingHaltsWarning, setExistingHaltsWarning] = useState(null);
 
   // Memoize helper functions
   const getCurrentDateTime = useCallback(() => {
@@ -82,6 +86,7 @@ const CreateNewHaltModal = ({
     if (!loading) {
       setFormData(getInitialFormData());
       setSymbolInput("");
+      setSymbolError("");
       setError("");
       onClose();
     }
@@ -95,6 +100,20 @@ const CreateNewHaltModal = ({
       if (!symbolInput || symbolInput.trim() === "") {
         throw new Error("Please enter a symbol");
       }
+
+      // Check for existing active or pending halts for the symbol
+      const existingActiveHalts = checkExistingHaltsForSymbol(symbolInput);
+      if (existingActiveHalts.hasActiveHalts) {
+        throw new Error(
+          `An active halt already exists for symbol ${symbolInput}`
+        );
+      }
+      if (existingActiveHalts.hasScheduledHalts) {
+        throw new Error(
+          `A scheduled halt already exists for symbol ${symbolInput}, please cancel it before creating a new halt.`
+        );
+      }
+
       if (!formData.immediateHalt && !formData.haltTime) {
         throw new Error("Please select a halt time for scheduled halt");
       }
@@ -157,6 +176,7 @@ const CreateNewHaltModal = ({
         resumptionTime: "",
         extendedHalt: formData.extendedHalt,
         haltReason: formData.haltReason ? formData.haltReason.description : "",
+        remainedHalt: false,
         remainReason: "",
         status: formData.immediateHalt ? "Halted" : "HaltPending",
         haltType: "REG", // Default to REG for new halts
@@ -226,6 +246,7 @@ const CreateNewHaltModal = ({
   );
 
   const handleSymbolChange = useCallback((event, newValue) => {
+    setError("");
     // newValue is the selected option (object from dropdown or null)
     if (newValue && typeof newValue === "object") {
       // User selected from dropdown
@@ -250,12 +271,13 @@ const CreateNewHaltModal = ({
 
   const handleSymbolInputChange = useCallback(
     (event, newInputValue) => {
+      setError("");
       // newInputValue is the typed text
       setSymbolInput(newInputValue);
 
       // Check if the input matches any security from the dropdown
       const matchedSecurity = securities.find(
-        (sec) => sec.symbol.toLowerCase() === newInputValue.toLowerCase()
+        (sec) => sec.symbol === newInputValue.toUpperCase()
       );
 
       if (matchedSecurity) {
@@ -378,6 +400,13 @@ const CreateNewHaltModal = ({
                   />
                 )}
               />
+              {symbolError && (
+                <Typography
+                  variant="body2"
+                  className="create-halt-error-text-light"
+                >
+                  {symbolError}
+                </Typography>)}       
             </Grid>
 
             <Grid item xs={12} md={6}>

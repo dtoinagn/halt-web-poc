@@ -9,10 +9,12 @@ import {
   Box,
   Autocomplete,
   TextField,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
-import { formatForBackend } from "../../../utils/dateUtils";
+import { buildHaltPayload } from "../../../utils/haltDataUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import HaltModalField from "./HaltModalField";
 import "./CreateNewHaltModal.css";
@@ -44,7 +46,7 @@ const RemainHaltModal = ({ open, onClose, haltData, onSuccess }) => {
   // Initialize form state when haltData changes
   useEffect(() => {
     if (haltData) {
-      setRemainedHalt(haltData.remained || false);
+      setRemainedHalt(!haltData.remainedHalt);
       // If there's an existing remain reason, find and select it
       if (haltData.remainReason && remainReasons.length > 0) {
         const matchedReason = remainReasons.find(
@@ -66,15 +68,6 @@ const RemainHaltModal = ({ open, onClose, haltData, onSuccess }) => {
     }
   }, [loading, onClose]);
 
-  const handleRemainedHaltChange = useCallback((event, newValue) => {
-    const isYes = newValue === "Yes";
-    setRemainedHalt(isYes);
-    // Clear selected reason when selecting "No"
-    if (!isYes) {
-      setSelectedRemainReason(null);
-    }
-  }, []);
-
   const handleRemainReasonChange = useCallback((event, newValue) => {
     setSelectedRemainReason(newValue);
   }, []);
@@ -87,40 +80,17 @@ const RemainHaltModal = ({ open, onClose, haltData, onSuccess }) => {
         throw new Error("No halt data available");
       }
 
-      // Validate: if remainedHalt is checked, a remain reason must be selected
-      if (remainedHalt && !selectedRemainReason) {
-        throw new Error("Please select a remain reason");
-      }
-
       setLoading(true);
 
       // Build the payload matching the update request structure
       const payload = {
-        haltId: haltData.haltId || "",
-        symbol: haltData.symbol || "",
-        issueName: haltData.issueName || "",
-        listingMarket: haltData.listingMarket || "",
-        allIssue: haltData.allIssue === "Yes" || haltData.allIssue === true,
-        haltTime: formatForBackend(haltData.haltTime) || "",
-        resumptionTime: haltData.resumptionTime ? formatForBackend(haltData.resumptionTime) : "",
-        extendedHalt: haltData.extendedHalt || false,
-        haltReason: haltData.haltReason || "",
+        ...buildHaltPayload(haltData),
         remainReason: remainedHalt && selectedRemainReason ? selectedRemainReason.description : "",
-        status: haltData.status || "Halted",
-        state: haltData.state || "HaltSent",
-        haltType: haltData.haltType || "REG",
-        createdBy: haltData.createdBy || "",
-        createdTime: haltData.createdTime ? formatForBackend(haltData.createdTime) : "",
-        lastModifiedBy: authUtils.getLoggedInUser() || "",
-        lastModifiedTime: "",
-        sscbSrc: haltData.sscbSrc || "",
-        responseMessage: haltData.responseMessage || "",
         remainedHalt: remainedHalt,
         action: HALT_ACTIONS.REMAINED_HALT,
+        lastModifiedBy: authUtils.getLoggedInUser() || '',
       };
-
-      console.log("Updating remained halt with payload:", payload);
-
+      
       await apiService.updateHalt(payload);
 
       // Call onSuccess callback if provided
@@ -184,30 +154,22 @@ const RemainHaltModal = ({ open, onClose, haltData, onSuccess }) => {
             Remained Halt
           </Typography>
           <Box sx={{ flex: 1 }}>
-            <Autocomplete
-              options={["Yes", "No"]}
-              value={remainedHalt ? "Yes" : "No"}
-              onChange={handleRemainedHaltChange}
-              disabled={loading}
-              disableClearable
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  fullWidth
-                  variant="outlined"
-                  InputProps={{
-                    ...params.InputProps,
-                    style: { backgroundColor: "white", height: "36px" },
-                  }}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={remainedHalt}
+                  // non-editable per request
+                  disabled
+                  color="primary"
                 />
-              )}
+              }
             />
           </Box>
         </Box>
 
         <Box className="cancel-halt-field-container">
           <Typography className="cancel-halt-label">
-            Remain Reason {remainedHalt && <span style={{ color: "red" }}>*</span>}
+            Remain Reason
           </Typography>
           <Box sx={{ flex: 1 }}>
             <Autocomplete
@@ -236,19 +198,19 @@ const RemainHaltModal = ({ open, onClose, haltData, onSuccess }) => {
 
       <DialogActions className="cancel-halt-dialog-actions">
         <Button
+          onClick={handleClose}
+          disabled={loading}
+          className="cancel-halt-close-button"
+        >
+          Close
+        </Button>
+        <Button
           onClick={handleConfirm}
           disabled={loading}
           variant="contained"
           className="create-halt-submit-button"
         >
           {loading ? "Confirming..." : "Confirm"}
-        </Button>
-        <Button
-          onClick={handleClose}
-          disabled={loading}
-          className="cancel-halt-close-button"
-        >
-          Close
         </Button>
       </DialogActions>
     </Dialog>

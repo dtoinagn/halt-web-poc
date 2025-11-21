@@ -1,4 +1,3 @@
-import { common } from "@mui/material/colors";
 import { HALT_STATUSES, HALT_TYPES } from "../constants";
 import { isHaltedSameDay, formatForBackend } from "./dateUtils";
 import { authUtils } from "./storageUtils";
@@ -11,7 +10,7 @@ export const processHaltData = (data) => {
     pendingData: [],
     haltList: [],
     activeRegHaltList: [],
-    notExtendedList: [],
+    extendedRegHaltIds: [],
   };
 
   data.forEach((item) => {
@@ -27,6 +26,7 @@ export const processHaltData = (data) => {
       ? isHaltedSameDay(null, resumptionTime)
       : false;
     const extendedStatus = item.extendedHalt;
+    const remainedHalt = item.remainedHalt;
 
     // Truncate issue name if too long
     if (typeof item.issueName === "string" && item.issueName.length > 25) {
@@ -43,6 +43,13 @@ export const processHaltData = (data) => {
     ) {
       processedData.activeRegData.push(item);
       processedData.activeRegHaltList.push(haltId);
+
+      // Track extended halts
+      if (extendedStatus === true || remainedHalt === true) {
+        if (!processedData.extendedRegHaltIds.includes(haltId)) {
+          processedData.extendedRegHaltIds.push(haltId);
+        }
+      }
     } else if (
       (haltStatus === HALT_STATUSES.RESUMPTION_PENDING ||
         haltStatus === HALT_STATUSES.HALTED) &&
@@ -51,16 +58,6 @@ export const processHaltData = (data) => {
       processedData.activeSSCBData.push(item);
     } else if (haltStatus === HALT_STATUSES.HALT_PENDING || haltStatus === HALT_STATUSES.HALT_SCHEDULED || haltStatus === HALT_STATUSES.HALT_PENDING_CANCELLED) {
       processedData.pendingData.push(item);
-    }
-
-    // Track non-extended halts
-    if (
-      extendedStatus === false &&
-      haltType === HALT_TYPES.REG &&
-      (haltStatus === HALT_STATUSES.HALTED ||
-        haltStatus === HALT_STATUSES.RESUMPTION_PENDING)
-    ) {
-      processedData.notExtendedList.push(haltId);
     }
   });
 
@@ -82,6 +79,7 @@ export const buildHaltPayload = (haltData) => {
       ? formatForBackend(haltData.resumptionTime)
       : "",
     extendedHalt: haltData.extendedHalt,
+    remainedHalt: haltData.remainedHalt,
     haltReason: haltData.haltReason || "",
     remainReason: haltData.remainReason || "",
     status: haltData.status || "",

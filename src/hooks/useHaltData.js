@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { apiService } from "../services/api";
 import { processHaltData, buildHaltPayload } from "../utils/haltDataUtils";
 import { sortUtils, authUtils } from "../utils/storageUtils";
-import { HALT_ACTIONS } from "../constants";
+import { HALT_ACTIONS, HALT_TYPES, HALT_STATUSES } from "../constants";
 
 export const useHaltData = () => {
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ export const useHaltData = () => {
   const [pendingData, setPendingData] = useState([]);
   const [haltList, setHaltList] = useState([]);
   const [activeRegHaltList, setActiveRegHaltList] = useState([]);
-  const [notExtendedList, setNotExtendedList] = useState([]);
+  const [extendedRegHaltIds, setExtendedRegHaltIds] = useState([]); // now tracks extended AND/OR remained
 
   // Additional data
   const [securities, setSecurities] = useState([]);
@@ -27,8 +27,6 @@ export const useHaltData = () => {
 
     try {
       const data = await apiService.fetchActiveHalts();
-      console.log("Debug active halt data", data);
-
       const processedData = processHaltData(data);
 
       setHaltList(processedData.haltList);
@@ -37,7 +35,7 @@ export const useHaltData = () => {
       setPendingData(processedData.pendingData);
       setLiftedData(processedData.liftedData);
       setActiveSSCBData(processedData.activeSSCBData);
-      setNotExtendedList(processedData.notExtendedList);
+      setExtendedRegHaltIds(processedData.extendedRegHaltIds);
 
       console.log("Dashboard data loaded");
     } catch (err) {
@@ -70,6 +68,39 @@ export const useHaltData = () => {
     sortUtils.initializeSortPreferences();
   };
 
+  // Helper: check existing active/scheduled halts for symbol
+  const checkExistingHaltsForSymbol = (symbol) => {
+    // Check active REG halts
+    const activeHalts = activeRegData.filter((halt) => halt.symbol === symbol);
+
+    // Check scheduled halts - only count pending scheduled halts
+    const scheduledHalts = pendingData.filter((halt) => halt.symbol === symbol && halt.status === HALT_STATUSES.HALT_PENDING);
+    console.log(`Existing halts for ${symbol} - Active: ${activeHalts.length}, Scheduled: ${scheduledHalts.length}`);
+    return {
+      hasActiveHalts: activeHalts.length > 0,
+      hasScheduledHalts: scheduledHalts.length > 0,
+    };
+  };
+
+  // Helper: update list of extended/remained REG halts
+  // Track haltId if: (extendedHalt === true OR remainedHalt === true) AND haltType === REG
+  const updateExtendedRegHaltIdList = (haltId, extendedState, remainedState, haltType) => {
+    if (!haltId || haltType !== HALT_TYPES.REG) return;
+
+    setExtendedRegHaltIds((prev) => {
+      const exists = prev.includes(haltId);
+      // Add to list if EITHER extendedState OR remainedState is true and not already present
+      if ((extendedState || remainedState) && !exists) {
+        return [...prev, haltId];
+      }
+      // Remove from list if BOTH extendedState AND remainedState are false and currently present
+      if (!extendedState && !remainedState && exists) {
+        return prev.filter((id) => id !== haltId);
+      }
+      return prev; // no change
+    });
+  };
+
   const updateExtendedHaltState = async (haltId, newExtendedState) => {
     try {
       // Find the halt data
@@ -80,40 +111,34 @@ export const useHaltData = () => {
 
       // Update local state optimistically
       const updatedHaltData = { ...haltData, extendedHalt: newExtendedState };
-      const updatedActiveRegData = activeRegData.filter(
-        (obj) => obj.haltId !== haltId
+      const updatedActiveRegData = activeRegData.map((obj) =>
+        obj.haltId === haltId ? updatedHaltData : obj
       );
-      updatedActiveRegData.push(updatedHaltData);
       setActiveRegData(updatedActiveRegData);
 
-      // Update not extended list
-      if (newExtendedState) {
-        setNotExtendedList((prev) => prev.filter((id) => id !== haltId));
-      } else {
-        setNotExtendedList((prev) => [...prev, haltId]);
-      }
+      // Update extended/remained halt IDs list
+      // Pass: haltId, extendedState (new), remainedState (existing), haltType
+      updateExtendedRegHaltIdList(
+        haltId,
+        newExtendedState,
+        haltData.remainedHalt,
+        haltData.haltType
+      );
 
       // Send API request
       const payload = {
         ...buildHaltPayload(updatedHaltData),
         action: HALT_ACTIONS.EXTEND_HALT,
-        lastModifiedTime: "",
-        remainReason: "",
-        resumptionTime: "",
-        lastModifiedBy: authUtils.getLoggedInUser() || ""
+        lastModifiedBy: authUtils.getLoggedInUser() || "",
       };
 
-      await apiService.updateHaltState(payload);
-      console.log("Extended halt state updated successfully");
-
+      await apiService.updateHalt(payload);
       return { success: true };
     } catch (err) {
       console.error("Error updating extended halt state:", err);
-      // Parse the error message from the response if available
       let errorMessage = err.message;
       console.log(`Failed to update extended halt state: ${errorMessage}`);
-      // Revert optimistic update on error
-      fetchActiveHalts();
+      // SSE will handle the sync from server; no manual refresh needed
       return { success: false, error: errorMessage };
     }
   };
@@ -129,23 +154,29 @@ export const useHaltData = () => {
       // Update local state optimistically
       const updatedHaltData = {
         ...haltData,
-        remained: remainedHalt,
-        remainReason: remainReason
+        remainedHalt: remainedHalt,
+        remainReason: remainReason,
+        lastModifiedBy: authUtils.getLoggedInUser() || "",
       };
       const updatedActiveRegData = activeRegData.map((obj) =>
         obj.haltId === haltId ? updatedHaltData : obj
       );
       setActiveRegData(updatedActiveRegData);
 
-      console.log("Remained halt state updated successfully in local state");
-
+      // Update extended/remained halt IDs list
+      // Pass: haltId, extendedState (existing), remainedState (new), haltType
+      updateExtendedRegHaltIdList(
+        haltId,
+        haltData.extendedHalt,
+        remainedHalt,
+        haltData.haltType
+      );
       return { success: true };
     } catch (err) {
       console.error("Error updating remained halt state:", err);
       let errorMessage = err.message;
       console.log(`Failed to update remained halt state: ${errorMessage}`);
-      // Revert optimistic update on error
-      fetchActiveHalts();
+      // SSE will handle the sync from server; no manual refresh needed
       return { success: false, error: errorMessage };
     }
   };
@@ -166,7 +197,7 @@ export const useHaltData = () => {
     pendingData,
     haltList,
     activeRegHaltList,
-    notExtendedList,
+    extendedRegHaltIds, // now tracks extended AND/OR remained REG halts
     securities,
     haltReasons,
 
@@ -180,6 +211,7 @@ export const useHaltData = () => {
     fetchHaltReasons,
     updateExtendedHaltState,
     updateRemainedHaltState,
+    checkExistingHaltsForSymbol,
 
     // Setters for SSE updates
     setActiveRegData,
@@ -187,6 +219,6 @@ export const useHaltData = () => {
     setLiftedData,
     setPendingData,
     setActiveRegHaltList,
-    setNotExtendedList,
+    setExtendedRegHaltIds,
   };
 };

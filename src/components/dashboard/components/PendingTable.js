@@ -78,13 +78,11 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
         open={editModalOpen}
         onClose={handleEditModalClose}
         haltData={selectedHalt}
-        onHaltUpdated={onHaltCancelled}
       />
       <CancelHaltModal
         open={cancelModalOpen}
         onClose={handleCancelModalClose}
         haltData={selectedHalt}
-        onHaltCancelled={onHaltCancelled}
       />
     </>
   );

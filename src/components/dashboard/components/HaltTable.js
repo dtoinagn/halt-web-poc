@@ -11,6 +11,7 @@ import {
   Checkbox,
   FormControlLabel,
   TableSortLabel,
+  Tooltip
 } from "@mui/material";
 import ErrorDialog from "../../ui/ErrorDialog";
 import ConfirmDialog from "../../ui/ConfirmDialog";
@@ -22,8 +23,7 @@ import { formatDateTimeForDashboard } from "../../../utils/dateUtils";
 const HaltTable = ({
   tableType,
   data,
-  activeRegHaltList = [],
-  notExtendedList = [],
+  extendedRegHaltIds = [],
   onExtendedHaltUpdate,
   onRemainedHaltUpdate,
   showControls = false,
@@ -102,7 +102,7 @@ const HaltTable = ({
   // Filter rows based on extended halt visibility (only for ActiveReg)
   const visibleRows =
     showExtendedCheckbox && hideExtended
-      ? data.filter((row) => !row.extendedHalt)
+      ? data.filter((row) => !extendedRegHaltIds.includes(row.haltId))
       : data;
 
   const sortedRows = sortRows(visibleRows);
@@ -200,28 +200,34 @@ const HaltTable = ({
             }}
           >
             {onHaltIdClick ? (
-              <Box
-                component="span"
-                onClick={() => onHaltIdClick(row)}
-                sx={{
-                  color: "#1976d2",
-                  fontWeight: 550,
-                  cursor: "pointer",
-                  textDecoration: "none",
-                  borderBottom: "1px solid transparent",
-                  transition: "all 0.2s ease",
-                  padding: "2px 0",
-                  "&:hover": {
-                    color: "#1565c0",
-                    borderBottomColor: "#1565c0",
-                  },
-                  "&:active": {
-                    color: "#0d47a1",
-                  }
-                }}
+              <Tooltip
+                title={`Click for detail: ${row.haltId}`}
+                arrow
               >
-                {cellContent}
-              </Box>
+
+                <Box
+                  component="span"
+                  onClick={() => onHaltIdClick(row)}
+                  sx={{
+                    color: "#1976d2",
+                    fontWeight: 550,
+                    cursor: "pointer",
+                    textDecoration: "none",
+                    borderBottom: "1px solid transparent",
+                    transition: "all 0.2s ease",
+                    padding: "2px 0",
+                    "&:hover": {
+                      color: "#1565c0",
+                      borderBottomColor: "#1565c0",
+                    },
+                    "&:active": {
+                      color: "#0d47a1",
+                    }
+                  }}
+                >
+                  {cellContent}
+                </Box>
+              </Tooltip>
             ) : (
               cellContent
             )}
@@ -269,7 +275,7 @@ const HaltTable = ({
             sx={{ padding: "2px 4px", minWidth: "40px", maxWidth: "60px" }}
           >
             <Checkbox
-              checked={row.remained || false}
+              checked={row.remainedHalt || false}
               onChange={() => handleRemainChange(row, idx)}
               size="small"
             />
@@ -327,12 +333,12 @@ const HaltTable = ({
                     color="default"
                   />
                 }
-                label="Hide extended halt"
+                label="Hide Extended/Remained Halt"
                 sx={{ marginLeft: 1 }}
               />
               {hideExtended && (
                 <button className="hidden-halt-num">
-                  {activeRegHaltList.length - notExtendedList.length}
+                  {extendedRegHaltIds.length}
                 </button>
               )}
             </>

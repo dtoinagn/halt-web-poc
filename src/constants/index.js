@@ -90,7 +90,7 @@ export const COLUMN_KEY_MAP = {
   "Halt Time": "haltTime",
   "Sched Resumption Time": "resumptionTime",
   Extd: "extendedHalt",
-  Remained: "remained",
+  Remained: "remainedHalt",
   "Sched Halt Time": "haltTime"
 };
 
