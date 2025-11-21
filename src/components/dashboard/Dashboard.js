@@ -43,6 +43,7 @@ const Dashboard = () => {
     fetchActiveHalts,
     updateExtendedHaltState,
     updateRemainedHaltState,
+    checkExistingHaltsForSymbol,
     setActiveRegData,
     setActiveSSCBData,
     setLiftedData,
@@ -143,6 +144,7 @@ const Dashboard = () => {
           onClose={handleNewHaltModalClose}
           securities={securities}
           haltReasons={haltReasons}
+          checkExistingHaltsForSymbol={checkExistingHaltsForSymbol}
         />
 
         <Box

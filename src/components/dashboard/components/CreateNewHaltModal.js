@@ -1,5 +1,4 @@
 import { useState, useCallback, useMemo } from "react";
-import { useHaltData } from "../../../hooks/useHaltData";
 import {
   Dialog,
   DialogTitle,
@@ -60,8 +59,8 @@ const CreateNewHaltModal = ({
   securities = [],
   haltReasons = [],
   onHaltCreated,
+  checkExistingHaltsForSymbol,
 }) => {
-  const { checkExistingHaltsForSymbol } = useHaltData();
   const [formData, setFormData] = useState(getInitialFormData);
   const [symbolInput, setSymbolInput] = useState("");
   const [loading, setLoading] = useState(false);
