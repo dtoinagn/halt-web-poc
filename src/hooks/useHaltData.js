@@ -20,6 +20,7 @@ export const useHaltData = () => {
   // Additional data
   const [securities, setSecurities] = useState([]);
   const [haltReasons, setHaltReasons] = useState([]);
+  const [remainReasons, setRemainReasons] = useState([]);
 
   const fetchActiveHalts = async () => {
     setLoading(true);
@@ -64,6 +65,15 @@ export const useHaltData = () => {
     }
   };
 
+  const fetchHaltRemainReasons = async () => {
+    try {
+      const data = await apiService.fetchHaltRemainReasons();
+      setRemainReasons(data);
+    } catch (err) {
+      console.error("Failed to fetch remain reasons:", err);
+    }
+  };
+
   const initializeSortPreferences = () => {
     sortUtils.initializeSortPreferences();
   };
@@ -72,10 +82,8 @@ export const useHaltData = () => {
   const checkExistingHaltsForSymbol = (symbol) => {
     // Check active REG halts
     const activeHalts = activeRegData.filter((halt) => halt.symbol === symbol);
-
     // Check scheduled halts - only count pending scheduled halts
     const scheduledHalts = pendingData.filter((halt) => halt.symbol === symbol && halt.status === HALT_STATUSES.HALT_PENDING);
-    console.log(`Existing halts for ${symbol} - Active: ${activeHalts.length}, Scheduled: ${scheduledHalts.length}`);
     return {
       hasActiveHalts: activeHalts.length > 0,
       hasScheduledHalts: scheduledHalts.length > 0,
@@ -186,6 +194,7 @@ export const useHaltData = () => {
     fetchActiveHalts();
     fetchSecurities();
     fetchHaltReasons();
+    fetchHaltRemainReasons();
     initializeSortPreferences();
   }, []);
 
@@ -200,6 +209,7 @@ export const useHaltData = () => {
     extendedRegHaltIds, // now tracks extended AND/OR remained REG halts
     securities,
     haltReasons,
+    remainReasons,
 
     // State
     loading,
@@ -209,6 +219,7 @@ export const useHaltData = () => {
     fetchActiveHalts,
     fetchSecurities,
     fetchHaltReasons,
+    fetchHaltRemainReasons,
     updateExtendedHaltState,
     updateRemainedHaltState,
     checkExistingHaltsForSymbol,

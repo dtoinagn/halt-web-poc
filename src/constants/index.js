@@ -23,11 +23,11 @@ export const HALT_ACTIONS = {
   MODIFY_SCHEDULED_RESUMPTION: "ModifyScheduledResumption",
   CANCEL_SCHEDULED_HALT: "CancelScheduledHalt",
   CANCEL_SCHEDULED_RESUMPTION: "CancelScheduledResumption",
+  MODIFY_HALT_DETAILS: "ModifyHaltDetails",
   EXTEND_HALT: "ExtendHalt",
   LIFT_HALT: "LiftHalt",
   CANCEL_HALT: "CancelHalt",
   SCHEDULE_HALT: "ScheduleHalt",
-  EDIT_SCHEDULED_HALT: "ModifyScheduledHalt",
   REMAINED_HALT: "RemainedHalt",
 };
 

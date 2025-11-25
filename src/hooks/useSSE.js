@@ -25,7 +25,6 @@ export const useSSE = ({
   setExtendedRegHaltIds = () => { },
 }) => {
   const [sseTicket, setSSETicket] = useState("");
-  const [sseMessage, setSSEMessage] = useState("");
   const [notification, setNotification] = useState("");
   const [showNotification, setShowNotification] = useState(false);
   const timeoutRef = useRef(null);
@@ -97,7 +96,6 @@ export const useSSE = ({
       updates.forEach((raw) => {
         try {
           const sseBody = { ...raw };
-          console.log("Processing SSE message:", sseBody);
           if (sseBody.haltTime) sseBody.haltTime = formatDateTimeForDashboard(sseBody.haltTime);
           if (sseBody.resumptionTime) sseBody.resumptionTime = formatDateTimeForDashboard(sseBody.resumptionTime);
 
@@ -276,8 +274,8 @@ export const useSSE = ({
       try {
         const dataObj = JSON.parse(event.data);
         if (dataObj?.heartbeat) return;
-        setSSEMessage(event.data);
         pendingUpdatesRef.current.push(dataObj);
+        console.log("Processing SSE message:", dataObj);
         scheduleFlush();
       } catch (err) {
         console.error("SSE parse error:", err);
@@ -321,7 +319,6 @@ export const useSSE = ({
 
   return {
     getSSETicket,
-    sseMessage,
     notification,
     showNotification,
     hideNotification,

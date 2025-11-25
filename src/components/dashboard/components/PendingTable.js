@@ -2,7 +2,7 @@ import { useState } from 'react';
 import HaltTable from './HaltTable';
 import { Tooltip } from "@mui/material";
 import CancelHaltModal from './CancelHaltModal';
-import EditHaltModal from './EditHaltModal';
+import EditScheduledHaltModal from './EditScheduledHaltModal';
 
 const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
@@ -74,7 +74,7 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
         renderActionCell={renderPendingAction}
         onHaltIdClick={onHaltIdClick}
       />
-      <EditHaltModal
+      <EditScheduledHaltModal
         open={editModalOpen}
         onClose={handleEditModalClose}
         haltData={selectedHalt}
