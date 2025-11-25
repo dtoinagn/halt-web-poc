@@ -38,6 +38,7 @@ const Dashboard = () => {
     extendedRegHaltIds,
     securities,
     haltReasons,
+    remainReasons,
     loading,
     error,
     fetchActiveHalts,
@@ -199,6 +200,9 @@ const Dashboard = () => {
           open={haltDetailModalOpen}
           onClose={handleHaltDetailModalClose}
           haltData={selectedHalt}
+          haltReasons={haltReasons}
+          remainReasons={remainReasons}
+          onHaltUpdated={fetchActiveHalts}
         />
       </div>
     </div>

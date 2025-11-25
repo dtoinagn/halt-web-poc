@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -9,12 +9,150 @@ import {
   Typography,
   Box,
   IconButton,
+  Select,
+  MenuItem,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import { Close as CloseIcon, Info as InfoIcon } from "@mui/icons-material";
 import { formatForHaltDetail } from "../../../utils/dateUtils";
+import { buildHaltPayload } from "../../../utils/haltDataUtils";
+import { apiService } from "../../../services/api";
+import { authUtils } from "../../../utils/storageUtils";
+import { HALT_ACTIONS } from "../../../constants";
 import "./CreateNewHaltModal.css";
 
-const HaltDetailModal = ({ open, onClose, haltData }) => {
+const HaltDetailModal = ({
+  open,
+  onClose,
+  haltData,
+  haltReasons = [],
+  remainReasons = [],
+  onHaltUpdated,
+}) => {
+  const [formData, setFormData] = useState({
+    extendedHalt: false,
+    haltReason: null,
+    remainedHalt: false,
+    remainReason: null,
+    comment: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Initialize form data when haltData changes
+  useEffect(() => {
+    if (haltData) {
+      // Find matching halt reason
+      const matchedHaltReason = haltReasons.find(
+        (reason) => reason.description === haltData.haltReason
+      );
+
+      // Find matching remain reason
+      const matchedRemainReason = remainReasons.find(
+        (reason) => reason.description === haltData.remainReason
+      );
+
+      setFormData({
+        extendedHalt: haltData.extendedHalt || false,
+        haltReason: matchedHaltReason || null,
+        remainedHalt: haltData.remainedHalt || false,
+        remainReason: matchedRemainReason || null,
+        comment: haltData.comment || "",
+      });
+      setHasChanges(false);
+      setError("");
+    }
+  }, [haltData, haltReasons, remainReasons]);
+
+  // Check if form data has changed
+  useEffect(() => {
+    if (!haltData) return;
+
+    const extendedChanged = formData.extendedHalt !== haltData.extendedHalt;
+
+    // Normalize empty/null values for comparison
+    const currentHaltReason = formData.haltReason?.description || "";
+    const originalHaltReason = haltData.haltReason || "";
+    const haltReasonChanged = currentHaltReason !== originalHaltReason;
+
+    const remainedChanged = formData.remainedHalt !== haltData.remainedHalt;
+
+    const currentRemainReason = formData.remainReason?.description || "";
+    const originalRemainReason = haltData.remainReason || "";
+    const remainReasonChanged = currentRemainReason !== originalRemainReason;
+
+    const currentComment = formData.comment || "";
+    const originalComment = haltData.comment || "";
+    const commentChanged = currentComment !== originalComment;
+
+    setHasChanges(
+      extendedChanged ||
+        haltReasonChanged ||
+        remainedChanged ||
+        remainReasonChanged ||
+        commentChanged
+    );
+  }, [formData, haltData]);
+
+  const handleFieldChange = useCallback((field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+      // Clear remain reason if remain halt is set to false
+      ...(field === "remainedHalt" && !value && { remainReason: null }),
+    }));
+  }, []);
+
+  const handleSave = useCallback(async () => {
+    setError("");
+
+    try {
+      if (!haltData) {
+        throw new Error("No halt data available");
+      }
+      setLoading(true);
+
+      // Build the payload
+      const payload = {
+        ...buildHaltPayload(haltData),
+        extendedHalt: formData.extendedHalt,
+        haltReason: formData.haltReason
+          ? formData.haltReason.description
+          : haltData.haltReason || "",
+        remainedHalt: formData.remainedHalt,
+        remainReason: formData.remainReason
+          ? formData.remainReason.description
+          : "",
+        comment: formData.comment || "",
+        lastModifiedBy: authUtils.getLoggedInUser() || "",
+        action: HALT_ACTIONS.MODIFY_HALT_DETAILS,
+      };
+
+      await apiService.updateHalt(payload);
+
+      // Call onHaltUpdated callback if provided
+      if (onHaltUpdated) {
+        await onHaltUpdated();
+      }
+
+      onClose();
+    } catch (err) {
+      console.error("Failed to update halt:", err);
+      setError(err.message || "Failed to update halt. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [haltData, formData, onHaltUpdated, onClose]);
+
+  const handleClose = useCallback(() => {
+    if (!loading) {
+      setError("");
+      onClose();
+    }
+  }, [loading, onClose]);
+
   if (!haltData) return null;
 
   const formatDateTime = (dateTime) => {
@@ -51,10 +189,112 @@ const HaltDetailModal = ({ open, onClose, haltData }) => {
     </Grid>
   );
 
+  const EditableSelectField = ({
+    label,
+    value,
+    onChange,
+    options,
+    fullWidth = false,
+    disabled = false,
+  }) => (
+    <Grid item xs={12} md={fullWidth ? 12 : 6}>
+      <Box className="halt-detail-field-container">
+        <Typography className="halt-detail-label">{label}</Typography>
+        <Select
+          fullWidth
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          style={{
+            backgroundColor: "white",
+            height: "36px",
+            fontSize: "0.688rem",
+            textAlign: "center",
+          }}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                textAlign: "center",
+              },
+            },
+          }}
+        >
+          {options.map((option) => (
+            <MenuItem
+              key={option.value}
+              value={option.value}
+              style={{ fontSize: "0.688rem", justifyContent: "center" }}
+            >
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </Box>
+    </Grid>
+  );
+
+  const EditableAutocompleteField = ({
+    label,
+    value,
+    onChange,
+    options,
+    fullWidth = false,
+    disabled = false,
+  }) => (
+    <Grid item xs={12} md={fullWidth ? 12 : 6}>
+      <Box className="halt-detail-field-container">
+        <Typography className="halt-detail-label">{label}</Typography>
+        <Autocomplete
+          fullWidth
+          value={value}
+          onChange={(event, newValue) => onChange(newValue)}
+          options={options}
+          getOptionLabel={(option) => option.description || ""}
+          isOptionEqualToValue={(option, value) =>
+            option.description === value?.description
+          }
+          disabled={disabled}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder="Select..."
+              InputProps={{
+                ...params.InputProps,
+                style: {
+                  backgroundColor: "white",
+                  height: "36px",
+                  padding: "0",
+                  fontSize: "0.688rem",
+                },
+              }}
+              inputProps={{
+                ...params.inputProps,
+                style: { padding: "8px 14px", fontSize: "0.688rem" },
+              }}
+            />
+          )}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              padding: "0 !important",
+              height: "36px",
+              fontSize: "0.688rem",
+            },
+            "& .MuiAutocomplete-endAdornment": {
+              top: "calc(50% - 12px)",
+            },
+            "& .MuiAutocomplete-option": {
+              fontSize: "0.688rem",
+            },
+          }}
+        />
+      </Box>
+    </Grid>
+  );
+
   return (
     <Dialog
       open={open}
-      maxWidth="md"
+      maxWidth="lg"
       fullWidth
       onClose={onClose}
       slotProps={{
@@ -84,17 +324,24 @@ const HaltDetailModal = ({ open, onClose, haltData }) => {
       </DialogTitle>
 
       <DialogContent className="create-halt-dialog-content">
-        <Grid container spacing={0.5} className="halt-detail-content-grid">
+        {error && (
+          <Box className="create-halt-error-message" sx={{ marginBottom: 2 }}>
+            <Typography className="create-halt-error-text">{error}</Typography>
+          </Box>
+        )}
+        <Grid container spacing={0.3} className="halt-detail-content-grid">
           {/* Row 1 */}
           <FieldRow
             label="Halt Event ID"
             value={haltData.haltId}
             isGray={true}
           />
-          <FieldRow
+          <EditableAutocompleteField
             label="Remain Reason"
-            value={haltData.remainReason}
-            isGray={true}
+            value={formData.remainReason}
+            onChange={(value) => handleFieldChange("remainReason", value)}
+            options={remainReasons}
+            disabled={!formData.remainedHalt || loading}
           />
 
           {/* Row 2 */}
@@ -104,11 +351,15 @@ const HaltDetailModal = ({ open, onClose, haltData }) => {
             isGray={true}
             isBlue={false}
           />
-          <FieldRow
+          <EditableSelectField
             label="Remain Halt"
-            value={haltData.remainedHalt ? "Yes" : "No"}
-            isGray={true}
-            isBlue={false}
+            value={formData.remainedHalt}
+            onChange={(value) => handleFieldChange("remainedHalt", value)}
+            options={[
+              { value: true, label: "Yes" },
+              { value: false, label: "No" },
+            ]}
+            disabled={loading}
           />
 
           {/* Row 3 */}
@@ -176,23 +427,28 @@ const HaltDetailModal = ({ open, onClose, haltData }) => {
           />
 
           {/* Row 9 */}
-          <FieldRow
+          <EditableSelectField
             label="Extended Halt"
-            value={haltData.extendedHalt ? "Yes" : "No"}
-            isGray={true}
-            isBlue={false}
+            value={formData.extendedHalt}
+            onChange={(value) => handleFieldChange("extendedHalt", value)}
+            options={[
+              { value: true, label: "Yes" },
+              { value: false, label: "No" },
+            ]}
+            disabled={loading}
           />
           <Grid item xs={12} md={6}>
             {/* Empty space */}
           </Grid>
 
           {/* Full Width - Halt Reason */}
-          <FieldRow
+          <EditableAutocompleteField
             label="Halt Reason"
-            value={haltData.haltReason}
-            isGray={true}
-            isBlue={false}
+            value={formData.haltReason}
+            onChange={(value) => handleFieldChange("haltReason", value)}
+            options={haltReasons}
             fullWidth={true}
+            disabled={loading}
           />
 
           {/* Full Width - SSCB Source (if exists) */}
@@ -205,20 +461,48 @@ const HaltDetailModal = ({ open, onClose, haltData }) => {
             />
           )}
 
-          {/* Full Width - Notes (if exists) */}
-          {haltData.comment && (
-            <FieldRow
-              label="Notes"
-              value={haltData.comment}
-              isGray={true}
-              fullWidth={true}
-            />
-          )}
+          {/* Full Width - Notes */}
+          <Grid item xs={12}>
+            <Box className="halt-detail-field-container">
+              <Typography className="halt-detail-label">Notes</Typography>
+              <TextField
+                fullWidth
+                multiline
+                rows={1}
+                value={formData.comment}
+                onChange={(e) => handleFieldChange("comment", e.target.value)}
+                disabled={loading}
+                placeholder="Enter notes..."
+                InputProps={{
+                  style: {
+                    backgroundColor: "white",
+                    minHeight: "36px",
+                    fontSize: "0.688rem",
+                  },
+                }}
+                inputProps={{
+                  style: { fontSize: "0.688rem" },
+                }}
+              />
+            </Box>
+          </Grid>
         </Grid>
       </DialogContent>
 
       <DialogActions className="create-halt-dialog-actions">
-        <Button onClick={onClose} className="create-halt-submit-button">
+        <Button
+          onClick={handleSave}
+          disabled={!hasChanges || loading}
+          variant="contained"
+          className="create-halt-submit-button"
+        >
+          {loading ? "Saving..." : "Save"}
+        </Button>
+        <Button
+          onClick={handleClose}
+          disabled={loading}
+          className="cancel-halt-close-button"
+        >
           Close
         </Button>
       </DialogActions>

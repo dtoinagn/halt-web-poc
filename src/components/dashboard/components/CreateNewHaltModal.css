@@ -29,7 +29,7 @@
 .create-halt-dialog-title-text {
   font-weight: 600 !important;
   color: #1a1a1a !important;
-  font-size: 1.1rem !important;
+  font-size: 0.938rem !important;
 }
 
 .create-halt-dialog-close-button {
@@ -41,8 +41,10 @@
 }
 
 .create-halt-dialog-content {
-  padding-top: 24px !important;
-  padding-bottom: 16px !important;
+  padding-top: 16px !important;
+  padding-bottom: 12px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
 }
 
 .create-halt-error-message {
@@ -94,12 +96,13 @@
   background-color: #006666 !important;
   color: white !important;
   font-weight: 500 !important;
+  font-size: 0.75rem !important;
   text-transform: none !important;
   border-radius: 8px !important;
-  padding-left: 24px !important;
-  padding-right: 24px !important;
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
   box-shadow: 0 2px 8px rgba(0, 102, 102, 0.2) !important;
 }
 
@@ -128,27 +131,28 @@
 .halt-detail-field-container {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
-  padding-left: 44px;
-  padding-right: 44px;
+  margin-bottom: 4px;
+  padding-left: 32px;
+  padding-right: 32px;
 }
 
 .halt-detail-label {
-  font-size: 0.8125rem;
+  font-size: 0.688rem;
   color: #666;
   font-weight: 500;
-  min-width: 120px;
-  max-width: 120px;
-  margin-right: 8px;
+  min-width: 150px;
+  max-width: 150px;
+  margin-right: 12px;
 }
 
 .halt-detail-value-box {
   flex: 1;
   border-radius: 4px;
-  padding: 6px 20px;
-  min-height: 32px;
+  padding: 6px 14px;
+  min-height: 36px;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .halt-detail-value-box-gray {
@@ -161,10 +165,11 @@
 }
 
 .halt-detail-value-text {
-  font-size: 0.8125rem;
+  font-size: 0.4rem;
   color: #333;
   font-weight: 400;
   word-break: break-word;
+  text-align: center;
 }
 
 .halt-detail-value-text-blue {
@@ -253,9 +258,9 @@
   font-weight: 500 !important;
   text-transform: none !important;
   border-radius: 6px !important;
-  padding: 5px 32px !important;
-  min-width: 110px !important;
-  font-size: 0.875rem !important;
+  padding: 5px 28px !important;
+  min-width: 100px !important;
+  font-size: 0.75rem !important;
   border: 1px solid rgba(0, 0, 0, 0.2) !important;
 }
 
