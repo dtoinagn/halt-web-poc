@@ -40,6 +40,7 @@ const HaltDetailModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Initialize form data when haltData changes
   useEffect(() => {
@@ -89,10 +90,10 @@ const HaltDetailModal = ({
 
     setHasChanges(
       extendedChanged ||
-      haltReasonChanged ||
-      remainedChanged ||
-      remainReasonChanged ||
-      commentChanged
+        haltReasonChanged ||
+        remainedChanged ||
+        remainReasonChanged ||
+        commentChanged
     );
   }, [formData, haltData]);
 
@@ -148,10 +149,25 @@ const HaltDetailModal = ({
 
   const handleClose = useCallback(() => {
     if (!loading) {
-      setError("");
-      onClose();
+      // Check for unsaved changes
+      if (hasChanges) {
+        setShowConfirmDialog(true);
+      } else {
+        setError("");
+        onClose();
+      }
     }
-  }, [loading, onClose]);
+  }, [loading, hasChanges, onClose]);
+
+  const handleDiscardChanges = useCallback(() => {
+    setShowConfirmDialog(false);
+    setError("");
+    onClose();
+  }, [onClose]);
+
+  const handleCancelDiscard = useCallback(() => {
+    setShowConfirmDialog(false);
+  }, []);
 
   if (!haltData) return null;
 
@@ -171,14 +187,16 @@ const HaltDetailModal = ({
       <Box className="halt-detail-field-container">
         <Typography className="halt-detail-label">{label}</Typography>
         <Box
-          className={`halt-detail-value-box ${isGray
+          className={`halt-detail-value-box ${
+            isGray
               ? "halt-detail-value-box-gray"
               : "halt-detail-value-box-white"
-            }`}
+          }`}
         >
           <Typography
-            className={`halt-detail-value-text ${isBlue ? "halt-detail-value-text-blue" : ""
-              }`}
+            className={`halt-detail-value-text ${
+              isBlue ? "halt-detail-value-text-blue" : ""
+            }`}
           >
             {value || ""}
           </Typography>
@@ -290,226 +308,265 @@ const HaltDetailModal = ({
   );
 
   return (
-    <Dialog
-      open={open}
-      maxWidth="lg"
-      fullWidth
-      onClose={(event, reason) => {
-        if (reason === "backdropClick") {
-          return; // Prevent closing on backdrop click
-        }
-        handleClose();
-      }}
-      slotProps={{
-        paper: {
-          className: "create-halt-dialog-paper halt-detail-dialog-paper",
-        },
-      }}
-    >
-      <DialogTitle className="create-halt-dialog-title">
-        <Box className="create-halt-dialog-title-content">
-          <InfoIcon className="create-halt-dialog-icon" />
-          <Typography
-            variant="h6"
-            component="div"
-            className="create-halt-dialog-title-text"
-          >
-            Halt Details
-          </Typography>
-        </Box>
-        <IconButton
-          onClick={onClose}
-          size="small"
-          className="create-halt-dialog-close-button"
-        >
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </DialogTitle>
-
-      <DialogContent className="create-halt-dialog-content">
-        {error && (
-          <Box className="create-halt-error-message" sx={{ marginBottom: 2 }}>
-            <Typography className="create-halt-error-text">{error}</Typography>
+    <>
+      <Dialog
+        open={open}
+        maxWidth="lg"
+        fullWidth
+        onClose={(event, reason) => {
+          if (reason === "backdropClick") {
+            return; // Prevent closing on backdrop click
+          }
+          handleClose();
+        }}
+        slotProps={{
+          paper: {
+            className: "create-halt-dialog-paper halt-detail-dialog-paper",
+          },
+        }}
+      >
+        <DialogTitle className="create-halt-dialog-title">
+          <Box className="create-halt-dialog-title-content">
+            <InfoIcon className="create-halt-dialog-icon" />
+            <Typography
+              variant="h6"
+              component="div"
+              className="create-halt-dialog-title-text"
+            >
+              Halt Details
+            </Typography>
           </Box>
-        )}
-        <Grid container spacing={0.3} className="halt-detail-content-grid">
-          {/* Row 1 */}
-          <FieldRow
-            label="Halt Event ID"
-            value={haltData.haltId}
-            isGray={true}
-          />
-          <EditableAutocompleteField
-            label="Remain Reason"
-            value={formData.remainReason}
-            onChange={(value) => handleFieldChange("remainReason", value)}
-            options={remainReasons}
-            disabled={!formData.remainedHalt || loading}
-          />
+          <IconButton
+            onClick={handleClose}
+            size="small"
+            className="create-halt-dialog-close-button"
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
 
-          {/* Row 2 */}
-          <FieldRow
-            label="Symbol *"
-            value={haltData.symbol}
-            isGray={true}
-            isBlue={false}
-          />
-          <EditableSelectField
-            label="Remain Halt"
-            value={formData.remainedHalt}
-            onChange={(value) => handleFieldChange("remainedHalt", value)}
-            options={[
-              { value: true, label: "Yes" },
-              { value: false, label: "No" },
-            ]}
-            disabled={loading}
-          />
-
-          {/* Row 3 */}
-          <FieldRow
-            label="Issue Name"
-            value={haltData.issueName}
-            isGray={true}
-          />
-          <FieldRow label="Status" value={haltData.status} isGray={true} />
-
-          {/* Row 4 */}
-          <FieldRow
-            label="Listing Market"
-            value={haltData.listingMarket}
-            isGray={true}
-          />
-          <FieldRow label="Halt Type" value={haltData.haltType} isGray={true} />
-
-          {/* Row 5 */}
-          <FieldRow
-            label="All Issues"
-            value={haltData.allIssue}
-            isGray={true}
-          />
-          <FieldRow
-            label="Created By"
-            value={haltData.createdBy}
-            isGray={true}
-          />
-
-          {/* Row 6 */}
-          <FieldRow
-            label="Halt Time"
-            value={formatDateTime(haltData.haltTime)}
-            isGray={true}
-          />
-          <FieldRow
-            label="Modified By"
-            value={haltData.lastModifiedBy}
-            isGray={true}
-          />
-
-          {/* Row 7 */}
-          <FieldRow
-            label="Resumption Time"
-            value={formatDateTime(haltData.resumptionTime)}
-            isGray={true}
-          />
-          <FieldRow
-            label="Created On"
-            value={formatDateTime(haltData.createdTime)}
-            isGray={true}
-          />
-
-          {/* Row 8 */}
-          <FieldRow
-            label="Halt Cancelled Time"
-            value={formatDateTime(haltData.haltCancelledTime)}
-            isGray={true}
-          />
-          <FieldRow
-            label="Modified On"
-            value={formatDateTime(haltData.lastModifiedTime)}
-            isGray={true}
-          />
-
-          {/* Row 9 */}
-          <EditableSelectField
-            label="Extended Halt"
-            value={formData.extendedHalt}
-            onChange={(value) => handleFieldChange("extendedHalt", value)}
-            options={[
-              { value: true, label: "Yes" },
-              { value: false, label: "No" },
-            ]}
-            disabled={loading}
-          />
-          <Grid item xs={12} md={6}>
-            {/* Empty space */}
-          </Grid>
-
-          {/* Full Width - Halt Reason */}
-          <EditableAutocompleteField
-            label="Halt Reason"
-            value={formData.haltReason}
-            onChange={(value) => handleFieldChange("haltReason", value)}
-            options={haltReasons}
-            fullWidth={true}
-            disabled={loading}
-          />
-
-          {/* Full Width - SSCB Source (if exists) */}
-          {haltData.sscbSrc && (
-            <FieldRow
-              label="SSCB Source"
-              value={haltData.sscbSrc}
-              isGray={true}
-              fullWidth={true}
-            />
-          )}
-
-          {/* Full Width - Notes */}
-          <Grid item xs={12}>
-            <Box className="halt-detail-field-container">
-              <Typography className="halt-detail-label">Notes</Typography>
-              <TextField
-                fullWidth
-                multiline
-                rows={1}
-                value={formData.comment}
-                onChange={(e) => handleFieldChange("comment", e.target.value)}
-                disabled={loading}
-                placeholder="Enter notes..."
-                InputProps={{
-                  style: {
-                    backgroundColor: "white",
-                    minHeight: "36px",
-                    fontSize: "0.688rem",
-                  },
-                }}
-                inputProps={{
-                  style: { fontSize: "0.688rem" },
-                }}
-              />
+        <DialogContent className="create-halt-dialog-content">
+          {error && (
+            <Box className="create-halt-error-message" sx={{ marginBottom: 2 }}>
+              <Typography className="create-halt-error-text">
+                {error}
+              </Typography>
             </Box>
-          </Grid>
-        </Grid>
-      </DialogContent>
+          )}
+          <Grid container spacing={0.3} className="halt-detail-content-grid">
+            {/* Row 1 */}
+            <FieldRow
+              label="Halt Event ID"
+              value={haltData.haltId}
+              isGray={true}
+            />
+            <EditableAutocompleteField
+              label="Remain Reason"
+              value={formData.remainReason}
+              onChange={(value) => handleFieldChange("remainReason", value)}
+              options={remainReasons}
+              disabled={!formData.remainedHalt || loading}
+            />
 
-      <DialogActions className="create-halt-dialog-actions">
-        <Button
-          onClick={handleSave}
-          disabled={!hasChanges || loading}
-          variant="contained"
-          className="create-halt-submit-button"
-        >
-          {loading ? "Saving..." : "Save"}
-        </Button>
-        <Button
-          onClick={handleClose}
-          disabled={loading}
-          className="cancel-halt-close-button"
-        >
-          Close
-        </Button>
-      </DialogActions>
-    </Dialog>
+            {/* Row 2 */}
+            <FieldRow
+              label="Symbol *"
+              value={haltData.symbol}
+              isGray={true}
+              isBlue={false}
+            />
+            <EditableSelectField
+              label="Remain Halt"
+              value={formData.remainedHalt}
+              onChange={(value) => handleFieldChange("remainedHalt", value)}
+              options={[
+                { value: true, label: "Yes" },
+                { value: false, label: "No" },
+              ]}
+              disabled={loading}
+            />
+
+            {/* Row 3 */}
+            <FieldRow
+              label="Issue Name"
+              value={haltData.issueName}
+              isGray={true}
+            />
+            <FieldRow label="Status" value={haltData.status} isGray={true} />
+
+            {/* Row 4 */}
+            <FieldRow
+              label="Listing Market"
+              value={haltData.listingMarket}
+              isGray={true}
+            />
+            <FieldRow
+              label="Halt Type"
+              value={haltData.haltType}
+              isGray={true}
+            />
+
+            {/* Row 5 */}
+            <FieldRow
+              label="All Issues"
+              value={haltData.allIssue}
+              isGray={true}
+            />
+            <FieldRow
+              label="Created By"
+              value={haltData.createdBy}
+              isGray={true}
+            />
+
+            {/* Row 6 */}
+            <FieldRow
+              label="Halt Time"
+              value={formatDateTime(haltData.haltTime)}
+              isGray={true}
+            />
+            <FieldRow
+              label="Modified By"
+              value={haltData.lastModifiedBy}
+              isGray={true}
+            />
+
+            {/* Row 7 */}
+            <FieldRow
+              label="Resumption Time"
+              value={formatDateTime(haltData.resumptionTime)}
+              isGray={true}
+            />
+            <FieldRow
+              label="Created On"
+              value={formatDateTime(haltData.createdTime)}
+              isGray={true}
+            />
+
+            {/* Row 8 */}
+            <FieldRow
+              label="Halt Cancelled Time"
+              value={formatDateTime(haltData.haltCancelledTime)}
+              isGray={true}
+            />
+            <FieldRow
+              label="Modified On"
+              value={formatDateTime(haltData.lastModifiedTime)}
+              isGray={true}
+            />
+
+            {/* Row 9 */}
+            <EditableSelectField
+              label="Extended Halt"
+              value={formData.extendedHalt}
+              onChange={(value) => handleFieldChange("extendedHalt", value)}
+              options={[
+                { value: true, label: "Yes" },
+                { value: false, label: "No" },
+              ]}
+              disabled={loading}
+            />
+            <Grid item xs={12} md={6}>
+              {/* Empty space */}
+            </Grid>
+
+            {/* Full Width - Halt Reason */}
+            <EditableAutocompleteField
+              label="Halt Reason"
+              value={formData.haltReason}
+              onChange={(value) => handleFieldChange("haltReason", value)}
+              options={haltReasons}
+              fullWidth={true}
+              disabled={loading}
+            />
+
+            {/* Full Width - SSCB Source (if exists) */}
+            {haltData.sscbSrc && (
+              <FieldRow
+                label="SSCB Source"
+                value={haltData.sscbSrc}
+                isGray={true}
+                fullWidth={true}
+              />
+            )}
+
+            {/* Full Width - Notes */}
+            <Grid item xs={12}>
+              <Box className="halt-detail-field-container">
+                <Typography className="halt-detail-label">Notes</Typography>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={1}
+                  value={formData.comment}
+                  onChange={(e) => handleFieldChange("comment", e.target.value)}
+                  disabled={loading}
+                  placeholder="Enter notes..."
+                  InputProps={{
+                    style: {
+                      backgroundColor: "white",
+                      minHeight: "36px",
+                      fontSize: "0.688rem",
+                    },
+                  }}
+                  inputProps={{
+                    style: { fontSize: "0.688rem" },
+                  }}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        </DialogContent>
+
+        <DialogActions className="create-halt-dialog-actions">
+          <Button
+            onClick={handleSave}
+            disabled={!hasChanges || loading}
+            variant="contained"
+            className="create-halt-submit-button"
+          >
+            {loading ? "Saving..." : "Save"}
+          </Button>
+          <Button
+            onClick={handleClose}
+            disabled={loading}
+            className="cancel-halt-close-button"
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Confirmation Dialog for Unsaved Changes */}
+      <Dialog
+        open={showConfirmDialog}
+        onClose={handleCancelDiscard}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Unsaved Changes</DialogTitle>
+        <DialogContent>
+          <Typography>
+            You have unsaved changes. Are you sure you want to discard them?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleCancelDiscard}
+            variant="outlined"
+            className="cancel-halt-close-button"
+          >
+            Go Back
+          </Button>
+          <Button
+            onClick={handleDiscardChanges}
+            variant="contained"
+            className="create-halt-submit-button"
+          >
+            Discard Changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
