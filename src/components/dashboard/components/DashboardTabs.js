@@ -79,7 +79,7 @@ const DashboardTabs = ({
         className="newhalt-button" 
         onClick={onNewHaltClick}
       >  
-        Create new halts 
+        Create New Halt 
       </button>
     </Box>
   );

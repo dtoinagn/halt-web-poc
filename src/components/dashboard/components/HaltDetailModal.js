@@ -89,10 +89,10 @@ const HaltDetailModal = ({
 
     setHasChanges(
       extendedChanged ||
-        haltReasonChanged ||
-        remainedChanged ||
-        remainReasonChanged ||
-        commentChanged
+      haltReasonChanged ||
+      remainedChanged ||
+      remainReasonChanged ||
+      commentChanged
     );
   }, [formData, haltData]);
 
@@ -171,16 +171,14 @@ const HaltDetailModal = ({
       <Box className="halt-detail-field-container">
         <Typography className="halt-detail-label">{label}</Typography>
         <Box
-          className={`halt-detail-value-box ${
-            isGray
+          className={`halt-detail-value-box ${isGray
               ? "halt-detail-value-box-gray"
               : "halt-detail-value-box-white"
-          }`}
+            }`}
         >
           <Typography
-            className={`halt-detail-value-text ${
-              isBlue ? "halt-detail-value-text-blue" : ""
-            }`}
+            className={`halt-detail-value-text ${isBlue ? "halt-detail-value-text-blue" : ""
+              }`}
           >
             {value || ""}
           </Typography>
@@ -296,7 +294,12 @@ const HaltDetailModal = ({
       open={open}
       maxWidth="lg"
       fullWidth
-      onClose={onClose}
+      onClose={(event, reason) => {
+        if (reason === "backdropClick") {
+          return; // Prevent closing on backdrop click
+        }
+        handleClose();
+      }}
       slotProps={{
         paper: {
           className: "create-halt-dialog-paper halt-detail-dialog-paper",
