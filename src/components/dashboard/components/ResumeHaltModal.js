@@ -159,9 +159,11 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
       }
 
       // Determine the action based on immediate resumption checkbox
-      const action = formData.immediateResumption
-        ? HALT_ACTIONS.CREATE_IMMEDIATE_RESUMPTION
-        : HALT_ACTIONS.CREATE_SCHEDULED_RESUMPTION;
+      const action = haltData.resumptionTime ? HALT_ACTIONS.MODIFY_SCHEDULED_RESUMPTION :
+        (formData.immediateResumption
+          ? HALT_ACTIONS.CREATE_IMMEDIATE_RESUMPTION
+          : HALT_ACTIONS.CREATE_SCHEDULED_RESUMPTION);
+
       // Validate resumption time for scheduled resumption
       if (!formData.immediateResumption) {
         if (!formData.resumptionTime) {
@@ -219,7 +221,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
         action: action,
         comment: haltData.comment || "",
       };
-      await apiService.createResumption(payload);
+      await apiService.updateResumption(payload);
       handleClose();
     } catch (err) {
       console.error("Failed to resume halt:", err);
@@ -227,7 +229,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
     } finally {
       setLoading(false);
     }
-  }, [haltData, formData, symbolInput, handleClose]);
+  }, [haltData, formData, symbolInput, handleClose, getCurrentTimeBackendFormat]);
 
   return (
     <Dialog

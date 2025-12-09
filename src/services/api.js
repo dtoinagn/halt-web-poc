@@ -111,23 +111,14 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async createResumption(payload) {
-    const response = await fetch(this.config.apiCreateResumption, {
+  async updateResumption(payload) {
+    const response = await fetch(this.config.apiResumption, {
       method: "POST",
       headers: this.getAuthHeader(),
       body: JSON.stringify(payload),
     });
     return this.handleResponse(response);
   }
-
-  // async updateResumption(payload) {
-  //   const response = await fetch(this.config.apiUpdateResumption, {
-  //     method: "POST",
-  //     headers: this.getAuthHeader(),
-  //     body: JSON.stringify(payload),
-  //   });
-  //   return this.handleResponse(response);
-  // }
 
   // SSE
   async getSSETicket() {

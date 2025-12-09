@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
+import React, { useState, useContext, useEffect, useRef, useCallback } from "react";
 import "./TopBar.css";
 import Logo from "./logo.png";
 import { useNavigate } from "react-router-dom";
@@ -18,11 +18,8 @@ const TopBar = () => {
   const {
     navbarOpen,
     setNavbarOpen,
-    showNavbarTitle,
     setShowNavbarTitle,
-    narrowScreen,
     setNarrowScreen,
-    userGuideClicked,
     setUserGuideClicked,
   } = context || {};
 
@@ -63,9 +60,9 @@ const TopBar = () => {
     init = initial.toUpperCase();
   }
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
-  };
+  }, [logout]);
 
   const handleUserGuide = () => {
     setUserGuideClicked?.(true);
@@ -128,7 +125,7 @@ const TopBar = () => {
         }
       };
     }
-  }, [userLoggedIn]);
+  }, [userLoggedIn, handleLogout]);
 
   return (
     <div className="topbar">

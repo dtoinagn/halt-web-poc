@@ -19,29 +19,11 @@ import { HALT_ACTIONS } from "../../../constants";
 import HaltModalField from "./HaltModalField";
 import "./CreateNewHaltModal.css";
 
-const RemainHaltModal = ({ open, onClose, haltData, onSuccess }) => {
+const RemainHaltModal = ({ open, onClose, haltData, remainReasons = [], onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [remainedHalt, setRemainedHalt] = useState(false);
-  const [remainReasons, setRemainReasons] = useState([]);
   const [selectedRemainReason, setSelectedRemainReason] = useState(null);
-
-  // Fetch remain reasons when modal opens
-  useEffect(() => {
-    const fetchRemainReasons = async () => {
-      if (open) {
-        try {
-          const reasons = await apiService.fetchHaltRemainReasons();
-          setRemainReasons(reasons || []);
-        } catch (err) {
-          console.error("Failed to fetch remain reasons:", err);
-          setRemainReasons([]);
-        }
-      }
-    };
-
-    fetchRemainReasons();
-  }, [open]);
 
   // Initialize form state when haltData changes
   useEffect(() => {

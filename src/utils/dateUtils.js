@@ -163,11 +163,6 @@ const formatToBackendDateTime = (date) => {
   return estDate.format(DATETIME_FORMATS.BACKEND);
 };
 
-// Legacy function - kept for backward compatibility
-const formatToCompactDateTime = (date) => {
-  return formatToBackendDateTime(date);
-};
-
 export const formatDateTime = (isoString) => {
   if (!isoString) return null;
   try {

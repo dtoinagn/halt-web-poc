@@ -30,14 +30,16 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
   };
   const renderPendingAction = (row) => {
     // Hide both Edit and Cancel when the halt has been cancelled
-    if (row.state === "HaltPendingCancelled" || row.state === "HaltPendingCancelling") {
+    if (row.state === "HaltPendingCancelled" || row.state === "HaltPendingCancelling"
+      || row.status === "HaltPendingCancelled"
+    ) {
       return null;
     }
 
     return (
       <>
         <Tooltip
-          title={`Edit Halt: ${row.symbol}-${row.haltId}`}
+          title={`Edit Halt: ${row.haltId}`}
           arrow
         >
           <button
@@ -49,7 +51,7 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
         </Tooltip>
 
         <Tooltip
-          title={`Cancel Halt: ${row.symbol}-${row.haltId}`}
+          title={`Cancel Halt: ${row.haltId}`}
           arrow
         >
           <button

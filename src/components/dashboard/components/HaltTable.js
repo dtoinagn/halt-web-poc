@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import ErrorDialog from "../../ui/ErrorDialog";
 import ConfirmDialog from "../../ui/ConfirmDialog";
-import RemainHaltModal from "./RemainHaltModal";
 import { TABLE_COLUMNS, COLUMN_KEY_MAP } from "../../../constants";
 import { sortUtils, hideExtendedUtils } from "../../../utils/storageUtils";
 import { formatDateTimeForDashboard } from "../../../utils/dateUtils";
@@ -25,7 +24,7 @@ const HaltTable = ({
   data,
   extendedRegHaltIds = [],
   onExtendedHaltUpdate,
-  onRemainedHaltUpdate,
+  onOpenRemainModal,
   showControls = false,
   showExtendedCheckbox = false,
   showActionButtons = false,
@@ -61,11 +60,7 @@ const HaltTable = ({
     message: "",
   });
 
-  // Remain halt modal state
-  const [remainHaltModal, setRemainHaltModal] = useState({
-    open: false,
-    haltData: null,
-  });
+  // Remain halt modal is controlled by parent via onOpenRemainModal
 
   // Sorting state
   const defaultOrderBy = sortUtils.getSortPreference(sortPrefKey) || "haltTime";
@@ -116,30 +111,12 @@ const HaltTable = ({
     });
   };
   const handleRemainChange = (row, index) => {
-    // Open the remain halt modal
-    setRemainHaltModal({
-      open: true,
-      haltData: row,
-    });
-  };
-
-  const handleRemainHaltModalClose = () => {
-    setRemainHaltModal({
-      open: false,
-      haltData: null,
-    });
-  };
-
-  const handleRemainHaltSuccess = async (remainedHalt, remainReason) => {
-    // Update data after successful API call
-    if (onRemainedHaltUpdate && remainHaltModal.haltData) {
-      await onRemainedHaltUpdate(
-        remainHaltModal.haltData.haltId,
-        remainedHalt,
-        remainReason
-      );
+    if (typeof onOpenRemainModal === "function") {
+      onOpenRemainModal(row);
     }
   };
+
+  // Parent component should handle remain modal close and success via props
 
   const handleConfirmDialog = async () => {
     if (confirmDialog.haltId && onExtendedHaltUpdate) {
@@ -446,12 +423,6 @@ const HaltTable = ({
             open={errorDialog.open}
             message={errorDialog.message}
             onClose={handleErrorDialogClose}
-          />
-          <RemainHaltModal
-            open={remainHaltModal.open}
-            onClose={handleRemainHaltModalClose}
-            haltData={remainHaltModal.haltData}
-            onSuccess={handleRemainHaltSuccess}
           />
         </>
       )}

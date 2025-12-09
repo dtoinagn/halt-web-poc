@@ -154,7 +154,7 @@ export const useSSE = ({
               // new activation
               newActiveReg.push(sseBody);
               if (!newActiveRegList.includes(haltId)) newActiveRegList.push(haltId);
-              
+
               if (pendingIdx !== -1)
                 // Halt lifted from Scheduled Halt
                 notifications.add(`Scheduled halt is now active for ${symbol}`);
@@ -188,19 +188,49 @@ export const useSSE = ({
                 newExtendedRegHaltIds = newExtendedRegHaltIds.filter(id => id !== haltId);
               }
             }
-            return
+            return;
           }
 
           // 3) RESUMPTION_PENDING for REG (resumption time set/updated)
           if (status === HALT_STATUSES.RESUMPTION_PENDING && haltType === HALT_TYPES.REG) {
             const idx = newActiveReg.findIndex(r => r.haltId === haltId);
+            const prev = newActiveReg.find(o => o.haltId === haltId && o.haltType === HALT_TYPES.REG);
             if (idx !== -1) {
               newActiveReg[idx] = { ...newActiveReg[idx], ...sseBody };
             }
-            notifications.add(`Resumption time has been set for ${symbol}`);
+            if (prev && prev.resumptionTime !== sseBody.resumptionTime) {
+              notifications.add(`Resumption time has been updated for ${symbol}`);
+            } else {
+              // Handle Extended and Remained flags on new resumption pending
+              if (prev && extended !== prev.extendedHalt) {
+                if (extended) {
+                  notifications.add(`Halt has been marked as extended for ${symbol}`);
+                } else {
+                  notifications.add(`Halt has been marked as non-extended for ${symbol}`);
+                }
+                // Handle extended and remained flag: add to extendedRegHaltIds if extended or remained, remove if not
+                if (extended || remained) {
+                  if (!newExtendedRegHaltIds.includes(haltId)) newExtendedRegHaltIds.push(haltId);
+                } else {
+                  newExtendedRegHaltIds = newExtendedRegHaltIds.filter(id => id !== haltId);
+                }
+              } else if (prev && remained !== prev.remainedHalt) {
+                if (remained) {
+                  notifications.add(`Halt has been marked as remained for ${symbol}`);
+                } else {
+                  notifications.add(`Halt has been marked as non-remained for ${symbol}`);
+                }
+                // Handle extended and remained flag: add to extendedRegHaltIds if extended or remained, remove if not
+                if (extended || remained) {
+                  if (!newExtendedRegHaltIds.includes(haltId)) newExtendedRegHaltIds.push(haltId);
+                } else {
+                  newExtendedRegHaltIds = newExtendedRegHaltIds.filter(id => id !== haltId);
+                }
+              }
+
+            }
             return;
           }
-
           // 4) SSCB creation / update
           if (status === HALT_STATUSES.RESUMPTION_PENDING && haltType === HALT_TYPES.SSCB) {
             const idx = newActiveSSCB.findIndex(r => r.haltId === haltId);
@@ -226,7 +256,7 @@ export const useSSE = ({
               newPending[idx] = { ...newPending[idx], ...sseBody };
               if (action === "ModifyScheduledHalt" && state === "HaltPending") {
                 notifications.add(`Halt time has been updated for ${symbol}`);
-              } else if (action === "CancelScheduledHalt"){
+              } else if (action === "CancelScheduledHalt") {
                 notifications.add(`Scheduled halt has been cancelled for ${symbol}`);
               }
             }

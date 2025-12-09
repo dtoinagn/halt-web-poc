@@ -88,13 +88,14 @@ const HaltDetailModal = ({
     const originalComment = haltData.comment || "";
     const commentChanged = currentComment !== originalComment;
 
-    setHasChanges(
+    const hasAnyChanges = 
       extendedChanged ||
-        haltReasonChanged ||
-        remainedChanged ||
-        remainReasonChanged ||
-        commentChanged
-    );
+      haltReasonChanged ||
+      remainedChanged ||
+      remainReasonChanged ||
+      commentChanged;
+
+    setHasChanges(hasAnyChanges);
   }, [formData, haltData]);
 
   const handleFieldChange = useCallback((field, value) => {
@@ -149,15 +150,40 @@ const HaltDetailModal = ({
 
   const handleClose = useCallback(() => {
     if (!loading) {
+      // Compute changes in-place to avoid stale state issues
+      if (!haltData) {
+        onClose();
+        return;
+      }
+
+      const extendedChanged = formData.extendedHalt !== haltData.extendedHalt;
+      const currentHaltReason = formData.haltReason?.description || "";
+      const originalHaltReason = haltData.haltReason || "";
+      const haltReasonChanged = currentHaltReason !== originalHaltReason;
+      const remainedChanged = formData.remainedHalt !== haltData.remainedHalt;
+      const currentRemainReason = formData.remainReason?.description || "";
+      const originalRemainReason = haltData.remainReason || "";
+      const remainReasonChanged = currentRemainReason !== originalRemainReason;
+      const currentComment = formData.comment || "";
+      const originalComment = haltData.comment || "";
+      const commentChanged = currentComment !== originalComment;
+
+      const hasAnyChanges = 
+        extendedChanged ||
+        haltReasonChanged ||
+        remainedChanged ||
+        remainReasonChanged ||
+        commentChanged;
+
       // Check for unsaved changes
-      if (hasChanges) {
+      if (hasAnyChanges) {
         setShowConfirmDialog(true);
       } else {
         setError("");
         onClose();
       }
     }
-  }, [loading, hasChanges, onClose]);
+  }, [loading, formData, haltData, onClose]);
 
   const handleDiscardChanges = useCallback(() => {
     setShowConfirmDialog(false);

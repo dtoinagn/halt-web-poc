@@ -75,7 +75,7 @@ export const TABLE_COLUMNS = {
     "All Issues",
     "Created By",
     "Halt Time",
-    "Sched Resumption Time",
+    "Resumption Time",
   ],
 };
 
@@ -91,7 +91,8 @@ export const COLUMN_KEY_MAP = {
   "Sched Resumption Time": "resumptionTime",
   Extd: "extendedHalt",
   Remained: "remainedHalt",
-  "Sched Halt Time": "haltTime"
+  "Sched Halt Time": "haltTime",
+  "Resumption Time": "resumptionTime",
 };
 
 export const DEFAULT_SORT_PREFERENCES = {

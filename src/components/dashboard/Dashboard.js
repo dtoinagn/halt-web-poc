@@ -169,6 +169,7 @@ const Dashboard = () => {
               onRemainedHaltUpdate={updateRemainedHaltState}
               onHaltIdClick={handleHaltIdClick}
               securities={securities}
+              remainReasons={remainReasons}
             />
           )}
           {activeTab === "sscb" && (

@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import "./NavBar.css";
 import { LoggedInUserContext } from '../../contexts/LoggedInUserContext';
 import { useAuth } from '../../hooks/useAuth';
