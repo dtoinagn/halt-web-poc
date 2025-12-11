@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Table,
@@ -16,7 +16,7 @@ import {
 import ErrorDialog from "../../ui/ErrorDialog";
 import ConfirmDialog from "../../ui/ConfirmDialog";
 import { TABLE_COLUMNS, COLUMN_KEY_MAP } from "../../../constants";
-import { sortUtils, hideExtendedUtils } from "../../../utils/storageUtils";
+import { sortUtils, hideExtendedUtils, columnWidthUtils } from "../../../utils/storageUtils";
 import { formatDateTimeForDashboard } from "../../../utils/dateUtils";
 
 const HaltTable = ({
@@ -69,6 +69,14 @@ const HaltTable = ({
   const [orderBy, setOrderBy] = useState(defaultOrderBy);
   const [orderDirection, setOrderDirection] = useState(defaultOrderDirection);
 
+  // Column resizing state
+  const [columnWidths, setColumnWidths] = useState(() => {
+    return columnWidthUtils.getWidths(tableType);
+  });
+  const [resizing, setResizing] = useState(null);
+  const resizeStartX = useRef(0);
+  const resizeStartWidth = useRef(0);
+
   const handleSortRequest = (columnKey) => {
     const isAsc = orderBy === columnKey && orderDirection === "asc";
     const newDirection = isAsc ? "desc" : "asc";
@@ -77,6 +85,44 @@ const HaltTable = ({
     sortUtils.setSortPreference(sortPrefKey, columnKey);
     sortUtils.setSortPreference(sortDirPrefKey, newDirection);
   };
+
+  // Column resize handlers
+  const handleResizeStart = (e, columnIndex) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setResizing(columnIndex);
+    resizeStartX.current = e.clientX;
+    const currentWidth = columnWidths[columnIndex] || 120;
+    resizeStartWidth.current = currentWidth;
+  };
+
+  const handleResizeMove = (e) => {
+    if (resizing === null) return;
+    const diff = e.clientX - resizeStartX.current;
+    const newWidth = Math.max(60, resizeStartWidth.current + diff);
+    setColumnWidths(prev => ({
+      ...prev,
+      [resizing]: newWidth
+    }));
+  };
+
+  const handleResizeEnd = () => {
+    if (resizing !== null) {
+      columnWidthUtils.setWidths(tableType, columnWidths);
+      setResizing(null);
+    }
+  };
+
+  useEffect(() => {
+    if (resizing !== null) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleResizeEnd);
+      };
+    }
+  }, [resizing, columnWidths]);
 
   const sortRows = (rows) => {
     return [...rows].sort((a, b) => {
@@ -160,6 +206,19 @@ const HaltTable = ({
     const cellContent =
       row[COLUMN_KEY_MAP[columnHeader] || columnHeader.toLowerCase()] || "";
 
+    const getColumnWidth = () => {
+      if (columnWidths[idx]) {
+        return {
+          width: `${columnWidths[idx]}px`,
+          maxWidth: `${columnWidths[idx]}px`,
+        };
+      }
+      return {
+        minWidth: "10px",
+        maxWidth: "120px",
+      };
+    };
+
     // Handle special columns
     switch (columnHeader) {
       case "Halt Event ID":
@@ -169,8 +228,7 @@ const HaltTable = ({
             sx={{
               padding: "2px 4px",
               fontSize: "0.75rem",
-              minWidth: "10px",
-              maxWidth: "120px",
+              ...getColumnWidth(),
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -221,8 +279,7 @@ const HaltTable = ({
             sx={{
               padding: "2px 4px",
               fontSize: "0.75rem",
-              minWidth: "120px",
-              maxWidth: "150px",
+              ...getColumnWidth(),
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -236,7 +293,7 @@ const HaltTable = ({
         return (
           <TableCell
             key={idx}
-            sx={{ padding: "2px 4px", minWidth: "40px", maxWidth: "60px" }}
+            sx={{ padding: "2px 4px", ...getColumnWidth() }}
           >
             <Checkbox
               checked={row.extendedHalt || false}
@@ -249,7 +306,7 @@ const HaltTable = ({
         return (
           <TableCell
             key={idx}
-            sx={{ padding: "2px 4px", minWidth: "40px", maxWidth: "60px" }}
+            sx={{ padding: "2px 4px", ...getColumnWidth() }}
           >
             <Checkbox
               checked={row.remainedHalt || false}
@@ -262,7 +319,7 @@ const HaltTable = ({
         return (
           <TableCell
             key={idx}
-            sx={{ padding: "2px 4px", minWidth: "100px", maxWidth: "300px" }}
+            sx={{ padding: "2px 4px", ...getColumnWidth() }}
           >
             {renderActionCell ? renderActionCell(row) : null}
           </TableCell>
@@ -274,8 +331,7 @@ const HaltTable = ({
             sx={{
               padding: "2px 4px",
               fontSize: "0.75rem",
-              minWidth: "10px",
-              maxWidth: "120px",
+              ...getColumnWidth(),
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -348,10 +404,12 @@ const HaltTable = ({
                     padding: "4px 6px",
                     fontSize: "0.8rem",
                     minWidth: "60px",
-                    maxWidth: "120px",
+                    width: columnWidths[idx] ? `${columnWidths[idx]}px` : "auto",
+                    maxWidth: columnWidths[idx] ? `${columnWidths[idx]}px` : "120px",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
+                    position: "relative",
                   }}
                 >
                   {COLUMN_KEY_MAP[head] ? (
@@ -370,6 +428,24 @@ const HaltTable = ({
                   ) : (
                     head
                   )}
+                  <Box
+                    onMouseDown={(e) => handleResizeStart(e, idx)}
+                    sx={{
+                      position: "absolute",
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: "4px",
+                      cursor: "col-resize",
+                      userSelect: "none",
+                      backgroundColor: resizing === idx ? "#fff" : "transparent",
+                      "&:hover": {
+                        backgroundColor: "#fff",
+                        opacity: 0.5,
+                      },
+                      zIndex: 2,
+                    }}
+                  />
                 </TableCell>
               ))}
             </TableRow>

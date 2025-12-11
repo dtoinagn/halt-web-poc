@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import HaltTable from './HaltTable';
+import { useState } from "react";
+import HaltTable from "./HaltTable";
 import { Tooltip } from "@mui/material";
 
 const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
-  const [prolongSSCBHaltModalOpen, setProlongSSCBHaltModalOpen] = useState(false);
+  const [prolongSSCBHaltModalOpen, setProlongSSCBHaltModalOpen] =
+    useState(false);
   const [selectedHalt, setSelectedHalt] = useState(null);
 
   const handleProlongHalt = (row) => {
@@ -18,10 +19,7 @@ const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
 
   const renderSSCBAction = (row) => (
     <>
-      <Tooltip
-        title={`Prolong SSCB: ${row.haltId}`}
-        arrow
-      >
+      <Tooltip title={`Prolong SSCB: ${row.haltId}`} arrow>
         <button
           className="halt-action-button"
           onClick={() => handleProlongHalt(row)}
@@ -30,13 +28,8 @@ const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
         </button>
       </Tooltip>
       {row.resumptionTime ? (
-        <Tooltip
-          title={`Convert: ${row.haltId}`}
-          arrow
-        >
-          <button className="halt-action-button">
-            Convert to Regulatory
-          </button>
+        <Tooltip title={`Convert: ${row.haltId}`} arrow>
+          <button className="halt-action-button">Convert to Regulatory</button>
         </Tooltip>
       ) : null}
     </>

@@ -60,3 +60,16 @@ export const hideExtendedUtils = {
   get: () => cookieUtils.get('userHideExtendedHalt') || false,
   set: (value) => cookieUtils.set('userHideExtendedHalt', value)
 };
+
+// Column width preferences utilities
+export const columnWidthUtils = {
+  getWidths: (tableType) => {
+    const key = `${tableType}ColumnWidths`;
+    const stored = storage.get(key);
+    return stored ? JSON.parse(stored) : {};
+  },
+  setWidths: (tableType, widths) => {
+    const key = `${tableType}ColumnWidths`;
+    storage.set(key, JSON.stringify(widths));
+  }
+};
