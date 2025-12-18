@@ -67,6 +67,7 @@ const ActiveRegTable = ({
         <button
           className="halt-action-button"
           onClick={() => handleResumeClick(row)}
+          style={{ marginLeft: 0 }}
         >
           Edit Resumption
         </button>
@@ -79,6 +80,7 @@ const ActiveRegTable = ({
           <button
             className="halt-action-button"
             onClick={() => handleCancelResumptionClick(row)}
+            style={{ marginLeft: 0 }}
           >
             Cancel Resumption
           </button>

@@ -217,7 +217,7 @@
     "listingMarket": "NYSE",
     "allIssue": "true",
     "haltTime": "20250115-12:30:00.000",
-    "resumptionTime": null,
+    "resumptionTime": "20250115-14:30:00.000",
     "cancelTime": null,
     "extendedHalt": true,
     "haltReason": "Halt - Volatility Trading Pause",
@@ -507,7 +507,8 @@
     "comment": "#1 new scheduled halt is created",
     "ipAddress": "172.20.1.45",
     "state": "HaltPending"
-},{
+  },
+  {
     "haltId": "AAAJ.P_20251002_83",
     "symbol": "AAAJ.P",
     "issueName": "AAJ Capital 3 Corp.",
@@ -530,7 +531,7 @@
     "comment": "#2 The requested halt is scheduled successfully",
     "ipAddress": "172.20.1.45",
     "state": "HaltScheduled"
-},
+  },
   {
     "haltId": "AAAJ.P_20251002_84",
     "symbol": "AAAJ.P",
@@ -554,5 +555,5 @@
     "comment": "#3 The scheduled halt is triggered successfully",
     "ipAddress": "172.20.1.45",
     "state": "Halted"
-}
+  }
 ]

@@ -23,13 +23,19 @@ const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
         <button
           className="halt-action-button"
           onClick={() => handleProlongHalt(row)}
+          style={{ marginLeft: 0 }}
         >
           Prolong SSCB 5 Min
         </button>
       </Tooltip>
       {row.resumptionTime ? (
         <Tooltip title={`Convert: ${row.haltId}`} arrow>
-          <button className="halt-action-button">Convert to Regulatory</button>
+          <button
+            className="halt-action-button"
+            style={{ marginLeft: 0 }}
+          >
+            Convert to Regulatory
+          </button>
         </Tooltip>
       ) : null}
     </>

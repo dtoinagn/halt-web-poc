@@ -316,12 +316,20 @@ const HaltTable = ({
           </TableCell>
         );
       case "Action":
+        const actionColumnWidth = columnWidths[idx];
         return (
           <TableCell
             key={idx}
-            sx={{ padding: "2px 4px", ...getColumnWidth() }}
+            sx={{
+              padding: "2px 4px",
+              minWidth: actionColumnWidth || "200px",
+              width: actionColumnWidth ? `${actionColumnWidth}px` : "auto",
+              whiteSpace: "nowrap",
+            }}
           >
-            {renderActionCell ? renderActionCell(row) : null}
+            <Box sx={{ display: "flex", gap: "4px", flexWrap: "nowrap" }}>
+              {renderActionCell ? renderActionCell(row) : null}
+            </Box>
           </TableCell>
         );
       default:

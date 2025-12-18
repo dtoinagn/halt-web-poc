@@ -45,6 +45,7 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
           <button
             className="halt-action-button"
             onClick={() => handleEditClick(row)}
+            style={{ marginLeft: 0 }}
           >
             Edit
           </button>
@@ -57,6 +58,7 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
           <button
             className="halt-action-button-red"
             onClick={() => handleCancelClick(row)}
+            style={{ marginLeft: 0 }}
           >
             Cancel
           </button>
