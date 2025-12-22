@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
 import "./Dashboard.css";
 import { useHaltData } from "../../hooks/useHaltData";
@@ -13,6 +14,8 @@ import PendingTable from "./components/PendingTable";
 import LiftedTable from "./components/LiftedTable";
 import CreateNewHaltModal from "./components/CreateNewHaltModal";
 import HaltDetailModal from "./components/HaltDetailModal";
+import { authUtils } from "../../utils/storageUtils";
+import { ROUTE_PATHS } from "../../constants";
 
 const Dashboard = () => {
   // Tab state
@@ -53,6 +56,8 @@ const Dashboard = () => {
     setExtendedRegHaltIds,
   } = useHaltData();
 
+  const navigate = useNavigate();
+
   const { getSSETicket, notification, showNotification, hideNotification } =
     useSSE({
       haltList,
@@ -72,8 +77,17 @@ const Dashboard = () => {
 
   // Initialize SSE on mount
   useEffect(() => {
-    getSSETicket();
-  }, [getSSETicket]);
+    // Handle errors to avoid unhandled promise rejections (e.g. expired/invalid token)
+    getSSETicket().catch((err) => {
+      // Clear authentication and redirect to login when token is invalid/expired
+      try {
+        authUtils.logout();
+      } catch (e) {
+        // swallow errors during logout
+      }
+      navigate(ROUTE_PATHS.LOGIN, { replace: true });
+    });
+  }, [getSSETicket, navigate]);
 
   // Handle window resize
   useEffect(() => {

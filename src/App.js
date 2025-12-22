@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { CssBaseline, ThemeProvider } from '@mui/material'
 import { ColorModeContext, useMode } from './theme'
 import { LoggedInUserContext } from './contexts/LoggedInUserContext';
@@ -72,20 +72,24 @@ function App() {
                 }
               >
                 <Routes>
-                  {/* Authentication routes */}
-                  {!userLoggedIn && (
-                    <Route path={ROUTE_PATHS.LOGIN} element={<Login />} />
-                  )}
-                  {!userLoggedIn && (
-                    <Route path={ROUTE_PATHS.ROOT} element={<Login />} />
-                  )}
+                  {/* Root route: send authenticated users to dashboard, otherwise show Login */}
+                  <Route
+                    path={ROUTE_PATHS.ROOT}
+                    element={
+                      userLoggedIn ? (
+                        <Navigate to={ROUTE_PATHS.DASHBOARD} replace />
+                      ) : (
+                        <Login />
+                      )
+                    }
+                  />
+
+                  {/* Login route (explicit) */}
+                  <Route path={ROUTE_PATHS.LOGIN} element={<Login />} />
 
                   {/* Protected routes */}
                   {userLoggedIn && (
-                    <Route
-                      path={ROUTE_PATHS.DASHBOARD}
-                      element={<Dashboard />}
-                    />
+                    <Route path={ROUTE_PATHS.DASHBOARD} element={<Dashboard />} />
                   )}
                   {userLoggedIn && (
                     <Route path={ROUTE_PATHS.HISTORY} element={<History />} />
@@ -93,17 +97,11 @@ function App() {
 
                   {/* Restricted routes for non-authenticated users */}
                   {!userLoggedIn && (
-                    <Route
-                      path={ROUTE_PATHS.HISTORY}
-                      element={<NotLoggedIn />}
-                    />
+                    <Route path={ROUTE_PATHS.HISTORY} element={<NotLoggedIn />} />
                   )}
 
                   {/* Public routes */}
-                  <Route
-                    path={ROUTE_PATHS.USER_GUIDE}
-                    element={<UserGuide />}
-                  />
+                  <Route path={ROUTE_PATHS.USER_GUIDE} element={<UserGuide />} />
                 </Routes>
               </div>
             </LoggedInUserContext.Provider>

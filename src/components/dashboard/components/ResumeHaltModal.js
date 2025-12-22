@@ -208,6 +208,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
         resumptionTime: newResumptionTime || "",
         extendedHalt: haltData.extendedHalt || false,
         haltReason: haltData.haltReason || "",
+        remainedHalt: haltData.remainedHalt || false,
         remainReason: haltData.remainReason || "",
         status: haltData.status || "Halted",
         state: haltData.state || "Halted",

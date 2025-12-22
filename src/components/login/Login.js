@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import './Login.css';
 
@@ -6,6 +6,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { login, loading, error, clearError } = useAuth();
+  const [authMessage, setAuthMessage] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -28,6 +29,18 @@ const Login = () => {
     if (error) clearError();
   };
 
+  useEffect(() => {
+    try {
+      const msg = localStorage.getItem('authErrorMessage');
+      if (msg) {
+        setAuthMessage(msg);
+        localStorage.removeItem('authErrorMessage');
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
   return (
     <div>
       <div className='login'>
@@ -36,9 +49,9 @@ const Login = () => {
             <h2>Log in to Halt Portal</h2>
           </div>
 
-          {error && (
+          {(authMessage || error) && (
             <div className='login-errormsg'>
-              <span className='login-error-icon'>⚠</span> {error}
+              <span className='login-error-icon'>⚠</span> {authMessage || error}
             </div>
           )}
 

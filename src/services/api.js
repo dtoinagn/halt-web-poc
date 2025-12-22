@@ -1,9 +1,16 @@
 // API service layer for centralized API calls
+import { authUtils } from '../utils/storageUtils';
+import { ROUTE_PATHS } from '../constants';
 
 class ApiService {
   constructor() {
     this.config = window.runConfig || {};
   }
+
+  // logout helper import to clear auth state and redirect on 401
+  // Note: import here to avoid circular imports in other modules
+  // (storageUtils doesn't depend on apiService)
+  
 
   getAuthHeader() {
     const token = localStorage.getItem("token");
@@ -14,6 +21,22 @@ class ApiService {
   }
 
   async handleResponse(response) {
+    // If the server indicates the user is unauthorized, clear auth and redirect to login
+    if (response && response.status === 401) {
+      try {
+        // mark an auth error message so the login page can show it after redirect
+        try { localStorage.setItem('authErrorMessage', 'Session expired, please login again.'); } catch (e) {}
+        authUtils.logout();
+      } catch (e) {
+        // ignore
+      }
+      try {
+        window.location.href = ROUTE_PATHS.LOGIN;
+      } catch (e) {
+        // ignore
+      }
+      throw new Error('Unauthorized');
+    }
     if (!response.ok) {
       let errorData;
       try {

@@ -30,8 +30,11 @@ const NavBar = () => {
   const checkSession = () => {
     const userCookie = cookieUtils.get('userLogInCookie');
     if (!userCookie) {
-      setSessionTimeoutOpen(true);
+      // Immediately logout and redirect to login when session cookie is missing
+      logout();
+      return false;
     }
+    return true;
   };
 
   const handleSessionTimeoutClose = () => {
@@ -40,14 +43,14 @@ const NavBar = () => {
   };
 
   const toDashboardTab = () => {
-    checkSession();
+    if (!checkSession()) return;
     setClickedDashboard(true);
     setClickedHistory(false);
     setUserGuideClicked?.(false);
   };
 
   const toHistoryTab = () => {
-    checkSession();
+    if (!checkSession()) return;
     setClickedHistory(true);
     setClickedDashboard(false);
     setUserGuideClicked?.(false);
