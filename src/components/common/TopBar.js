@@ -4,7 +4,8 @@ import Logo from "./logo.png";
 import { useNavigate } from "react-router-dom";
 import { LoggedInUserContext } from "../../contexts/LoggedInUserContext";
 import { useAuth } from "../../hooks/useAuth";
-import { authUtils } from "../../utils/storageUtils";
+import { authUtils, cookieUtils } from "../../utils/storageUtils";
+import Notification from "../ui/Notification";
 import LogoutIcon from "@mui/icons-material/LogoutOutlined";
 import HelpIcon from "@mui/icons-material/Help";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -24,8 +25,10 @@ const TopBar = () => {
   } = context || {};
 
   const [showTitle, setShowTitle] = useState(false);
+  const [showSessionTimeout, setShowSessionTimeout] = useState(false);
 
   const inactivityTimeoutRef = useRef(null);
+  const sessionMonitorIntervalRef = useRef(null);
 
   useEffect(() => {
     const updateParameters = () => {
@@ -73,8 +76,10 @@ const TopBar = () => {
     setNavbarOpen?.(!navbarOpen);
   };
 
-  // Inactivity monitoring (from original code)
+  // Session monitoring - handles inactivity, cookie expiration, and closing hours
   useEffect(() => {
+    if (!userLoggedIn) return;
+
     const {
       closingHour = 17,
       openingHour = 6,
@@ -92,7 +97,7 @@ const TopBar = () => {
         clearTimeout(inactivityTimeoutRef.current);
       }
 
-      if (isAfterHours() && userLoggedIn) {
+      if (isAfterHours()) {
         inactivityTimeoutRef.current = setTimeout(
           handleLogout,
           inactivityLimitMinute * 60 * 1000
@@ -100,32 +105,59 @@ const TopBar = () => {
       }
     };
 
-    if (userLoggedIn) {
-      const events = ["mousemove", "keydown", "click"];
-      events.forEach((event) =>
-        window.addEventListener(event, resetInactivityTimer)
-      );
-      resetInactivityTimer();
+    // Setup inactivity monitoring
+    const events = ["mousemove", "keydown", "click"];
+    events.forEach((event) =>
+      window.addEventListener(event, resetInactivityTimer)
+    );
+    resetInactivityTimer();
 
-      // Handle automatic logout at closing hour
-      const checkTimeInterval = setInterval(() => {
-        const now = new Date();
-        if (now.getHours() === closingHour && now.getMinutes() === 0) {
-          handleLogout();
+    // Single interval to check cookie expiration and closing hour
+    sessionMonitorIntervalRef.current = setInterval(() => {
+      const now = new Date();
+
+      // Check cookie expiration
+      const userCookie = cookieUtils.get('userLogInCookie');
+      if (!userCookie) {
+        setShowSessionTimeout(true);
+
+        // Clear all timers
+        if (sessionMonitorIntervalRef.current) {
+          clearInterval(sessionMonitorIntervalRef.current);
         }
-      }, 10000); // check every 10 seconds
-
-      return () => {
-        events.forEach((event) =>
-          window.removeEventListener(event, resetInactivityTimer)
-        );
-        clearInterval(checkTimeInterval);
         if (inactivityTimeoutRef.current) {
           clearTimeout(inactivityTimeoutRef.current);
         }
-      };
-    }
+
+        // Logout after 3 seconds to show the message
+        setTimeout(() => {
+          handleLogout();
+        }, 3000);
+        return;
+      }
+
+      // Check closing hour
+      if (now.getHours() === closingHour && now.getMinutes() === 0) {
+        handleLogout();
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => {
+      events.forEach((event) =>
+        window.removeEventListener(event, resetInactivityTimer)
+      );
+      if (sessionMonitorIntervalRef.current) {
+        clearInterval(sessionMonitorIntervalRef.current);
+      }
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
+      }
+    };
   }, [userLoggedIn, handleLogout]);
+
+  const handleNotificationClose = () => {
+    setShowSessionTimeout(false);
+  };
 
   return (
     <div className="topbar">
@@ -159,6 +191,14 @@ const TopBar = () => {
           fontSize="large"
         />
       )}
+
+      <Notification
+        open={showSessionTimeout}
+        message="Session timeout, please login again"
+        onClose={handleNotificationClose}
+        severity="warning"
+        autoHideDuration={3000}
+      />
     </div>
   );
 };

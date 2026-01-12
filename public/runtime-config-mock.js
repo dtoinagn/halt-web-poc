@@ -8,7 +8,7 @@ window.runConfig = {
   apiUpdateHaltState: "http://localhost:3001/api/halt/update",
   apiHaltUpdate: "http://localhost:3001/api/halt/update",
   apiCreateResumption: "http://localhost:3001/api/halt/update",
-  apiUpdateResumption: 'http://localhost:3001/api/resume/update',
+  apiUpdateResumption: "http://localhost:3001/api/resume/update",
   apiSSEticket: "http://localhost:3001/api/sse/ticket",
   apiSSEstream: "http://localhost:3001/api/sse/stream/",
 
@@ -20,7 +20,8 @@ window.runConfig = {
 
   // Configuration values
   notificationTimeout: 5000,
-  userLogInCookieExpirationMinute: 60,
+  inactivityLimitMinute: 3,
+  userLogInCookieExpirationMinute: 1,
   // Enable mock SSE
   useMockSSE: true,
 };
