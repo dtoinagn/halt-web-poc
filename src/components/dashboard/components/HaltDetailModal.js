@@ -19,7 +19,7 @@ import { formatForHaltDetail } from "../../../utils/dateUtils";
 import { buildHaltPayload } from "../../../utils/haltDataUtils";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
-import { HALT_ACTIONS } from "../../../constants";
+import { HALT_ACTIONS, HALT_STATUSES } from "../../../constants";
 import "./CreateNewHaltModal.css";
 
 const HaltDetailModal = ({
@@ -40,6 +40,7 @@ const HaltDetailModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
+  const [isScheduled, setIsScheduled] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Initialize form data when haltData changes
@@ -54,6 +55,10 @@ const HaltDetailModal = ({
       const matchedRemainReason = remainReasons.find(
         (reason) => reason.description === haltData.remainReason
       );
+
+      // Check if it is a scheduled halt
+      const scheduled = (haltData.status === HALT_STATUSES.HALT_PENDING || haltData.status === HALT_STATUSES.HALT_SCHEDULED || haltData.status === HALT_STATUSES.HALT_PENDING_CANCELLED);
+      setIsScheduled(scheduled);
 
       setFormData({
         extendedHalt: haltData.extendedHalt || false,
@@ -409,7 +414,7 @@ const HaltDetailModal = ({
                 { value: true, label: "Yes" },
                 { value: false, label: "No" },
               ]}
-              disabled={loading}
+              disabled={isScheduled || loading}
             />
 
             {/* Row 3 */}

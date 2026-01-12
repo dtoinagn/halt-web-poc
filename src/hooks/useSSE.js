@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { apiService } from "../services/api";
 import { HALT_STATUSES, HALT_TYPES } from "../constants";
-import { getCurrentDateTime, formatDateTimeForDashboard } from "../utils/dateUtils";
+import { getCurrentDateTime, formatDateTimeForDashboard, compareDateTimeToSecond } from "../utils/dateUtils";
 
 /**
  * useSSE
@@ -252,13 +252,23 @@ export const useSSE = ({
               notifications.add(`New regulatory halt has been scheduled for ${symbol}`);
             }
             else {
-              // Update existing pending Halts
-              newPending[idx] = { ...newPending[idx], ...sseBody };
+              // Update notifications
               if (action === "ModifyScheduledHalt" && state === "HaltPending") {
-                notifications.add(`Halt time has been updated for ${symbol}`);
+                let notificationMsg = "";
+                if (compareDateTimeToSecond(newPending[idx].haltTime, sseBody.haltTime) !== 0 ) {
+                  notificationMsg += `'Halt time' `;
+                }
+                if (newPending[idx].allIssue !== sseBody.allIssue) {
+                  notificationMsg += `'All Issues' flag `;
+                }
+                if (notificationMsg.length > 0) {
+                  notifications.add(`Scheduled halt ${symbol} has been modified: ${notificationMsg.trim()}`);
+                }
               } else if (action === "CancelScheduledHalt") {
                 notifications.add(`Scheduled halt has been cancelled for ${symbol}`);
               }
+              // Update existing pending Halts
+              newPending[idx] = { ...newPending[idx], ...sseBody };
             }
             return;
           }

@@ -72,9 +72,6 @@ class ApiService {
 
     // Generate new idempotency key for this request
     const idempotencyKey = generateUUID();
-    console.log(
-      `[Idempotency] Initiating request ${requestId} with key: ${truncateKeyForLogging(idempotencyKey)}`
-    );
 
     // Create the request promise with retry logic
     const requestPromise = this._executeWithRetry(
@@ -86,9 +83,6 @@ class ApiService {
     ).finally(() => {
       // Clean up the in-flight request tracking when done
       this.inFlightRequests.delete(requestId);
-      console.log(
-        `[Idempotency] Request ${requestId} completed, cleared from tracking`
-      );
     });
 
     // Store the in-flight request
