@@ -22,11 +22,13 @@ const Login = () => {
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
     if (error) clearError();
+    if (authMessage) setAuthMessage('');
   };
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
     if (error) clearError();
+    if (authMessage) setAuthMessage('');
   };
 
   useEffect(() => {

@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { LoggedInUserContext } from "../../contexts/LoggedInUserContext";
 import { useAuth } from "../../hooks/useAuth";
 import { authUtils, cookieUtils } from "../../utils/storageUtils";
-import Notification from "../ui/Notification";
 import LogoutIcon from "@mui/icons-material/LogoutOutlined";
 import HelpIcon from "@mui/icons-material/Help";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -25,7 +24,6 @@ const TopBar = () => {
   } = context || {};
 
   const [showTitle, setShowTitle] = useState(false);
-  const [showSessionTimeout, setShowSessionTimeout] = useState(false);
 
   const inactivityTimeoutRef = useRef(null);
   const sessionMonitorIntervalRef = useRef(null);
@@ -119,8 +117,6 @@ const TopBar = () => {
       // Check cookie expiration
       const userCookie = cookieUtils.get('userLogInCookie');
       if (!userCookie) {
-        setShowSessionTimeout(true);
-
         // Clear all timers
         if (sessionMonitorIntervalRef.current) {
           clearInterval(sessionMonitorIntervalRef.current);
@@ -129,10 +125,11 @@ const TopBar = () => {
           clearTimeout(inactivityTimeoutRef.current);
         }
 
-        // Logout after 3 seconds to show the message
-        setTimeout(() => {
-          handleLogout();
-        }, 3000);
+        // Set error message for Login page
+        localStorage.setItem('authErrorMessage', 'Session timeout, please login again');
+
+        // Logout and redirect to login
+        handleLogout();
         return;
       }
 
@@ -154,10 +151,6 @@ const TopBar = () => {
       }
     };
   }, [userLoggedIn, handleLogout]);
-
-  const handleNotificationClose = () => {
-    setShowSessionTimeout(false);
-  };
 
   return (
     <div className="topbar">
@@ -191,14 +184,6 @@ const TopBar = () => {
           fontSize="large"
         />
       )}
-
-      <Notification
-        open={showSessionTimeout}
-        message="Session timeout, please login again"
-        onClose={handleNotificationClose}
-        severity="warning"
-        autoHideDuration={3000}
-      />
     </div>
   );
 };
