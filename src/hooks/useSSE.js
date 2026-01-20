@@ -25,7 +25,7 @@ export const useSSE = ({
   setExtendedRegHaltIds = () => { },
 }) => {
   const [sseTicket, setSSETicket] = useState("");
-  const [notification, setNotification] = useState("");
+  const [notification, setNotification] = useState([]);
   const [showNotification, setShowNotification] = useState(false);
   const timeoutRef = useRef(null);
 
@@ -63,9 +63,10 @@ export const useSSE = ({
     }
   };
 
-  const showNotificationMessage = useCallback((msg) => {
-    if (!msg) return;
-    setNotification(msg);
+  const showNotificationMessage = useCallback((messages) => {
+    if (!messages || (Array.isArray(messages) && messages.length === 0)) return;
+    const msgArray = Array.isArray(messages) ? messages : [messages];
+    setNotification(msgArray);
     setShowNotification(true);
     clearNotificationTimeout();
     const { notificationTimeout = 3000 } = window.runConfig || {};
@@ -297,7 +298,10 @@ export const useSSE = ({
       setExtendedRegHaltIds(newExtendedRegHaltIds);
 
       // Emit consolidated notifications
-      Array.from(notifications).forEach(msg => showNotificationMessage(msg));
+      const notificationMessages = Array.from(notifications);
+      if (notificationMessages.length > 0) {
+        showNotificationMessage(notificationMessages);
+      }
     });
   };
 
