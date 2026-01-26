@@ -272,7 +272,7 @@ const HaltTable = ({
       case "Halt Time":
       case "Sched Resumption Time":
       case "Sched Halt Time":
-        // Data should already be formatted by processHaltData, so just display it
+      case "Resumption Time":
         return (
           <TableCell
             key={idx}

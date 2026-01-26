@@ -124,11 +124,6 @@ const TopBar = () => {
         if (inactivityTimeoutRef.current) {
           clearTimeout(inactivityTimeoutRef.current);
         }
-
-        // Set error message for Login page
-        localStorage.setItem('authErrorMessage', 'Session timeout, please login again');
-
-        // Logout and redirect to login
         handleLogout();
         return;
       }

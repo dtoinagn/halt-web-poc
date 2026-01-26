@@ -1,14 +1,14 @@
 import React from 'react';
 import { Snackbar, Alert, Box } from '@mui/material';
 
-const Notification = ({
-  open,
-  message,
-  onClose,
-  severity = 'info',
-  autoHideDuration = 3000
+const Notification = ({ 
+  open, 
+  message, 
+  onClose, 
+  severity = 'info', 
+  autoHideDuration = 3000 
 }) => {
-  // Handle both array and string messages
+  // Handle both array and single string messages
   const messages = Array.isArray(message) ? message : [message];
   const hasMultipleMessages = messages.length > 1;
 
@@ -19,14 +19,14 @@ const Notification = ({
       onClose={onClose}
       autoHideDuration={autoHideDuration}
     >
-      <Alert
-        onClose={onClose}
-        severity={severity}
-        sx={{ width: '100%', marginTop: 1 }}
+      <Alert 
+        onClose={onClose} 
+        severity={severity} 
+        sx={{ width: '100%', marginTop: 1 }} 
         variant="filled"
       >
         {hasMultipleMessages ? (
-          <Box component="ul" sx={{ margin: 0, paddingLeft: 2 }}>
+          <Box component="ul" sx={{ paddingLeft: 2, margin: 0 }}>
             {messages.map((msg, index) => (
               <li key={index}>{msg}</li>
             ))}

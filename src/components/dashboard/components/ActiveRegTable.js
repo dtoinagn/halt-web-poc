@@ -60,18 +60,34 @@ const ActiveRegTable = ({
 
   const renderActiveRegAction = (row) => (
     <>
-      <Tooltip
-        title={`Schedule a resumption: ${row.haltId}`}
-        arrow
-      >
-        <button
-          className="halt-action-button"
-          onClick={() => handleResumeClick(row)}
-          style={{ marginLeft: 0 }}
+      {row.resumptionTime ? (
+        <Tooltip
+          title={`Edit scheduled resumption: ${row.haltId}`}
+          arrow
         >
-          Edit Resumption
-        </button>
-      </Tooltip>
+          <button
+            className="halt-action-button"
+            onClick={() => handleResumeClick(row)}
+            style={{ marginLeft: 0 }}
+          >
+            Edit Resumption
+          </button>
+        </Tooltip>
+        
+      ) : (
+        <Tooltip
+          title={`Schedule a resumption: ${row.haltId}`}
+          arrow
+        >
+          <button
+            className="halt-action-button"
+            onClick={() => handleResumeClick(row)}
+            style={{ marginLeft: 0 }}
+          >
+            Resume Trading
+          </button>
+        </Tooltip>
+      )}
       {row.resumptionTime ? (
         <Tooltip
           title={`Cancel scheduled resumption: ${row.haltId}`}
@@ -85,7 +101,9 @@ const ActiveRegTable = ({
             Cancel Resumption
           </button>
         </Tooltip>
-      ) : null}
+        
+      ) : (null)
+      }
     </>
   );
 

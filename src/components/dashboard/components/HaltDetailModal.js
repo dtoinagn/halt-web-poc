@@ -93,7 +93,7 @@ const HaltDetailModal = ({
     const originalComment = haltData.comment || "";
     const commentChanged = currentComment !== originalComment;
 
-    const hasAnyChanges = 
+    const hasAnyChanges =
       extendedChanged ||
       haltReasonChanged ||
       remainedChanged ||
@@ -173,7 +173,7 @@ const HaltDetailModal = ({
       const originalComment = haltData.comment || "";
       const commentChanged = currentComment !== originalComment;
 
-      const hasAnyChanges = 
+      const hasAnyChanges =
         extendedChanged ||
         haltReasonChanged ||
         remainedChanged ||
@@ -218,16 +218,14 @@ const HaltDetailModal = ({
       <Box className="halt-detail-field-container">
         <Typography className="halt-detail-label">{label}</Typography>
         <Box
-          className={`halt-detail-value-box ${
-            isGray
-              ? "halt-detail-value-box-gray"
-              : "halt-detail-value-box-white"
-          }`}
+          className={`halt-detail-value-box ${isGray
+            ? "halt-detail-value-box-gray"
+            : "halt-detail-value-box-white"
+            }`}
         >
           <Typography
-            className={`halt-detail-value-text ${
-              isBlue ? "halt-detail-value-text-blue" : ""
-            }`}
+            className={`halt-detail-value-text ${isBlue ? "halt-detail-value-text-blue" : ""
+              }`}
           >
             {value || ""}
           </Typography>
@@ -494,7 +492,7 @@ const HaltDetailModal = ({
                 { value: true, label: "Yes" },
                 { value: false, label: "No" },
               ]}
-              disabled={loading}
+              disabled={isScheduled || loading}
             />
             <Grid item xs={12} md={6}>
               {/* Empty space */}

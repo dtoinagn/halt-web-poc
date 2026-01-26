@@ -64,7 +64,7 @@ export const useSSE = ({
   };
 
   const showNotificationMessage = useCallback((messages) => {
-    if (!messages || (Array.isArray(messages) && messages.length === 0)) return;
+    if (!messages || (Array.isArray(messages) && messages.length === 0 )) return;
     const msgArray = Array.isArray(messages) ? messages : [messages];
     setNotification(msgArray);
     setShowNotification(true);
@@ -199,8 +199,16 @@ export const useSSE = ({
             if (idx !== -1) {
               newActiveReg[idx] = { ...newActiveReg[idx], ...sseBody };
             }
+            if (prev && prev.symbol !== symbol) {
+              // Symbol change (rare)
+              notifications.add(`Symbol has been changed for halt ${haltId}: ${prev.symbol} → ${symbol}`);
+            }
             if (prev && prev.resumptionTime !== sseBody.resumptionTime) {
-              notifications.add(`Resumption time has been updated for ${symbol}`);
+              if (sseBody.resumptionTime) {
+                notifications.add(`Resumption time has been updated for ${symbol}`);
+              } else {
+                notifications.add(`Resumption has been cancelled for ${symbol}`);
+              }
             } else {
               // Handle Extended and Remained flags on new resumption pending
               if (prev && extended !== prev.extendedHalt) {
@@ -256,7 +264,7 @@ export const useSSE = ({
               // Update notifications
               if (action === "ModifyScheduledHalt" && state === "HaltPending") {
                 let notificationMsg = "";
-                if (compareDateTimeToSecond(newPending[idx].haltTime, sseBody.haltTime) !== 0 ) {
+                if (compareDateTimeToSecond(newPending[idx].haltTime, sseBody.haltTime) !== 0) {
                   notificationMsg += `'Halt time' `;
                 }
                 if (newPending[idx].allIssue !== sseBody.allIssue) {

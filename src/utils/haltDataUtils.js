@@ -19,11 +19,8 @@ export const processHaltData = (data) => {
 
     const haltType = item.haltType;
     const haltStatus = item.status;
-    const resumptionTime = item.resumptionTime
-      ? new Date(item.resumptionTime)
-      : null;
-    const haltedSameDay = resumptionTime
-      ? isHaltedSameDay(null, resumptionTime)
+    const haltedSameDay = item.resumptionTime
+      ? isHaltedSameDay(null,  new Date(item.resumptionTime))
       : false;
     const extendedStatus = item.extendedHalt;
     const remainedHalt = item.remainedHalt;
