@@ -575,7 +575,7 @@ const HaltDetailModal = ({
         <DialogTitle>Unsaved Changes</DialogTitle>
         <DialogContent>
           <Typography>
-            You have unsaved changes. Are you sure you want to discard them?
+            Please confirm you wish to exit without saving the changes.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -591,7 +591,7 @@ const HaltDetailModal = ({
             variant="contained"
             className="create-halt-submit-button"
           >
-            Discard Changes
+            Yes
           </Button>
         </DialogActions>
       </Dialog>

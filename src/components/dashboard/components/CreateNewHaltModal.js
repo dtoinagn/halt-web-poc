@@ -67,6 +67,7 @@ const CreateNewHaltModal = ({
   const [error, setError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [symbolError, setSymbolError] = useState("");
+  const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
 
   // Memoize helper functions
   const getCurrentDateTime = useCallback(() => {
@@ -80,15 +81,49 @@ const CreateNewHaltModal = ({
     return getCurrentESTDateTime(DATETIME_FORMATS.BACKEND);
   }, []);
 
+  // Check if any fields have been changed from initial values
+  const hasUnsavedChanges = useCallback(() => {
+    const initial = getInitialFormData();
+    return (
+      symbolInput !== "" ||
+      formData.issueName !== initial.issueName ||
+      formData.listingMarket !== initial.listingMarket ||
+      formData.allIssue !== initial.allIssue ||
+      formData.haltReason !== initial.haltReason ||
+      formData.haltTime !== initial.haltTime ||
+      formData.resumptionTime !== initial.resumptionTime ||
+      formData.immediateHalt !== initial.immediateHalt ||
+      formData.extendedHalt !== initial.extendedHalt ||
+      formData.comment !== initial.comment
+    );
+  }, [symbolInput, formData]);
+
   const handleClose = useCallback(() => {
     if (!loading) {
-      setFormData(getInitialFormData());
-      setSymbolInput("");
-      setSymbolError("");
-      setError("");
-      onClose();
+      if (hasUnsavedChanges()) {
+        setExitConfirmOpen(true);
+      } else {
+        setFormData(getInitialFormData());
+        setSymbolInput("");
+        setSymbolError("");
+        setError("");
+        onClose();
+      }
     }
-  }, [loading, onClose]);
+  }, [loading, onClose, hasUnsavedChanges]);
+
+  const handleExitConfirmCancel = useCallback(() => {
+    setExitConfirmOpen(false);
+  }, []);
+
+  const handleExitConfirmOk = useCallback(() => {
+    setExitConfirmOpen(false);
+    setFormData(getInitialFormData());
+    setSymbolInput("");
+    setSymbolError("");
+    setError("");
+    onClose();
+  }, [onClose]);
 
   const handleSubmit = useCallback(async () => {
     setLoading(true);
@@ -599,6 +634,37 @@ const CreateNewHaltModal = ({
         confirmText="Yes"
         cancelText="No"
       />
+
+      {/* Confirmation Dialog for Unsaved Changes */}
+      <Dialog
+        open={exitConfirmOpen}
+        onClose={handleExitConfirmCancel}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Unsaved Changes</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Please confirm you wish to exit without creating the halt.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleExitConfirmCancel}
+            variant="outlined"
+            className="cancel-halt-close-button"
+          >
+            Go Back
+          </Button>
+          <Button
+            onClick={handleExitConfirmOk}
+            variant="contained"
+            className="create-halt-submit-button"
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
