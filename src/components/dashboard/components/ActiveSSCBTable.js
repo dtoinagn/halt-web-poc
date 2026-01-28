@@ -2,9 +2,12 @@ import { useState } from "react";
 import HaltTable from "./HaltTable";
 import { Tooltip } from "@mui/material";
 import ProlongSSCBHaltModal from "./ProlongSSCBHaltModal";
+import ConvertSSCBHaltModal from "./ConvertSSCBHaltModal";
 
 const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
   const [prolongSSCBHaltModalOpen, setProlongSSCBHaltModalOpen] =
+    useState(false);
+  const [convertSSCBHaltModalOpen, setConvertSSCBHaltModalOpen] =
     useState(false);
   const [selectedHalt, setSelectedHalt] = useState(null);
 
@@ -15,6 +18,16 @@ const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
 
   const handleProlongModalClose = () => {
     setProlongSSCBHaltModalOpen(false);
+    setSelectedHalt(null);
+  };
+
+  const handleConvertHalt = (row) => {
+    setSelectedHalt(row);
+    setConvertSSCBHaltModalOpen(true);
+  };
+
+  const handleConvertModalClose = () => {
+    setConvertSSCBHaltModalOpen(false);
     setSelectedHalt(null);
   };
 
@@ -33,6 +46,7 @@ const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
         <Tooltip title={`Convert: ${row.haltId}`} arrow>
           <button
             className="halt-action-button"
+            onClick={() => handleConvertHalt(row)}
             style={{ marginLeft: 0 }}
           >
             Convert to Regulatory
@@ -56,6 +70,11 @@ const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
       <ProlongSSCBHaltModal
         open={prolongSSCBHaltModalOpen}
         onClose={handleProlongModalClose}
+        haltData={selectedHalt}
+      />
+      <ConvertSSCBHaltModal
+        open={convertSSCBHaltModalOpen}
+        onClose={handleConvertModalClose}
         haltData={selectedHalt}
       />
     </>

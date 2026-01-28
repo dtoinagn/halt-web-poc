@@ -29,7 +29,8 @@ export const HALT_ACTIONS = {
   CANCEL_HALT: "CancelHalt",
   SCHEDULE_HALT: "ScheduleHalt",
   REMAINED_HALT: "RemainedHalt",
-  PROLONG_5MIN: "ProlongSSCB5Min"
+  PROLONG_5MIN: "ProlongSSCB5Min",
+  CONVERT_TO_REG: "ConvertSSCBToRegulatory"
 };
 
 export const TABLE_COLUMNS = {
