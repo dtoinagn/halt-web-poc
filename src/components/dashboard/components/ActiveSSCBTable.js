@@ -1,6 +1,7 @@
 import { useState } from "react";
 import HaltTable from "./HaltTable";
 import { Tooltip } from "@mui/material";
+import ProlongSSCBHaltModal from "./ProlongSSCBHaltModal";
 
 const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
   const [prolongSSCBHaltModalOpen, setProlongSSCBHaltModalOpen] =
@@ -9,11 +10,11 @@ const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
 
   const handleProlongHalt = (row) => {
     setSelectedHalt(row);
-    //setProlongSSCBHaltModalOpen(true);
+    setProlongSSCBHaltModalOpen(true);
   };
 
   const handleProlongModalClose = () => {
-    //setProlongSSCBHaltModalOpen(false);
+    setProlongSSCBHaltModalOpen(false);
     setSelectedHalt(null);
   };
 
@@ -42,15 +43,22 @@ const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
   );
 
   return (
-    <HaltTable
-      tableType="activeSSCB"
-      data={data}
-      showControls={false}
-      showExtendedCheckbox={false}
-      showActionButtons={false}
-      renderActionCell={renderSSCBAction}
-      onHaltIdClick={onHaltIdClick}
-    />
+    <>
+      <HaltTable
+        tableType="activeSSCB"
+        data={data}
+        showControls={false}
+        showExtendedCheckbox={false}
+        showActionButtons={false}
+        renderActionCell={renderSSCBAction}
+        onHaltIdClick={onHaltIdClick}
+      />
+      <ProlongSSCBHaltModal
+        open={prolongSSCBHaltModalOpen}
+        onClose={handleProlongModalClose}
+        haltData={selectedHalt}
+      />
+    </>
   );
 };
 
