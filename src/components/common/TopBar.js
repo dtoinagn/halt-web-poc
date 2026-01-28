@@ -110,8 +110,8 @@ const TopBar = () => {
     );
     resetInactivityTimer();
 
-    // Single interval to check cookie expiration and closing hour
-    sessionMonitorIntervalRef.current = setInterval(() => {
+    // Function to check cookie expiration and closing hour
+    const checkSessionStatus = () => {
       const now = new Date();
 
       // Check cookie expiration
@@ -132,7 +132,13 @@ const TopBar = () => {
       if (now.getHours() === closingHour && now.getMinutes() === 0) {
         handleLogout();
       }
-    }, 5000); // Check every 5 seconds
+    };
+
+    // Check session status immediately
+    checkSessionStatus();
+
+    // Single interval to check cookie expiration and closing hour periodically
+    sessionMonitorIntervalRef.current = setInterval(checkSessionStatus, 5000); // Check every 5 seconds
 
     return () => {
       events.forEach((event) =>
