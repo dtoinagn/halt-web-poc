@@ -4,7 +4,7 @@ import { Tooltip } from "@mui/material";
 import ProlongSSCBHaltModal from "./ProlongSSCBHaltModal";
 import ConvertSSCBHaltModal from "./ConvertSSCBHaltModal";
 
-const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
+const ActiveSSCBTable = ({ data, onHaltIdClick, haltReasons = [] }) => {
   const [prolongSSCBHaltModalOpen, setProlongSSCBHaltModalOpen] =
     useState(false);
   const [convertSSCBHaltModalOpen, setConvertSSCBHaltModalOpen] =
@@ -42,17 +42,15 @@ const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
           Prolong SSCB 5 Min
         </button>
       </Tooltip>
-      {row.resumptionTime ? (
-        <Tooltip title={`Convert: ${row.haltId}`} arrow>
-          <button
-            className="halt-action-button"
-            onClick={() => handleConvertHalt(row)}
-            style={{ marginLeft: 0 }}
-          >
-            Convert to Regulatory
-          </button>
-        </Tooltip>
-      ) : null}
+      <Tooltip title={`Convert: ${row.haltId}`} arrow>
+        <button
+          className="halt-action-button"
+          onClick={() => handleConvertHalt(row)}
+          style={{ marginLeft: 0 }}
+        >
+          Convert to Regulatory
+        </button>
+      </Tooltip>
     </>
   );
 
@@ -76,6 +74,7 @@ const ActiveSSCBTable = ({ data, onHaltIdClick }) => {
         open={convertSSCBHaltModalOpen}
         onClose={handleConvertModalClose}
         haltData={selectedHalt}
+        haltReasons={haltReasons}
       />
     </>
   );

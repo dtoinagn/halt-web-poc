@@ -1,5 +1,7 @@
 // Application constants
 
+import { C } from "@table-library/react-table-library/Cell-a4350b14";
+
 export const HALT_STATUSES = {
   HALTED: "Halted",
   RESUMED: "Resumed",
@@ -30,7 +32,7 @@ export const HALT_ACTIONS = {
   SCHEDULE_HALT: "ScheduleHalt",
   REMAINED_HALT: "RemainedHalt",
   PROLONG_5MIN: "ProlongSSCB5Min",
-  CONVERT_TO_REG: "ConvertSSCBToRegulatory"
+  CONVERT_TO_REG: "ConvertSSCBToRegulatory",
 };
 
 export const TABLE_COLUMNS = {
@@ -52,8 +54,6 @@ export const TABLE_COLUMNS = {
     "Symbol",
     "Issue Name",
     "Listing Mkt",
-    "All Issues",
-    "Created By",
     "Halt Time",
     "Sched Resumption Time",
     "Action",

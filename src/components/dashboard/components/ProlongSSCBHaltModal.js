@@ -125,7 +125,7 @@ const ProlongSSCBHaltModal = ({ open, onClose, haltData }) => {
 
         <Box className="cancel-halt-field-container">
           <Typography className="cancel-halt-label">Resumption Time</Typography>
-          <Box className="cancel-halt-value-box">
+          <Box className="cancel-halt-value-box" sx={{ minHeight: "36px" }}>
             <Typography className="cancel-halt-value-text">
               {formatForDashboard(haltData?.resumptionTime) || ""}
             </Typography>

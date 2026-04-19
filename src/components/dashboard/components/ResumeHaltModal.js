@@ -327,7 +327,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
 
         <Box className="cancel-halt-field-container" sx={{ alignItems: "flex-start" }}>
           <Typography className="cancel-halt-label" sx={{ paddingTop: "8px" }}>
-            Immediate Resumption
+            Resume in 2 minutes
           </Typography>
           <FormControlLabel
             control={

@@ -4,7 +4,7 @@ import { Tooltip } from "@mui/material";
 import CancelHaltModal from './CancelHaltModal';
 import EditScheduledHaltModal from './EditScheduledHaltModal';
 
-const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
+const PendingTable = ({ data, onHaltIdClick, onHaltCancelled, haltReasons = [] }) => {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedHalt, setSelectedHalt] = useState(null);
@@ -82,6 +82,7 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled }) => {
         open={editModalOpen}
         onClose={handleEditModalClose}
         haltData={selectedHalt}
+        haltReasons={haltReasons}
       />
       <CancelHaltModal
         open={cancelModalOpen}

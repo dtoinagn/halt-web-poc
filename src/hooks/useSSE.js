@@ -164,6 +164,10 @@ export const useSSE = ({
                 notifications.add(`New regulatory halt has been created for ${symbol}`);
             }
 
+            if (prev && prev.haltReason !== sseBody.haltReason) {
+              notifications.add(`Halt reason has been changed for ${symbol}`);
+            }
+
             if (prev && extended !== prev.extendedHalt) {
               if (extended) {
                 notifications.add(`Halt has been marked as extended for ${symbol}`);
@@ -238,10 +242,14 @@ export const useSSE = ({
               }
 
             }
+
+            if (prev && prev.haltReason !== sseBody.haltReason) {
+              notifications.add(`Halt reason has been changed for ${symbol}`);
+            }
             return;
           }
           // 4) SSCB creation / update
-          if (status === HALT_STATUSES.RESUMPTION_PENDING && haltType === HALT_TYPES.SSCB) {
+          if (haltType === HALT_TYPES.SSCB && (status === HALT_STATUSES.RESUMPTION_PENDING || status === HALT_STATUSES.HALTED)) {
             const idx = newActiveSSCB.findIndex(r => r.haltId === haltId);
             if (idx === -1) {
               newActiveSSCB.push(sseBody);
@@ -269,6 +277,9 @@ export const useSSE = ({
                 }
                 if (newPending[idx].allIssue !== sseBody.allIssue) {
                   notificationMsg += `'All Issues' flag `;
+                }
+                if (newPending[idx].haltReason !== sseBody.haltReason) {
+                  notificationMsg += `'Halt Reason' `;
                 }
                 if (notificationMsg.length > 0) {
                   notifications.add(`Scheduled halt ${symbol} has been modified: ${notificationMsg.trim()}`);

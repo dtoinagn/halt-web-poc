@@ -39,6 +39,7 @@ const HaltDetailModal = ({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [haltReasonError, setHaltReasonError] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -69,6 +70,7 @@ const HaltDetailModal = ({
       });
       setHasChanges(false);
       setError("");
+      setHaltReasonError("");
     }
   }, [haltData, haltReasons, remainReasons]);
 
@@ -76,34 +78,40 @@ const HaltDetailModal = ({
   useEffect(() => {
     if (!haltData) return;
 
-    const extendedChanged = formData.extendedHalt !== haltData.extendedHalt;
-
-    // Normalize empty/null values for comparison
-    const currentHaltReason = formData.haltReason?.description || "";
-    const originalHaltReason = haltData.haltReason || "";
-    const haltReasonChanged = currentHaltReason !== originalHaltReason;
-
-    const remainedChanged = formData.remainedHalt !== haltData.remainedHalt;
-
+    const extendedChanged = (formData.extendedHalt || false) !== (haltData.extendedHalt || false);
+    const remainedChanged = (formData.remainedHalt || false) !== (haltData.remainedHalt || false);
     const currentRemainReason = formData.remainReason?.description || "";
     const originalRemainReason = haltData.remainReason || "";
     const remainReasonChanged = currentRemainReason !== originalRemainReason;
-
-    const currentComment = formData.comment || "";
-    const originalComment = haltData.comment || "";
-    const commentChanged = currentComment !== originalComment;
+    const currentHaltReason = formData.haltReason?.description || "";
+    const originalHaltReason = haltData.haltReason || "";
+    const haltReasonChanged = currentHaltReason !== originalHaltReason;
+    const commentChanged = (formData.comment || "") !== (haltData.comment || "");
 
     const hasAnyChanges =
       extendedChanged ||
-      haltReasonChanged ||
       remainedChanged ||
       remainReasonChanged ||
+      haltReasonChanged ||
       commentChanged;
 
     setHasChanges(hasAnyChanges);
   }, [formData, haltData]);
 
   const handleFieldChange = useCallback((field, value) => {
+    setError("");
+    // Special handling for haltReason selection
+    if (field === "haltReason" && value && (value.description === "Single Stock Circuit Breaker" || value.description === "Market Wide Circuit Breaker")) {
+      // Clear the value and show an error
+      setHaltReasonError("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+      return;
+    }
+    setHaltReasonError("");
+
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -119,6 +127,16 @@ const HaltDetailModal = ({
       if (!haltData) {
         throw new Error("No halt data available");
       }
+
+      // Validate halt reason is required for scheduled halts
+      if (isScheduled && !formData.haltReason) {
+        throw new Error("Halt Reason is required for scheduled halts.");
+      }
+      // Guard against circuit breaker halts
+      if (formData.haltReason && (formData.haltReason.description === "Single Stock Circuit Breaker" || formData.haltReason.description === "Market Wide Circuit Breaker")) {
+        throw new Error("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
+      }
+
       setLoading(true);
 
       // Build the payload
@@ -161,23 +179,21 @@ const HaltDetailModal = ({
         return;
       }
 
-      const extendedChanged = formData.extendedHalt !== haltData.extendedHalt;
-      const currentHaltReason = formData.haltReason?.description || "";
-      const originalHaltReason = haltData.haltReason || "";
-      const haltReasonChanged = currentHaltReason !== originalHaltReason;
-      const remainedChanged = formData.remainedHalt !== haltData.remainedHalt;
+      const extendedChanged = (formData.extendedHalt || false) !== (haltData.extendedHalt || false);
+      const remainedChanged = (formData.remainedHalt || false) !== (haltData.remainedHalt || false);
       const currentRemainReason = formData.remainReason?.description || "";
       const originalRemainReason = haltData.remainReason || "";
       const remainReasonChanged = currentRemainReason !== originalRemainReason;
-      const currentComment = formData.comment || "";
-      const originalComment = haltData.comment || "";
-      const commentChanged = currentComment !== originalComment;
+      const currentHaltReason = formData.haltReason?.description || "";
+      const originalHaltReason = haltData.haltReason || "";
+      const haltReasonChanged = currentHaltReason !== originalHaltReason;
+      const commentChanged = (formData.comment || "") !== (haltData.comment || "");
 
       const hasAnyChanges =
         extendedChanged ||
-        haltReasonChanged ||
         remainedChanged ||
         remainReasonChanged ||
+        haltReasonChanged ||
         commentChanged;
 
       // Check for unsaved changes
@@ -399,7 +415,7 @@ const HaltDetailModal = ({
 
             {/* Row 2 */}
             <FieldRow
-              label="Symbol *"
+              label="Symbol"
               value={haltData.symbol}
               isGray={true}
               isBlue={false}
@@ -499,15 +515,36 @@ const HaltDetailModal = ({
             </Grid>
 
             {/* Full Width - Halt Reason */}
-            <EditableAutocompleteField
-              label="Halt Reason"
-              value={formData.haltReason}
-              onChange={(value) => handleFieldChange("haltReason", value)}
-              options={haltReasons}
-              fullWidth={true}
-              disabled={loading}
-            />
+            {/* Row 9 - Halt Reason, Halt Reason Type */}
+            {isScheduled ? (
+              <EditableAutocompleteField
+                label="Halt Reason *"
+                value={formData.haltReason}
+                onChange={(value) => handleFieldChange("haltReason", value)}
+                options={haltReasons}
+                disabled={loading}
+              />
+            ) : (
+              <FieldRow
+                label="Halt Reason"
+                value={formData.haltReason ? formData.haltReason.description : ""}
+                isGray={true}
+              />
+            )}
 
+            <FieldRow
+              label="Halt Reason Type"
+              value={formData.haltReason ? formData.haltReason.type : ""}
+              isGray={true}
+            />
+            {isScheduled && haltReasonError && (
+              <Typography
+                variant="body2"
+                className="create-halt-error-text-light"
+              >
+                {haltReasonError}
+              </Typography>
+            )}
             {/* Full Width - SSCB Source (if exists) */}
             {haltData.sscbSrc && (
               <FieldRow
@@ -517,32 +554,6 @@ const HaltDetailModal = ({
                 fullWidth={true}
               />
             )}
-
-            {/* Full Width - Notes */}
-            <Grid item xs={12}>
-              <Box className="halt-detail-field-container">
-                <Typography className="halt-detail-label">Notes</Typography>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={1}
-                  value={formData.comment}
-                  onChange={(e) => handleFieldChange("comment", e.target.value)}
-                  disabled={loading}
-                  placeholder="Enter notes..."
-                  InputProps={{
-                    style: {
-                      backgroundColor: "white",
-                      minHeight: "36px",
-                      fontSize: "0.688rem",
-                    },
-                  }}
-                  inputProps={{
-                    style: { fontSize: "0.688rem" },
-                  }}
-                />
-              </Box>
-            </Grid>
           </Grid>
         </DialogContent>
 

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -7,16 +7,41 @@ import {
   Button,
   Typography,
   Box,
+  Autocomplete,
+  TextField,
+  MenuItem,
 } from "@mui/material";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { formatForBackend } from "../../../utils/dateUtils";
 import { HALT_ACTIONS } from "../../../constants";
+import HaltModalField from "./HaltModalField";
+import HaltReasonSelector from "./HaltReasonSelector";
 import "./CreateNewHaltModal.css";
 
-const ConvertSSCBHaltModal = ({ open, onClose, haltData }) => {
+const ConvertSSCBHaltModal = ({ open, onClose, haltData, haltReasons = [] }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    haltReason: null,
+    allIssue: "",
+  });
+
+  // Update form data when haltData changes
+  useEffect(() => {
+    if (haltData && haltReasons.length > 0) {
+      // Find matching halt reason
+      const matchedHaltReason = haltReasons.find(
+        (reason) => reason.description === haltData.haltReason
+      );
+
+      setFormData({
+        haltReason: matchedHaltReason || null,
+        allIssue: haltData?.allIssue === "Yes" || haltData?.allIssue === "true" || haltData?.allIssue === true ? "Yes" : "No",
+      });
+      setError("");
+    }
+  }, [haltData, haltReasons]);
 
   const handleClose = useCallback(() => {
     if (!loading) {
@@ -25,10 +50,43 @@ const ConvertSSCBHaltModal = ({ open, onClose, haltData }) => {
     }
   }, [loading, onClose]);
 
+  const handleFieldChange = useCallback((field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }, []);
+
+  const handleHaltReasonChange = useCallback((value) => {
+    setFormData((prev) => ({
+      ...prev,
+      haltReason: value,
+    }));
+  }, []);
+
+  const handleHaltReasonError = useCallback((errorMsg) => {
+    setError(errorMsg);
+  }, []);
+
   const handleConfirm = useCallback(async () => {
     setError("");
 
     try {
+      // Validate halt reason is selected
+      if (!formData.haltReason) {
+        throw new Error("Please select a halt reason");
+      }
+
+      // Validate all issues is selected
+      if (!formData.allIssue) {
+        throw new Error("Please select if halt is for all issues");
+      }
+
+      // Guard against circuit breaker halts
+      if (formData.haltReason && (formData.haltReason.description === "Single Stock Circuit Breaker" || formData.haltReason.description === "Market Wide Circuit Breaker")) {
+        throw new Error("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
+      }
+
       setLoading(true);
 
       // Build the payload for converting SSCB halt to regulatory halt
@@ -37,11 +95,11 @@ const ConvertSSCBHaltModal = ({ open, onClose, haltData }) => {
         symbol: haltData?.symbol || "",
         issueName: haltData?.issueName || "",
         listingMarket: haltData?.listingMarket || "",
-        allIssue: haltData?.allIssue === "Yes" ? "true" : "false",
+        allIssue: formData.allIssue === "Yes" ? "true" : "false",
         haltTime: formatForBackend(haltData?.haltTime) || "",
         resumptionTime: formatForBackend(haltData?.resumptionTime) || "",
         extendedHalt: haltData?.extendedHalt || false,
-        haltReason: haltData?.haltReason || "",
+        haltReason: formData.haltReason ? formData.haltReason.description : "",
         remainedHalt: haltData?.remainedHalt || false,
         remainReason: haltData?.remainReason || "",
         status: haltData?.status || "",
@@ -65,7 +123,7 @@ const ConvertSSCBHaltModal = ({ open, onClose, haltData }) => {
     } finally {
       setLoading(false);
     }
-  }, [haltData, handleClose]);
+  }, [haltData, formData.haltReason, formData.allIssue, handleClose]);
 
   return (
     <Dialog
@@ -105,43 +163,41 @@ const ConvertSSCBHaltModal = ({ open, onClose, haltData }) => {
           Please confirm the conversion of the SSCB halt to a regulatory halt:
         </Typography>
 
-        <Box className="cancel-halt-field-container">
-          <Typography className="cancel-halt-label">Halt Event ID</Typography>
-          <Box className="cancel-halt-value-box">
-            <Typography className="cancel-halt-value-text">
-              {haltData?.haltId || ""}
-            </Typography>
-          </Box>
-        </Box>
+        <HaltModalField label="Halt Event ID" value={haltData?.haltId} />
+        <HaltModalField label="Symbol" value={haltData?.symbol} />
+        <HaltModalField label="Halt Type" value={haltData?.haltType} />
 
         <Box className="cancel-halt-field-container">
-          <Typography className="cancel-halt-label">Symbol</Typography>
-          <Box className="cancel-halt-value-box">
-            <Typography className="cancel-halt-value-text">
-              {haltData?.symbol || ""}
-            </Typography>
-          </Box>
+          <Typography className="cancel-halt-label">
+            All Issues <span style={{ color: "red" }}>*</span>
+          </Typography>
+          <TextField
+            select
+            fullWidth
+            value={formData.allIssue}
+            onChange={(e) => handleFieldChange("allIssue", e.target.value)}
+            disabled={loading}
+            variant="outlined"
+            error={!formData.allIssue && !!error}
+            required
+            InputProps={{
+              style: { backgroundColor: "white", height: "36px" },
+            }}
+          >
+            <MenuItem value="Yes">Yes</MenuItem>
+            <MenuItem value="No">No</MenuItem>
+          </TextField>
         </Box>
 
-        <Box className="cancel-halt-field-container">
-          <Typography className="cancel-halt-label">Halt Type</Typography>
-          <Box className="cancel-halt-value-box">
-            <Typography className="cancel-halt-value-text">
-              {haltData?.haltType || ""}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box className="cancel-halt-field-container">
-          <Typography className="cancel-halt-label">All Issues</Typography>
-          <Box className="cancel-halt-value-box">
-            <Typography className="cancel-halt-value-text">
-              {haltData?.allIssue === "Yes" || haltData?.allIssue === "true" || haltData?.allIssue === true ? "Yes" : "No"}
-            </Typography>
-          </Box>
-        </Box>
+        <HaltReasonSelector
+          haltReasons={haltReasons}
+          value={formData.haltReason}
+          onChange={handleHaltReasonChange}
+          onError={handleHaltReasonError}
+          loading={loading}
+          error={error}
+        />
       </DialogContent>
-
       <DialogActions className="cancel-halt-dialog-actions">
         <Button
           onClick={handleConfirm}
@@ -149,7 +205,7 @@ const ConvertSSCBHaltModal = ({ open, onClose, haltData }) => {
           variant="contained"
           className="create-halt-submit-button"
         >
-          {loading ? "Processing..." : "Confirm"}
+          {loading ? "Updating..." : "Confirm"}
         </Button>
         <Button
           onClick={handleClose}

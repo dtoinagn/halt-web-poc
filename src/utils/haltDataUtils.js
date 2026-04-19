@@ -48,9 +48,8 @@ export const processHaltData = (data) => {
         }
       }
     } else if (
-      (haltStatus === HALT_STATUSES.RESUMPTION_PENDING ||
-        haltStatus === HALT_STATUSES.HALTED) &&
-      haltType === HALT_TYPES.SSCB
+       haltType === HALT_TYPES.SSCB && (haltStatus === HALT_STATUSES.RESUMPTION_PENDING ||
+        haltStatus === HALT_STATUSES.HALTED)     
     ) {
       processedData.activeSSCBData.push(item);
     } else if (haltStatus === HALT_STATUSES.HALT_PENDING || haltStatus === HALT_STATUSES.HALT_SCHEDULED || haltStatus === HALT_STATUSES.HALT_PENDING_CANCELLED) {

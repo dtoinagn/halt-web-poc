@@ -184,18 +184,22 @@ const Dashboard = () => {
               onHaltIdClick={handleHaltIdClick}
               securities={securities}
               remainReasons={remainReasons}
+              haltReasons={haltReasons}
+              onHaltUpdated={fetchActiveHalts}
             />
           )}
           {activeTab === "sscb" && (
             <ActiveSSCBTable
               data={activeSSCBData}
               onHaltIdClick={handleHaltIdClick}
+              haltReasons={haltReasons}
             />
           )}
           {activeTab === "pending" && (
             <PendingTable
               data={pendingData}
               onHaltIdClick={handleHaltIdClick}
+              haltReasons={haltReasons}
             />
           )}
           {activeTab === "lifted" && (

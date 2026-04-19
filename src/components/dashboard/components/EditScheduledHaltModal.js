@@ -15,7 +15,7 @@ import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { formatForBackend, formatForDateTimeLocal, compareDateTimeToSecond } from "../../../utils/dateUtils";
 import { HALT_ACTIONS } from "../../../constants";
-import "./CreateNewHaltModal.css";
+import HaltReasonSelector from "./HaltReasonSelector";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -24,24 +24,30 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const EST_ZONE = "America/New_York";
 
-const EditScheduledHaltModal = ({ open, onClose, haltData }) => {
+const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     haltTime: haltData?.haltTime || "",
     allIssue: (haltData?.allIssue === "Yes" || haltData?.allIssue === "true") ? "Yes" : "No",
+    haltReason: null,
   });
 
   // Update form data when haltData changes
   useEffect(() => {
     if (haltData) {
       const formattedHaltTime = formatForDateTimeLocal(haltData.haltTime);
+      // Find matching halt reason
+      const matchedHaltReason = haltReasons.find(
+        (reason) => reason.description === haltData.haltReason
+      );
       setFormData({
         haltTime: formattedHaltTime || "",
         allIssue: (haltData.allIssue === "Yes" || haltData.allIssue === "true") ? "Yes" : "No",
+        haltReason: matchedHaltReason || null,
       });
     }
-  }, [haltData]);
+  }, [haltData, haltReasons]);
 
   const handleClose = useCallback(() => {
     if (!loading) {
@@ -57,6 +63,17 @@ const EditScheduledHaltModal = ({ open, onClose, haltData }) => {
     }));
   }, []);
 
+  const handleHaltReasonChange = useCallback((value) => {
+    setFormData((prev) => ({
+      ...prev,
+      haltReason: value,
+    }));
+  }, []);
+
+  const handleHaltReasonError = useCallback((errorMsg) => {
+    setError(errorMsg);
+  }, []);
+
   const handleConfirm = useCallback(async () => {
     setError("");
 
@@ -64,6 +81,16 @@ const EditScheduledHaltModal = ({ open, onClose, haltData }) => {
       // Validate halt time
       if (!formData.haltTime) {
         throw new Error("Please select a halt time");
+      }
+
+      // Validate halt reason is selected
+      if (!formData.haltReason) {
+        throw new Error("Please select a halt reason");
+      }
+
+      // Guard against circuit breaker halts
+      if (formData.haltReason && (formData.haltReason.description === "Single Stock Circuit Breaker" || formData.haltReason.description === "Market Wide Circuit Breaker")) {
+        throw new Error("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
       }
 
       const haltDateEST = dayjs.tz(formData.haltTime, EST_ZONE);
@@ -89,7 +116,7 @@ const EditScheduledHaltModal = ({ open, onClose, haltData }) => {
         haltTime: formatForBackend(formData.haltTime) || "",
         resumptionTime: formatForBackend(haltData.resumptionTime) || "",
         extendedHalt: haltData.extendedHalt || false,
-        haltReason: haltData.haltReason || "",
+        haltReason: formData.haltReason ? formData.haltReason.description : "",
         remainedHalt: haltData.remainedHalt || false,
         remainReason: haltData.remainReason || "",
         status: haltData.status || "HaltPending",
@@ -149,7 +176,7 @@ const EditScheduledHaltModal = ({ open, onClose, haltData }) => {
         )}
 
         <Typography className="cancel-halt-confirmation-text">
-          Please modify the 'Halt Time' and 'All Issues' fields for the scheduled halt as required:
+          Please modify the fields for the scheduled halt as required:
         </Typography>
 
         <Box className="cancel-halt-field-container">
@@ -202,6 +229,15 @@ const EditScheduledHaltModal = ({ open, onClose, haltData }) => {
             <MenuItem value="No">No</MenuItem>
           </Select>
         </Box>
+
+        <HaltReasonSelector
+          haltReasons={haltReasons}
+          value={formData.haltReason}
+          onChange={handleHaltReasonChange}
+          onError={handleHaltReasonError}
+          loading={loading}
+          error={error}
+        />
       </DialogContent>
 
       <DialogActions className="cancel-halt-dialog-actions">

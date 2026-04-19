@@ -4,6 +4,7 @@ import { Tooltip } from "@mui/material";
 import ResumeHaltModal from './ResumeHaltModal';
 import CancelResumptionModal from './CancelResumptionModal';
 import RemainHaltModal from './RemainHaltModal';
+import EditHaltReasonModal from './EditHaltReasonModal';
 
 const ActiveRegTable = ({
   data,
@@ -14,12 +15,15 @@ const ActiveRegTable = ({
   onHaltIdClick,
   securities = [],
   remainReasons = [],
+  haltReasons = [],
+  onHaltUpdated,
 }) => {
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
   const [cancelResumptionModalOpen, setCancelResumptionModalOpen] = useState(false);
   const [selectedHalt, setSelectedHalt] = useState(null);
   const [remainModalOpen, setRemainModalOpen] = useState(false);
   const [remainModalHalt, setRemainModalHalt] = useState(null);
+  const [editHaltReasonModalOpen, setEditHaltReasonModalOpen] = useState(false);
 
   const handleResumeClick = (row) => {
     setSelectedHalt(row);
@@ -51,6 +55,16 @@ const ActiveRegTable = ({
     setRemainModalHalt(null);
   };
 
+  const handleEditHaltReasonClick = (row) => {
+    setSelectedHalt(row);
+    setEditHaltReasonModalOpen(true);
+  };
+
+  const handleEditHaltReasonModalClose = () => {
+    setEditHaltReasonModalOpen(false);
+    setSelectedHalt(null);
+  };
+
   const handleRemainSuccess = async (remainedHalt, remainReason) => {
     if (onRemainedHaltUpdate && remainModalHalt) {
       await onRemainedHaltUpdate(remainModalHalt.haltId, remainedHalt, remainReason);
@@ -73,7 +87,7 @@ const ActiveRegTable = ({
             Edit Resumption
           </button>
         </Tooltip>
-        
+
       ) : (
         <Tooltip
           title={`Schedule a resumption: ${row.haltId}`}
@@ -88,6 +102,18 @@ const ActiveRegTable = ({
           </button>
         </Tooltip>
       )}
+      <Tooltip
+        title={`Edit halt reason: ${row.haltId}`}
+        arrow
+      >
+        <button
+          className="halt-action-button"
+          onClick={() => handleEditHaltReasonClick(row)}
+          style={{ marginLeft: 0 }}
+        >
+          Edit Halt Reason
+        </button>
+      </Tooltip>
       {row.resumptionTime ? (
         <Tooltip
           title={`Cancel scheduled resumption: ${row.haltId}`}
@@ -101,7 +127,7 @@ const ActiveRegTable = ({
             Cancel Resumption
           </button>
         </Tooltip>
-        
+
       ) : (null)
       }
     </>
@@ -142,6 +168,13 @@ const ActiveRegTable = ({
         haltData={remainModalHalt}
         remainReasons={remainReasons}
         onSuccess={handleRemainSuccess}
+      />
+      <EditHaltReasonModal
+        open={editHaltReasonModalOpen}
+        onClose={handleEditHaltReasonModalClose}
+        haltData={selectedHalt}
+        haltReasons={haltReasons}
+        onHaltUpdated={onHaltUpdated}
       />
     </>
   );

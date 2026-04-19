@@ -9,20 +9,15 @@ import {
   Autocomplete,
   FormControlLabel,
   Checkbox,
-  Grid,
   Typography,
   Box,
   MenuItem,
-  IconButton,
 } from "@mui/material";
-import {
-  AddCircleOutline as AddIcon,
-  Close as CloseIcon,
-} from "@mui/icons-material";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import ConfirmDialog from "../../ui/ConfirmDialog";
+import HaltModalField from "./HaltModalField";
 import "./CreateNewHaltModal.css";
 import {
   compareDateTimeToSecond,
@@ -67,12 +62,8 @@ const CreateNewHaltModal = ({
   const [error, setError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [symbolError, setSymbolError] = useState("");
+  const [haltReasonError, setHaltReasonError] = useState("");
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
-
-  // Memoize helper functions
-  const getCurrentDateTime = useCallback(() => {
-    return getCurrentESTDateTime(DATETIME_FORMATS.DATETIME_LOCAL);
-  }, []);
 
   const getCurrentTimeBackendFormat = useCallback((dateTime) => {
     if (dateTime) {
@@ -98,6 +89,17 @@ const CreateNewHaltModal = ({
     );
   }, [symbolInput, formData]);
 
+  const handleSavedClose = useCallback(() => {
+    if (!loading) {
+      setFormData(getInitialFormData());
+      setSymbolInput("");
+      setSymbolError("");
+      setHaltReasonError("");
+      setError("");
+      onClose();
+    }
+  }, [loading, onClose]);
+
   const handleClose = useCallback(() => {
     if (!loading) {
       if (hasUnsavedChanges()) {
@@ -106,6 +108,7 @@ const CreateNewHaltModal = ({
         setFormData(getInitialFormData());
         setSymbolInput("");
         setSymbolError("");
+        setHaltReasonError("");
         setError("");
         onClose();
       }
@@ -121,6 +124,7 @@ const CreateNewHaltModal = ({
     setFormData(getInitialFormData());
     setSymbolInput("");
     setSymbolError("");
+    setHaltReasonError("");
     setError("");
     onClose();
   }, [onClose]);
@@ -170,7 +174,7 @@ const CreateNewHaltModal = ({
         await onHaltCreated();
       }
 
-      handleClose();
+      handleSavedClose();
     } catch (err) {
       console.error("Failed to create halt:", err);
       setError(err.message || "Failed to create halt. Please try again.");
@@ -213,6 +217,15 @@ const CreateNewHaltModal = ({
       if (!formData.allIssue) {
         throw new Error("Please select if halt is for all issues");
       }
+      if (!formData.haltReason) {
+        throw new Error("Please select a halt reason");
+      }
+      if (formData.haltReason
+        && (formData.haltReason.description === "Single Stock Circuit Breaker" ||
+          formData.haltReason.description === "Market Wide Circuit Breaker")) {
+        // should never happen because we clear on selection, but guard anyway
+        throw new Error("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
+      }
       // Validate halt time for scheduled halts
       if (!formData.immediateHalt) {
         const haltDateEST = dayjs.tz(formData.haltTime, EST_ZONE);
@@ -229,7 +242,7 @@ const CreateNewHaltModal = ({
       // If all validations pass, open confirmation dialog for immediate halt only
       if (formData.immediateHalt) {
         setConfirmOpen(true);
-      } else{
+      } else {
         // Directly submit for scheduled halts
         handleSubmit();
       }
@@ -241,6 +254,7 @@ const CreateNewHaltModal = ({
     formData.immediateHalt,
     formData.haltTime,
     formData.allIssue,
+    formData.haltReason,
     checkExistingHaltsForSymbol,
     handleSubmit
   ]);
@@ -253,6 +267,26 @@ const CreateNewHaltModal = ({
     setConfirmOpen(false);
     await handleSubmit();
   }, [handleSubmit]);
+
+  const handleHaltReasonChange = useCallback((field, value) => {
+    setError("");
+    // special handling for haltReason selection
+    if (value && (value.description === "Single Stock Circuit Breaker" || value.description === "Market Wide Circuit Breaker")) {
+      // clear the value and show an error
+      setHaltReasonError("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+      return;
+    }
+    setHaltReasonError("");
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }, [haltReasons]);
 
   const handleFieldChange = useCallback((field, value) => {
     setFormData((prev) => ({
@@ -267,7 +301,7 @@ const CreateNewHaltModal = ({
         setFormData((prev) => ({
           ...prev,
           immediateHalt: true,
-          haltTime: getCurrentDateTime(),
+          haltTime: "",
         }));
       } else {
         setFormData((prev) => ({
@@ -277,7 +311,7 @@ const CreateNewHaltModal = ({
         }));
       }
     },
-    [getCurrentDateTime]
+    []
   );
 
   const handleSymbolChange = useCallback((event, newValue) => {
@@ -305,7 +339,7 @@ const CreateNewHaltModal = ({
         );
       } else {
         setSymbolError("");
-      }      
+      }
     } else {
       // User cleared the selection
       setFormData((prev) => ({
@@ -359,7 +393,7 @@ const CreateNewHaltModal = ({
           `A scheduled halt already exists for symbol ${newInputValue}, please cancel it before creating a new halt.`
         );
       } else {
-        setSymbolError(""); 
+        setSymbolError("");
       }
     },
     [securities, checkExistingHaltsForSymbol]
@@ -376,15 +410,15 @@ const CreateNewHaltModal = ({
 
   // Memoize button disabled state
   const isSubmitDisabled = useMemo(
-    () => loading || !symbolInput || !formData.allIssue || !formData.haltTime,
-    [loading, symbolInput, formData.allIssue, formData.haltTime]
+    () => loading || !symbolInput || !formData.allIssue || (!formData.haltTime && !formData.immediateHalt) || !formData.haltReason,
+    [loading, symbolInput, formData.allIssue, formData.haltTime, formData.immediateHalt, formData.haltReason]
   );
 
   return (
     <>
       <Dialog
         open={open}
-        maxWidth="md"
+        maxWidth="sm"
         fullWidth
         onClose={(event, reason) => {
           if (reason === "backdropClick") {
@@ -399,29 +433,18 @@ const CreateNewHaltModal = ({
         }}
         sx={{
           "& .MuiDialog-paper": {
-            minHeight: "500px",
+            height: "auto",
           },
         }}
       >
         <DialogTitle className="create-halt-dialog-title">
-          <Box className="create-halt-dialog-title-content">
-            <AddIcon className="create-halt-dialog-icon" />
-            <Typography
-              variant="h6"
-              component="div"
-              className="create-halt-dialog-title-text"
-            >
-              Create New Trading Halt
-            </Typography>
-          </Box>
-          <IconButton
-            onClick={handleClose}
-            size="small"
-            className="create-halt-dialog-close-button"
-            disabled={loading}
+          <Typography
+            variant="h6"
+            component="div"
+            className="cancel-halt-dialog-title-text"
           >
-            <CloseIcon fontSize="small" />
-          </IconButton>
+            Create Halt
+          </Typography>
         </DialogTitle>
 
         <DialogContent className="create-halt-dialog-content">
@@ -433,8 +456,11 @@ const CreateNewHaltModal = ({
             </Box>
           )}
 
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-            <Grid item xs={12} md={6}>
+          <Box className="cancel-halt-field-container">
+            <Typography className="cancel-halt-label">
+              Symbol <span style={{ color: "red" }}>*</span>
+            </Typography>
+            <Box sx={{ flex: 1 }}>
               <Autocomplete
                 freeSolo={true} // Allow free text input
                 options={securities}
@@ -456,164 +482,133 @@ const CreateNewHaltModal = ({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Symbol *"
                     fullWidth
                     variant="outlined"
                     error={!symbolInput && !!error}
+                    InputProps={{
+                      ...params.InputProps,
+                      style: { backgroundColor: "white", height: "36px" },
+                    }}
                   />
                 )}
               />
-              {symbolError && (
-                <Typography
-                  variant="body2"
-                  className="create-halt-error-text-light"
-                >
-                  {symbolError}
-                </Typography>)}       
-            </Grid>
+            </Box>
+          </Box>
+          {symbolError && (
+            <Typography
+              variant="body2"
+              className="create-halt-error-text-light"
+            >
+              {symbolError}
+            </Typography>
+          )}
+          <HaltModalField label="Issue Name" value={formData.issueName} />
+          <HaltModalField label="Listing Market" value={formData.listingMarket} />
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Issue Name"
-                value={formData.issueName}
-                onChange={(e) => handleFieldChange("issueName", e.target.value)}
-                disabled={true}
-                fullWidth
-                variant="outlined"
-              />
-            </Grid>
+          <Box className="cancel-halt-field-container">
+            <Typography className="cancel-halt-label">
+              All Issues <span style={{ color: "red" }}>*</span>
+            </Typography>
+            <TextField
+              select
+              fullWidth
+              value={formData.allIssue}
+              onChange={(e) => handleFieldChange("allIssue", e.target.value)}
+              disabled={loading}
+              variant="outlined"
+              error={!formData.allIssue && !!error}
+              required
+              InputProps={{
+                style: { backgroundColor: "white", height: "36px" },
+              }}
+            >
+              <MenuItem value="Yes">Yes</MenuItem>
+              <MenuItem value="No">No</MenuItem>
+            </TextField>
+          </Box>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Listing Market"
-                value={formData.listingMarket}
-                onChange={(e) => handleFieldChange("listingMarket", e.target.value)}
-                disabled={true}
-                fullWidth
-                variant="outlined"
-              />
-            </Grid>
+          <Box className="cancel-halt-field-container" sx={{ alignItems: "flex-start" }}>
+            <Typography className="cancel-halt-label" sx={{ paddingTop: "8px" }}>
+              Immediate Halt
+            </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.immediateHalt}
+                  onChange={(e) =>
+                    handleImmediateHaltChange(e.target.checked)
+                  }
+                  disabled={loading}
+                />
+              }
+              label=""
+              sx={{ margin: 0 }}
+            />
+          </Box>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                select
-                label="All Issues"
-                value={formData.allIssue}
-                onChange={(e) => handleFieldChange("allIssue", e.target.value)}
-                disabled={loading}
-                fullWidth
-                variant="outlined"
-                error={!formData.allIssue && !!error}
-                required
-              >
-                <MenuItem value="Yes">Yes</MenuItem>
-                <MenuItem value="No">No</MenuItem>
-              </TextField>
-            </Grid>
+          <Box className="cancel-halt-field-container">
+            <Typography className="cancel-halt-label">
+              Halt Time{!formData.immediateHalt ? <span style={{ color: "red" }}>*</span> : ''}
+            </Typography>
+            <TextField
+              fullWidth
+              type="datetime-local"
+              value={formData.haltTime}
+              onChange={(e) => handleFieldChange("haltTime", e.target.value)}
+              disabled={loading || formData.immediateHalt}
+              InputLabelProps={{ shrink: true }}
+              InputProps={{
+                style: { backgroundColor: "white", height: "36px" },
+              }}
+            />
+          </Box>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Halt Time *"
-                type="datetime-local"
-                value={formData.haltTime}
-                onChange={(e) => handleFieldChange("haltTime", e.target.value)}
-                disabled={loading || formData.immediateHalt}
-                fullWidth
-                variant="outlined"
-                error={!formData.haltTime && !!error}
-                InputLabelProps={{ shrink: true }}
-                inputProps={{
-                  // Set default value in EST when popup opens
-                  value: formData.haltTime || getCurrentDateTime(),
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.immediateHalt}
-                    onChange={(e) =>
-                      handleImmediateHaltChange(e.target.checked)
-                    }
-                    disabled={loading}
-                  />
-                }
-                label="Immediate Halt"
-                sx={{ mt: 2 }}
-              />
-            </Grid>
-
-            <Grid item xs={12} md={6}>
+          <Box className="cancel-halt-field-container">
+            <Typography className="cancel-halt-label">
+              Halt Reason <span style={{ color: "red" }}>*</span>
+            </Typography>
+            <Box sx={{ flex: 1 }}>
               <Autocomplete
                 options={haltReasons}
                 getOptionLabel={(option) => option.description || option}
                 value={formData.haltReason}
                 onChange={(event, newValue) =>
-                  handleFieldChange("haltReason", newValue)
+                  handleHaltReasonChange("haltReason", newValue)
                 }
                 disabled={loading}
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Halt Reason"
                     fullWidth
                     variant="outlined"
+                    required
+                    error={!formData.haltReason && !!error}
+                    InputProps={{
+                      ...params.InputProps,
+                      style: { backgroundColor: "white", height: "36px" },
+                    }}
                   />
                 )}
               />
-            </Grid>
+            </Box>
+          </Box>
+          {haltReasonError && (
+            <Typography
+              variant="body2"
+              className="create-halt-error-text-light"
+            >
+              {haltReasonError}
+            </Typography>
+          )}
 
-            {/* <Grid item xs={12} md={6}>
-            <TextField
-              label="Resumption Time"
-              type="datetime-local"
-              value={formData.resumptionTime}
-              onChange={(e) =>
-                handleFieldChange("resumptionTime", e.target.value)
-              }
-              disabled={loading}
-              fullWidth
-              variant="outlined"
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid> */}
+          <HaltModalField label="Halt Reason Type" value={formData.haltReason ? formData.haltReason.type : ""} />
 
-            <Grid item xs={12} md={6}>
-              <TextField label="Halt Type" value="REG" fullWidth disabled />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Created By"
-                value={formData.createdBy}
-                fullWidth
-                disabled
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Notes"
-                value={formData.comment}
-                onChange={(e) => handleFieldChange("comment", e.target.value)}
-                disabled={loading}
-                fullWidth
-                multiline
-                rows={3}
-                variant="outlined"
-              />
-            </Grid>
-          </Grid>
+          <HaltModalField label="Halt Type" value="REG" />
+
+          <HaltModalField label="Created By" value={formData.createdBy} />
         </DialogContent>
 
         <DialogActions className="create-halt-dialog-actions">
-          <Button
-            onClick={handleClose}
-            disabled={loading}
-            className="create-halt-cancel-button"
-          >
-            Cancel
-          </Button>
           <Button
             onClick={handleCreateClick}
             disabled={isSubmitDisabled}
@@ -621,6 +616,13 @@ const CreateNewHaltModal = ({
             className="create-halt-submit-button"
           >
             {loading ? "Creating..." : "Create Halt"}
+          </Button>
+          <Button
+            onClick={handleClose}
+            disabled={loading}
+            className="create-halt-cancel-button"
+          >
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>
