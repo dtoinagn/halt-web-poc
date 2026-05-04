@@ -18,6 +18,7 @@ import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import ConfirmDialog from "../../ui/ConfirmDialog";
 import HaltModalField from "./HaltModalField";
+import HaltReasonSelector from "./HaltReasonSelector";
 import "./CreateNewHaltModal.css";
 import {
   compareDateTimeToSecond,
@@ -62,7 +63,6 @@ const CreateNewHaltModal = ({
   const [error, setError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [symbolError, setSymbolError] = useState("");
-  const [haltReasonError, setHaltReasonError] = useState("");
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
 
   const getCurrentTimeBackendFormat = useCallback((dateTime) => {
@@ -94,7 +94,6 @@ const CreateNewHaltModal = ({
       setFormData(getInitialFormData());
       setSymbolInput("");
       setSymbolError("");
-      setHaltReasonError("");
       setError("");
       onClose();
     }
@@ -108,7 +107,6 @@ const CreateNewHaltModal = ({
         setFormData(getInitialFormData());
         setSymbolInput("");
         setSymbolError("");
-        setHaltReasonError("");
         setError("");
         onClose();
       }
@@ -124,7 +122,6 @@ const CreateNewHaltModal = ({
     setFormData(getInitialFormData());
     setSymbolInput("");
     setSymbolError("");
-    setHaltReasonError("");
     setError("");
     onClose();
   }, [onClose]);
@@ -150,7 +147,9 @@ const CreateNewHaltModal = ({
         haltTime: newHaltTime,
         resumptionTime: "",
         extendedHalt: formData.extendedHalt,
-        haltReason: formData.haltReason ? formData.haltReason.description : "",
+        haltReasonDescription: formData.haltReason ? formData.haltReason.reasonDescription : "",
+        haltReasonType: formData.haltReason ? formData.haltReason.reasonTypeCode : "",
+        haltReasonCode: formData.haltReason ? formData.haltReason.reasonCode : "",
         remainedHalt: false,
         remainReason: "",
         status: formData.immediateHalt ? "Halted" : "HaltPending",
@@ -159,7 +158,7 @@ const CreateNewHaltModal = ({
         createdTime: "",
         lastModifiedBy: formData.createdBy || "",
         lastModifiedTime: "",
-        sscbSrc: "",
+        sscbSource: "",
         responseMessage: "",
         action: formData.immediateHalt
           ? HALT_ACTIONS.CREATE_IMMEDIATE_HALT
@@ -221,8 +220,8 @@ const CreateNewHaltModal = ({
         throw new Error("Please select a halt reason");
       }
       if (formData.haltReason
-        && (formData.haltReason.description === "Single Stock Circuit Breaker" ||
-          formData.haltReason.description === "Market Wide Circuit Breaker")) {
+        && (formData.haltReason.reasonDescription === "Single Stock Circuit Breaker" ||
+          formData.haltReason.reasonDescription === "Market Wide Circuit Breaker")) {
         // should never happen because we clear on selection, but guard anyway
         throw new Error("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
       }
@@ -268,25 +267,16 @@ const CreateNewHaltModal = ({
     await handleSubmit();
   }, [handleSubmit]);
 
-  const handleHaltReasonChange = useCallback((field, value) => {
-    setError("");
-    // special handling for haltReason selection
-    if (value && (value.description === "Single Stock Circuit Breaker" || value.description === "Market Wide Circuit Breaker")) {
-      // clear the value and show an error
-      setHaltReasonError("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-      return;
-    }
-    setHaltReasonError("");
-
+  const handleHaltReasonChange = useCallback((value) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value,
+      haltReason: value,
     }));
-  }, [haltReasons]);
+  }, []);
+
+  const handleHaltReasonError = useCallback((errorMsg) => {
+    setError(errorMsg);
+  }, []);
 
   const handleFieldChange = useCallback((field, value) => {
     setFormData((prev) => ({
@@ -563,45 +553,14 @@ const CreateNewHaltModal = ({
             />
           </Box>
 
-          <Box className="cancel-halt-field-container">
-            <Typography className="cancel-halt-label">
-              Halt Reason <span style={{ color: "red" }}>*</span>
-            </Typography>
-            <Box sx={{ flex: 1 }}>
-              <Autocomplete
-                options={haltReasons}
-                getOptionLabel={(option) => option.description || option}
-                value={formData.haltReason}
-                onChange={(event, newValue) =>
-                  handleHaltReasonChange("haltReason", newValue)
-                }
-                disabled={loading}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    fullWidth
-                    variant="outlined"
-                    required
-                    error={!formData.haltReason && !!error}
-                    InputProps={{
-                      ...params.InputProps,
-                      style: { backgroundColor: "white", height: "36px" },
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          </Box>
-          {haltReasonError && (
-            <Typography
-              variant="body2"
-              className="create-halt-error-text-light"
-            >
-              {haltReasonError}
-            </Typography>
-          )}
-
-          <HaltModalField label="Halt Reason Type" value={formData.haltReason ? formData.haltReason.type : ""} />
+          <HaltReasonSelector
+            haltReasons={haltReasons}
+            value={formData.haltReason}
+            onChange={handleHaltReasonChange}
+            onError={handleHaltReasonError}
+            loading={loading}
+            error={error}
+          />
 
           <HaltModalField label="Halt Type" value="REG" />
 

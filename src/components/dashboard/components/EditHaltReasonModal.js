@@ -28,9 +28,9 @@ const EditHaltReasonModal = ({ open, onClose, haltData, haltReasons = [], onHalt
     // Update form data when haltData changes
     useEffect(() => {
         if (haltData) {
-            // Find matching halt reason
+            // Find matching halt reason by description
             const matchedHaltReason = haltReasons.find(
-                (reason) => reason.description === haltData.haltReason
+                (reason) => reason.reasonDescription === haltData.haltReasonDescription
             );
 
             setFormData({
@@ -52,7 +52,7 @@ const EditHaltReasonModal = ({ open, onClose, haltData, haltReasons = [], onHalt
     const handleHaltReasonChange = useCallback((field, value) => {
         setError("");
         // Special handling for haltReason selection
-        if (value && (value.description === "Single Stock Circuit Breaker" || value.description === "Market Wide Circuit Breaker")) {
+        if (value && (value.reasonDescription === "Single Stock Circuit Breaker" || value.reasonDescription === "Market Wide Circuit Breaker")) {
             // Clear the value and show an error
             setHaltReasonError("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
             setFormData((prev) => ({
@@ -83,7 +83,7 @@ const EditHaltReasonModal = ({ open, onClose, haltData, haltReasons = [], onHalt
             }
 
             // Guard against circuit breaker halts
-            if (formData.haltReason && (formData.haltReason.description === "Single Stock Circuit Breaker" || formData.haltReason.description === "Market Wide Circuit Breaker")) {
+            if (formData.haltReason && (formData.haltReason.reasonDescription === "Single Stock Circuit Breaker" || formData.haltReason.reasonDescription === "Market Wide Circuit Breaker")) {
                 throw new Error("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
             }
 
@@ -92,7 +92,9 @@ const EditHaltReasonModal = ({ open, onClose, haltData, haltReasons = [], onHalt
             // Build the payload
             const payload = {
                 ...haltData,
-                haltReason: formData.haltReason.description,
+                haltReasonDescription: formData.haltReason.reasonDescription,
+                haltReasonCode: formData.haltReason.reasonCode,
+                haltReasonType: formData.haltReason ? formData.haltReason.reasonTypeCode : "",
                 lastModifiedBy: authUtils.getLoggedInUser() || "",
                 action: HALT_ACTIONS.MODIFY_HALT_DETAILS,
             };
@@ -175,9 +177,9 @@ const EditHaltReasonModal = ({ open, onClose, haltData, haltReasons = [], onHalt
                             value={formData.haltReason}
                             onChange={(event, newValue) => handleHaltReasonChange("haltReason", newValue)}
                             options={haltReasons}
-                            getOptionLabel={(option) => option.description || ""}
+                            getOptionLabel={(option) => option.reasonDescription || ""}
                             isOptionEqualToValue={(option, value) =>
-                                option.description === value?.description
+                                option.reasonDescription === value?.reasonDescription
                             }
                             disabled={loading}
                             renderInput={(params) => (
@@ -206,7 +208,7 @@ const EditHaltReasonModal = ({ open, onClose, haltData, haltReasons = [], onHalt
 
                 <HaltModalField
                     label="Halt Reason Type"
-                    value={formData.haltReason ? formData.haltReason.type : ""}
+                    value={formData.haltReason ? formData.haltReason.reasonTypeDescription : ""}
                 />
             </DialogContent>
 

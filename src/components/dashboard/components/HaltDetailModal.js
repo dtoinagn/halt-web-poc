@@ -20,6 +20,7 @@ import { buildHaltPayload } from "../../../utils/haltDataUtils";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS, HALT_STATUSES } from "../../../constants";
+import HaltReasonSelector from "./HaltReasonSelector";
 import "./CreateNewHaltModal.css";
 
 const HaltDetailModal = ({
@@ -49,7 +50,7 @@ const HaltDetailModal = ({
     if (haltData) {
       // Find matching halt reason
       const matchedHaltReason = haltReasons.find(
-        (reason) => reason.description === haltData.haltReason
+        (reason) => reason.reasonDescription === haltData.haltReasonDescription
       );
 
       // Find matching remain reason
@@ -83,8 +84,8 @@ const HaltDetailModal = ({
     const currentRemainReason = formData.remainReason?.description || "";
     const originalRemainReason = haltData.remainReason || "";
     const remainReasonChanged = currentRemainReason !== originalRemainReason;
-    const currentHaltReason = formData.haltReason?.description || "";
-    const originalHaltReason = haltData.haltReason || "";
+    const currentHaltReason = formData.haltReason?.reasonDescription || "";
+    const originalHaltReason = haltData.haltReasonDescription || "";
     const haltReasonChanged = currentHaltReason !== originalHaltReason;
     const commentChanged = (formData.comment || "") !== (haltData.comment || "");
 
@@ -100,16 +101,6 @@ const HaltDetailModal = ({
 
   const handleFieldChange = useCallback((field, value) => {
     setError("");
-    // Special handling for haltReason selection
-    if (field === "haltReason" && value && (value.description === "Single Stock Circuit Breaker" || value.description === "Market Wide Circuit Breaker")) {
-      // Clear the value and show an error
-      setHaltReasonError("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-      return;
-    }
     setHaltReasonError("");
 
     setFormData((prev) => ({
@@ -118,6 +109,14 @@ const HaltDetailModal = ({
       // Clear remain reason if remain halt is set to false
       ...(field === "remainedHalt" && !value && { remainReason: null }),
     }));
+  }, []);
+
+  const handleHaltReasonChange = useCallback((value) => {
+    handleFieldChange("haltReason", value);
+  }, [handleFieldChange]);
+
+  const handleHaltReasonError = useCallback((errorMsg) => {
+    setHaltReasonError(errorMsg);
   }, []);
 
   const handleSave = useCallback(async () => {
@@ -133,7 +132,7 @@ const HaltDetailModal = ({
         throw new Error("Halt Reason is required for scheduled halts.");
       }
       // Guard against circuit breaker halts
-      if (formData.haltReason && (formData.haltReason.description === "Single Stock Circuit Breaker" || formData.haltReason.description === "Market Wide Circuit Breaker")) {
+      if (formData.haltReason && (formData.haltReason.reasonDescription === "Single Stock Circuit Breaker" || formData.haltReason.reasonDescription === "Market Wide Circuit Breaker")) {
         throw new Error("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
       }
 
@@ -143,9 +142,11 @@ const HaltDetailModal = ({
       const payload = {
         ...buildHaltPayload(haltData),
         extendedHalt: formData.extendedHalt,
-        haltReason: formData.haltReason
-          ? formData.haltReason.description
-          : haltData.haltReason || "",
+        haltReasonDescription: formData.haltReason
+          ? formData.haltReason.reasonDescription
+          : haltData.haltReasonDescription || "",
+        haltReasonCode: formData.haltReason ? formData.haltReason.reasonCode : haltData.haltReasonCode || "",
+        haltReasonType: formData.haltReason ? formData.haltReason.reasonTypeCode : haltData.haltReasonType || "",
         remainedHalt: formData.remainedHalt,
         remainReason: formData.remainReason
           ? formData.remainReason.description
@@ -184,8 +185,8 @@ const HaltDetailModal = ({
       const currentRemainReason = formData.remainReason?.description || "";
       const originalRemainReason = haltData.remainReason || "";
       const remainReasonChanged = currentRemainReason !== originalRemainReason;
-      const currentHaltReason = formData.haltReason?.description || "";
-      const originalHaltReason = haltData.haltReason || "";
+      const currentHaltReason = formData.haltReason?.reasonDescription || "";
+      const originalHaltReason = haltData.haltReasonDescription || "";
       const haltReasonChanged = currentHaltReason !== originalHaltReason;
       const commentChanged = (formData.comment || "") !== (haltData.comment || "");
 
@@ -517,39 +518,36 @@ const HaltDetailModal = ({
             {/* Full Width - Halt Reason */}
             {/* Row 9 - Halt Reason, Halt Reason Type */}
             {isScheduled ? (
-              <EditableAutocompleteField
-                label="Halt Reason *"
-                value={formData.haltReason}
-                onChange={(value) => handleFieldChange("haltReason", value)}
-                options={haltReasons}
-                disabled={loading}
-              />
+              <Grid item xs={12} md={6}>
+                <HaltReasonSelector
+                  haltReasons={haltReasons}
+                  value={formData.haltReason}
+                  onChange={handleHaltReasonChange}
+                  onError={handleHaltReasonError}
+                  loading={loading}
+                  required={true}
+                  showType={false}
+                />
+              </Grid>
             ) : (
-              <FieldRow
-                label="Halt Reason"
-                value={formData.haltReason ? formData.haltReason.description : ""}
-                isGray={true}
-              />
+              <>
+                <FieldRow
+                  label="Halt Reason"
+                  value={formData.haltReason ? formData.haltReason.reasonDescription : ""}
+                  isGray={true}
+                />
+              </>
             )}
-
             <FieldRow
               label="Halt Reason Type"
-              value={formData.haltReason ? formData.haltReason.type : ""}
+              value={formData.haltReason ? formData.haltReason.reasonTypeDescription : ""}
               isGray={true}
             />
-            {isScheduled && haltReasonError && (
-              <Typography
-                variant="body2"
-                className="create-halt-error-text-light"
-              >
-                {haltReasonError}
-              </Typography>
-            )}
             {/* Full Width - SSCB Source (if exists) */}
-            {haltData.sscbSrc && (
+            {haltData.sscbSource && (
               <FieldRow
                 label="SSCB Source"
-                value={haltData.sscbSrc}
+                value={haltData.sscbSource}
                 isGray={true}
                 fullWidth={true}
               />

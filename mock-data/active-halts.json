@@ -1,5 +1,32 @@
 [
   {
+    "haltId": "APX_20260123_S_001",
+    "symbol": "APX",
+    "issueName": "",
+    "listingMarket": "CDX",
+    "allIssue": "false",
+    "haltTime": "2026-01-23T11:42:40.229",
+    "resumptionTime": null,
+    "createdTime": "2026-01-23T11:42:40.232",
+    "lastModifiedTime": "2026-01-23T11:42:40.532",
+    "extendedHalt": false,
+    "haltReasonType": "2",
+    "remainReason": null,
+    "remainedHalt": false,
+    "status": "Halted",
+    "haltType": "SSCB",
+    "createdBy": "SSCB",
+    "lastModifiedBy": "AEQ",
+    "sscbSource": "",
+    "responseMessage": null,
+    "action": null,
+    "comment": "",
+    "ipAddress": null,
+    "state": "HaltSent",
+    "haltReasonDescription": "Single Stock Circuit Breaker",
+    "haltReasonCode": "215"
+  },
+  {
     "haltId": "AAPL.P_20251111_099",
     "symbol": "AAPL",
     "issueName": "Apple Inc.",
@@ -9,7 +36,7 @@
     "resumptionTime": null,
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Halt - News Pending",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "HaltPending",
     "haltType": "REG",
@@ -17,8 +44,10 @@
     "createdTime": "20250115-10:30:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - News Pending",
+    "haltReasonCode": "200"
   },
   {
     "haltId": "HALT002",
@@ -30,7 +59,7 @@
     "resumptionTime": "20250115-12:00:00.000",
     "cancelTime": null,
     "extendedHalt": true,
-    "haltReason": "Halt - Extraordinary Market Activity",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "ResumptionPending",
     "haltType": "REG",
@@ -38,8 +67,10 @@
     "createdTime": "20250115-11:15:00.000",
     "lastModifiedBy": "aadmin",
     "lastModifiedTime": "20250115-11:45:00.000",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - Extraordinary Market Activity",
+    "haltReasonCode": "203"
   },
   {
     "haltId": "HALT003",
@@ -51,17 +82,18 @@
     "resumptionTime": "20250115-10:15:00.000",
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Single Stock Trading Pause in Effect",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "Resumed",
     "haltType": "SSCB",
-    "prolonged": true,
     "createdBy": "mtrader",
     "createdTime": "20250115-09:45:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "NYSE",
-    "responseMessage": ""
+    "sscbSource": "NYSE",
+    "responseMessage": "",
+    "haltReasonDescription": "Single Stock Trading Pause in Effect",
+    "haltReasonCode": "202"
   },
   {
     "haltId": "HALT004",
@@ -73,7 +105,7 @@
     "resumptionTime": null,
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Halt - News Pending",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "HaltPending",
     "haltType": "REG",
@@ -81,8 +113,10 @@
     "createdTime": "20250115-14:22:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - News Pending",
+    "haltReasonCode": "200"
   },
   {
     "haltId": "HALT005",
@@ -94,7 +128,7 @@
     "resumptionTime": "20250115-14:15:00.000",
     "cancelTime": null,
     "extendedHalt": true,
-    "haltReason": "Halt - Volatility Trading Pause",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "ResumptionPending",
     "haltType": "REG",
@@ -102,8 +136,10 @@
     "createdTime": "20250115-13:45:00.000",
     "lastModifiedBy": "dsmith",
     "lastModifiedTime": "20250115-14:00:00.000",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Volatility Trading Pause",
+    "haltReasonCode": "214"
   },
   {
     "haltId": "HALT006",
@@ -115,7 +151,7 @@
     "resumptionTime": null,
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Halt - News Pending",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "HaltPending",
     "haltType": "REG",
@@ -123,8 +159,10 @@
     "createdTime": "20250115-16:25:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - News Pending",
+    "haltReasonCode": "200"
   },
   {
     "haltId": "HALT007",
@@ -136,17 +174,18 @@
     "resumptionTime": "20250115-12:15:00.000",
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Single Stock Trading Pause in Effect",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "Resumed",
     "haltType": "SSCB",
-    "prolonged": true,
     "createdBy": "atrader",
     "createdTime": "20250115-11:30:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "NASDAQ",
-    "responseMessage": ""
+    "sscbSource": "NASDAQ",
+    "responseMessage": "",
+    "haltReasonDescription": "Single Stock Trading Pause in Effect",
+    "haltReasonCode": "202"
   },
   {
     "haltId": "HALT008",
@@ -158,7 +197,7 @@
     "resumptionTime": null,
     "cancelTime": null,
     "extendedHalt": true,
-    "haltReason": "Halt - Extraordinary Market Activity",
+    "haltReasonType": "1",
     "remainedHalt": true,
     "remainReason": "Change of business",
     "status": "Halted",
@@ -167,8 +206,10 @@
     "createdTime": "20250115-10:45:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - Extraordinary Market Activity",
+    "haltReasonCode": "203"
   },
   {
     "haltId": "HALT009",
@@ -180,7 +221,7 @@
     "resumptionTime": "20250115-16:00:00.000",
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Halt - News Pending",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "ResumptionPending",
     "haltType": "REG",
@@ -188,8 +229,10 @@
     "createdTime": "20250115-15:20:00.000",
     "lastModifiedBy": "cgarcia",
     "lastModifiedTime": "20250115-15:45:00.000",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - News Pending",
+    "haltReasonCode": "200"
   },
   {
     "haltId": "HALT010",
@@ -201,17 +244,18 @@
     "resumptionTime": "20250115-09:45:00.000",
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Single Stock Trading Pause in Effect",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "Resumed",
     "haltType": "SSCB",
-    "prolonged": true,
     "createdBy": "lmartinez",
     "createdTime": "20250115-09:15:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "NYSE",
-    "responseMessage": ""
+    "sscbSource": "NYSE",
+    "responseMessage": "",
+    "haltReasonDescription": "Single Stock Trading Pause in Effect",
+    "haltReasonCode": "202"
   },
   {
     "haltId": "HALT011",
@@ -223,7 +267,7 @@
     "resumptionTime": "20250115-14:30:00.000",
     "cancelTime": null,
     "extendedHalt": true,
-    "haltReason": "Halt - Volatility Trading Pause",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "Halted",
     "haltType": "REG",
@@ -231,8 +275,10 @@
     "createdTime": "20250115-12:30:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Volatility Trading Pause",
+    "haltReasonCode": "214"
   },
   {
     "haltId": "HALT012",
@@ -244,7 +290,7 @@
     "resumptionTime": null,
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Halt - News Pending",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "HaltPending",
     "haltType": "REG",
@@ -252,8 +298,10 @@
     "createdTime": "20250115-16:55:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - News Pending",
+    "haltReasonCode": "200"
   },
   {
     "haltId": "HALT013",
@@ -265,7 +313,7 @@
     "resumptionTime": "20250115-14:45:00.000",
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Single Stock Trading Pause in Effect",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "Resumed",
     "haltType": "SSCB",
@@ -273,8 +321,10 @@
     "createdTime": "20250115-14:10:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "NYSE",
-    "responseMessage": ""
+    "sscbSource": "NYSE",
+    "responseMessage": "",
+    "haltReasonDescription": "Single Stock Trading Pause in Effect",
+    "haltReasonCode": "202"
   },
   {
     "haltId": "HALT014",
@@ -286,7 +336,7 @@
     "resumptionTime": "20250115-11:30:00.000",
     "cancelTime": null,
     "extendedHalt": true,
-    "haltReason": "Halt - Extraordinary Market Activity",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "ResumptionPending",
     "haltType": "REG",
@@ -294,8 +344,10 @@
     "createdTime": "20250115-11:00:00.000",
     "lastModifiedBy": "jwilliams",
     "lastModifiedTime": "20250115-11:20:00.000",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - Extraordinary Market Activity",
+    "haltReasonCode": "203"
   },
   {
     "haltId": "HALT015",
@@ -307,7 +359,7 @@
     "resumptionTime": null,
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Halt - News Pending",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "Halted",
     "haltType": "REG",
@@ -315,8 +367,10 @@
     "createdTime": "20250115-13:15:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - News Pending",
+    "haltReasonCode": "200"
   },
   {
     "haltId": "HALT016",
@@ -328,7 +382,7 @@
     "resumptionTime": "20250115-10:30:00.000",
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Single Stock Trading Pause in Effect",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "Resumed",
     "haltType": "SSCB",
@@ -336,8 +390,10 @@
     "createdTime": "20250115-10:00:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "NYSE",
-    "responseMessage": ""
+    "sscbSource": "NYSE",
+    "responseMessage": "",
+    "haltReasonDescription": "Single Stock Trading Pause in Effect",
+    "haltReasonCode": "202"
   },
   {
     "haltId": "HALT017",
@@ -349,7 +405,7 @@
     "resumptionTime": null,
     "cancelTime": null,
     "extendedHalt": true,
-    "haltReason": "Halt - Volatility Trading Pause",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "Halted",
     "haltType": "REG",
@@ -357,8 +413,10 @@
     "createdTime": "20250115-15:45:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Volatility Trading Pause",
+    "haltReasonCode": "214"
   },
   {
     "haltId": "HALT018",
@@ -370,7 +428,7 @@
     "resumptionTime": "20250115-12:45:00.000",
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Halt - News Pending",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "ResumptionPending",
     "haltType": "REG",
@@ -378,8 +436,10 @@
     "createdTime": "20250115-12:00:00.000",
     "lastModifiedBy": "gclark",
     "lastModifiedTime": "20250115-12:30:00.000",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - News Pending",
+    "haltReasonCode": "200"
   },
   {
     "haltId": "HALT019",
@@ -391,7 +451,7 @@
     "resumptionTime": null,
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Halt - News Pending",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "HaltPending",
     "haltType": "REG",
@@ -399,9 +459,11 @@
     "createdTime": "20250115-16:40:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "",
+    "sscbSource": "",
     "responseMessage": "",
-    "state": "HaltPendingCancelled"
+    "state": "HaltPendingCancelled",
+    "haltReasonDescription": "Halt - News Pending",
+    "haltReasonCode": "200"
   },
   {
     "haltId": "HALT020",
@@ -413,7 +475,7 @@
     "resumptionTime": "20250115-09:00:00.000",
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Single Stock Trading Pause in Effect",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "ResumptionPending",
     "haltType": "SSCB",
@@ -421,8 +483,10 @@
     "createdTime": "20250115-08:30:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "NASDAQ",
-    "responseMessage": ""
+    "sscbSource": "NASDAQ",
+    "responseMessage": "",
+    "haltReasonDescription": "Single Stock Trading Pause in Effect",
+    "haltReasonCode": "202"
   },
   {
     "haltId": "HALT021",
@@ -434,7 +498,7 @@
     "resumptionTime": "20250115-15:25:00.000",
     "cancelTime": null,
     "extendedHalt": true,
-    "haltReason": "Halt - Extraordinary Market Activity",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "ResumptionPending",
     "haltType": "REG",
@@ -442,8 +506,10 @@
     "createdTime": "2025-01-15T14:55:00.010",
     "lastModifiedBy": "iturner",
     "lastModifiedTime": "2025-01-15T15:10:00.000",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - Extraordinary Market Activity",
+    "haltReasonCode": "203"
   },
   {
     "haltId": "HALT022",
@@ -455,7 +521,7 @@
     "resumptionTime": null,
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Halt - News Pending",
+    "haltReasonType": "1",
     "remainReason": "",
     "status": "Halted",
     "haltType": "REG",
@@ -463,8 +529,10 @@
     "createdTime": "20250115-09:30:00.000",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "",
-    "responseMessage": ""
+    "sscbSource": "",
+    "responseMessage": "",
+    "haltReasonDescription": "Halt - News Pending",
+    "haltReasonCode": "200"
   },
   {
     "haltId": "HALT023",
@@ -476,7 +544,7 @@
     "resumptionTime": "20250115-14:00:00.000",
     "cancelTime": null,
     "extendedHalt": false,
-    "haltReason": "Single Stock Trading Pause in Effect",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "Resumed",
     "haltType": "SSCB",
@@ -484,8 +552,10 @@
     "createdTime": "2025-09-24T14:53:34.516",
     "lastModifiedBy": "",
     "lastModifiedTime": "",
-    "sscbSrc": "NYSE",
-    "responseMessage": ""
+    "sscbSource": "NYSE",
+    "responseMessage": "",
+    "haltReasonDescription": "Single Stock Trading Pause in Effect",
+    "haltReasonCode": "202"
   },
   {
     "haltId": "AAAJ.P_20251002_83",
@@ -498,18 +568,20 @@
     "createdTime": "2025-10-30 15:22:55:231",
     "lastModifiedTime": "20251002-15:20:45.632",
     "extendedHalt": false,
-    "haltReason": "Failure to Complete a Qualifying Transaction within 24 Months Of Listing",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "HaltPending",
     "haltType": "REG",
     "createdBy": "bdapcevic",
     "lastModifiedBy": "bdapcevic",
-    "sscbSrc": null,
+    "sscbSource": null,
     "responseMessage": "",
     "action": "CreateScheduledHalt",
     "comment": "#1 new scheduled halt is created",
     "ipAddress": "172.20.1.45",
-    "state": "HaltPending"
+    "state": "HaltPending",
+    "haltReasonDescription": "Failure to Complete a Qualifying Transaction within 24 Months Of Listing",
+    "haltReasonCode": "210"
   },
   {
     "haltId": "AAAJ.P_20251002_83",
@@ -522,18 +594,20 @@
     "createdTime": "20251002-15:20:45.632",
     "lastModifiedTime": "20251002-15:20:45.788",
     "extendedHalt": false,
-    "haltReason": "Failure to Complete a Qualifying Transaction within 24 Months Of Listing",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "HaltScheduled",
     "haltType": "REG",
     "createdBy": "bdapcevic",
     "lastModifiedBy": "bdapcevic",
-    "sscbSrc": null,
+    "sscbSource": null,
     "responseMessage": "Scheduled",
     "action": "CreateScheduledHalt",
     "comment": "#2 The requested halt is scheduled successfully",
     "ipAddress": "172.20.1.45",
-    "state": "HaltScheduled"
+    "state": "HaltScheduled",
+    "haltReasonDescription": "Failure to Complete a Qualifying Transaction within 24 Months Of Listing",
+    "haltReasonCode": "210"
   },
   {
     "haltId": "AAAJ.P_20251002_84",
@@ -546,17 +620,44 @@
     "createdTime": "20251002-15:20:45.632",
     "lastModifiedTime": "20251002-15:23:00.010",
     "extendedHalt": false,
-    "haltReason": "Failure to Complete a Qualifying Transaction within 24 Months Of Listing",
+    "haltReasonType": "2",
     "remainReason": "",
     "status": "Halted",
     "haltType": "REG",
     "createdBy": "bdapcevic",
     "lastModifiedBy": "bdapcevic",
-    "sscbSrc": null,
+    "sscbSource": null,
     "responseMessage": "Successfully triggered",
     "action": "CreateScheduledHalt",
     "comment": "#3 The scheduled halt is triggered successfully",
     "ipAddress": "172.20.1.45",
-    "state": "Halted"
+    "state": "Halted",
+    "haltReasonDescription": "Failure to Complete a Qualifying Transaction within 24 Months Of Listing",
+    "haltReasonCode": "210"
+  },
+  {
+    "haltId": "APX_20260128_S_001",
+    "symbol": "APX",
+    "issueName": "",
+    "listingMarket": "TSX",
+    "allIssue": false,
+    "haltTime": "2026-01-28T13:55:34.680",
+    "resumptionTime": "",
+    "extendedHalt": false,
+    "haltReasonType": "2",
+    "remainReason": "SSCB",
+    "remainedHalt": false,
+    "status": "Halted",
+    "haltType": "SSCB",
+    "createdBy": "SSCB",
+    "createdTime": "20260128-13:55:34.682",
+    "lastModifiedBy": "AEQ",
+    "lastModifiedTime": "20260128-13:55:34.953",
+    "responseMessage": "HaltSent",
+    "action": "SSCB",
+    "ipAddress": "",
+    "state": "HaltSent",
+    "haltReasonDescription": "Single Stock Circuit Breaker",
+    "haltReasonCode": "215"
   }
 ]

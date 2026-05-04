@@ -25,7 +25,7 @@ const HaltReasonSelector = ({
     if (onError) onError("");
 
     // Special handling for haltReason selection
-    if (newValue && (newValue.description === "Single Stock Circuit Breaker" || newValue.description === "Market Wide Circuit Breaker")) {
+    if (newValue && (newValue.reasonDescription === "Single Stock Circuit Breaker" || newValue.reasonDescription === "Market Wide Circuit Breaker")) {
       const errorMsg = "You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.";
       setInternalError(errorMsg);
       // Still call onChange but with the invalid value to show it in the UI
@@ -39,7 +39,7 @@ const HaltReasonSelector = ({
     onChange(newValue);
   }, [onChange, onError]);
 
-  const haltReasonType = value ? value.type : "";
+  const haltReasonType = value ? value.reasonTypeDescription : "";
   const displayError = internalError;
 
   return (
@@ -51,7 +51,7 @@ const HaltReasonSelector = ({
         <Box sx={{ flex: 1 }}>
           <Autocomplete
             options={haltReasons}
-            getOptionLabel={(option) => option.description || option}
+            getOptionLabel={(option) => option.reasonDescription || option}
             value={value}
             onChange={handleHaltReasonChange}
             disabled={loading}

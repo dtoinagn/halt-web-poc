@@ -164,7 +164,7 @@ export const useSSE = ({
                 notifications.add(`New regulatory halt has been created for ${symbol}`);
             }
 
-            if (prev && prev.haltReason !== sseBody.haltReason) {
+            if (prev && prev.haltReasonDescription !== sseBody.haltReasonDescription) {
               notifications.add(`Halt reason has been changed for ${symbol}`);
             }
 
@@ -243,7 +243,7 @@ export const useSSE = ({
 
             }
 
-            if (prev && prev.haltReason !== sseBody.haltReason) {
+            if (prev && prev.haltReasonDescription !== sseBody.haltReasonDescription) {
               notifications.add(`Halt reason has been changed for ${symbol}`);
             }
             return;
@@ -278,7 +278,7 @@ export const useSSE = ({
                 if (newPending[idx].allIssue !== sseBody.allIssue) {
                   notificationMsg += `'All Issues' flag `;
                 }
-                if (newPending[idx].haltReason !== sseBody.haltReason) {
+                if (newPending[idx].haltReasonDescription !== sseBody.haltReasonDescription) {
                   notificationMsg += `'Halt Reason' `;
                 }
                 if (notificationMsg.length > 0) {

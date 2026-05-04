@@ -39,7 +39,7 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) =
       const formattedHaltTime = formatForDateTimeLocal(haltData.haltTime);
       // Find matching halt reason
       const matchedHaltReason = haltReasons.find(
-        (reason) => reason.description === haltData.haltReason
+        (reason) => reason.reasonDescription === haltData.haltReasonDescription
       );
       setFormData({
         haltTime: formattedHaltTime || "",
@@ -89,7 +89,7 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) =
       }
 
       // Guard against circuit breaker halts
-      if (formData.haltReason && (formData.haltReason.description === "Single Stock Circuit Breaker" || formData.haltReason.description === "Market Wide Circuit Breaker")) {
+      if (formData.haltReason && (formData.haltReason.reasonDescription === "Single Stock Circuit Breaker" || formData.haltReason.reasonDescription === "Market Wide Circuit Breaker")) {
         throw new Error("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
       }
 
@@ -116,7 +116,9 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) =
         haltTime: formatForBackend(formData.haltTime) || "",
         resumptionTime: formatForBackend(haltData.resumptionTime) || "",
         extendedHalt: haltData.extendedHalt || false,
-        haltReason: formData.haltReason ? formData.haltReason.description : "",
+        haltReasonDescription: formData.haltReason ? formData.haltReason.reasonDescription : "",
+        haltReasonCode: formData.haltReason ? formData.haltReason.reasonCode : "",
+        haltReasonType: formData.haltReason ? formData.haltReason.reasonTypeCode : "",
         remainedHalt: haltData.remainedHalt || false,
         remainReason: haltData.remainReason || "",
         status: haltData.status || "HaltPending",
@@ -126,7 +128,7 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) =
         createdTime: formatForBackend(haltData.createdTime) || "",
         lastModifiedBy: authUtils.getLoggedInUser() || "",
         lastModifiedTime: "",
-        sscbSrc: haltData.sscbSrc || "",
+        sscbSource: haltData.sscbSource || "",
         responseMessage: haltData.responseMessage || "",
         action: HALT_ACTIONS.MODIFY_SCHEDULED_HALT,
         comment: "",

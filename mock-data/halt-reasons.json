@@ -1,62 +1,114 @@
 [
   {
-    "code": "T1",
-    "description": "Halt - News Pending"
+    "reasonId": "1",
+    "reasonCode": "200",
+    "reasonDescription": "Halt - News Pending",
+    "reasonTypeCode": "1",
+    "reasonTypeDescription": "Business"
   },
   {
-    "code": "T2", 
-    "description": "Halt - News Released"
+    "reasonId": "2",
+    "reasonCode": "201",
+    "reasonDescription": "Halt - News Released",
+    "reasonTypeCode": "1",
+    "reasonTypeDescription": "Business"
   },
   {
-    "code": "T5",
-    "description": "Single Stock Trading Pause in Effect"
+    "reasonId": "3",
+    "reasonCode": "202",
+    "reasonDescription": "Single Stock Trading Pause in Effect",
+    "reasonTypeCode": "2",
+    "reasonTypeDescription": "Regulatory"
   },
   {
-    "code": "T6",
-    "description": "Halt - Extraordinary Market Activity"
+    "reasonId": "4",
+    "reasonCode": "203",
+    "reasonDescription": "Halt - Extraordinary Market Activity",
+    "reasonTypeCode": "1",
+    "reasonTypeDescription": "Business"
   },
   {
-    "code": "T8",
-    "description": "Halt - Exchange Non-Compliance"
+    "reasonId": "5",
+    "reasonCode": "204",
+    "reasonDescription": "Halt - Exchange Non-Compliance",
+    "reasonTypeCode": "2",
+    "reasonTypeDescription": "Regulatory"
   },
   {
-    "code": "T12",
-    "description": "Halt - Additional Information Requested"
+    "reasonId": "6",
+    "reasonCode": "205",
+    "reasonDescription": "Halt - Additional Information Requested",
+    "reasonTypeCode": "1",
+    "reasonTypeDescription": "Business"
   },
   {
-    "code": "H4",
-    "description": "Halt - Non-Compliance"
+    "reasonId": "7",
+    "reasonCode": "206",
+    "reasonDescription": "Halt - Non-Compliance",
+    "reasonTypeCode": "2",
+    "reasonTypeDescription": "Regulatory"
   },
   {
-    "code": "H9",
-    "description": "Halt - Filings Not Current"
+    "reasonId": "8",
+    "reasonCode": "207",
+    "reasonDescription": "Halt - Filings Not Current",
+    "reasonTypeCode": "2",
+    "reasonTypeDescription": "Regulatory"
   },
   {
-    "code": "H10",
-    "description": "Halt - SEC Trading Suspension"
+    "reasonId": "9",
+    "reasonCode": "208",
+    "reasonDescription": "Halt - SEC Trading Suspension",
+    "reasonTypeCode": "2",
+    "reasonTypeDescription": "Regulatory"
   },
   {
-    "code": "H11",
-    "description": "Halt - Regulatory Concern"
+    "reasonId": "10",
+    "reasonCode": "209",
+    "reasonDescription": "Halt - Regulatory Concern",
+    "reasonTypeCode": "2",
+    "reasonTypeDescription": "Regulatory"
   },
   {
-    "code": "O1",
-    "description": "Operations Halt, Contact Market Operations"
+    "reasonId": "11",
+    "reasonCode": "210",
+    "reasonDescription": "Operations Halt, Contact Market Operations",
+    "reasonTypeCode": "1",
+    "reasonTypeDescription": "Business"
   },
   {
-    "code": "IPO1",
-    "description": "IPO Issue not yet Trading"
+    "reasonId": "12",
+    "reasonCode": "211",
+    "reasonDescription": "IPO Issue not yet Trading",
+    "reasonTypeCode": "1",
+    "reasonTypeDescription": "Business"
   },
   {
-    "code": "M1",
-    "description": "Corporate Action"
+    "reasonId": "13",
+    "reasonCode": "212",
+    "reasonDescription": "Corporate Action",
+    "reasonTypeCode": "1",
+    "reasonTypeDescription": "Business"
   },
   {
-    "code": "M2",
-    "description": "Quotation Not Available"
+    "reasonId": "14",
+    "reasonCode": "213",
+    "reasonDescription": "Quotation Not Available",
+    "reasonTypeCode": "1",
+    "reasonTypeDescription": "Business"
   },
   {
-    "code": "LUDP",
-    "description": "Volatility Trading Pause"
+    "reasonId": "15",
+    "reasonCode": "214",
+    "reasonDescription": "Volatility Trading Pause",
+    "reasonTypeCode": "2",
+    "reasonTypeDescription": "Regulatory"
+  },
+  {
+    "reasonId": "16",
+    "reasonCode": "215",
+    "reasonDescription": "Single Stock Circuit Breaker",
+    "reasonTypeCode": "2",
+    "reasonTypeDescription": "Regulatory"
   }
 ]

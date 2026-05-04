@@ -208,6 +208,20 @@ app.post("/api/halt/create", (req, res) => {
   });
 });
 
+// Create new halt endpoint
+app.post("/api/halt/resume", (req, res) => {
+  console.log("POST /api/halt/resume");
+  console.log("Request body:", JSON.stringify(req.body, null, 2));
+
+  // Mock successful response
+  res.json({
+    success: true,
+    message: "Resumption updated successfully",
+    haltId: `HALT${Date.now()}`,
+    data: req.body,
+  });
+});
+
 // Update extended halt state endpoint
 app.post("/api/halt/update", (req, res) => {
   console.log("POST /api/halt/update");

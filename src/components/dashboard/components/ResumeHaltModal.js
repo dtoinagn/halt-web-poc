@@ -180,12 +180,6 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
         if (compareDateTimeToSecond(resumptionDateEST, endOfTodayEST) > 0) {
           throw new Error("Resumption time must be within today");
         }
-
-        // Validate resumption time is after halt time
-        const haltDateEST = dayjs.tz(haltData.haltTime, EST_ZONE);
-        if (compareDateTimeToSecond(resumptionDateEST, haltDateEST) <= 0) {
-          throw new Error("Resumption time must be after halt time");
-        }
       }
 
       setLoading(true);
@@ -207,7 +201,9 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
         haltTime: formatForBackend(haltData.haltTime) || "",
         resumptionTime: newResumptionTime || "",
         extendedHalt: haltData.extendedHalt || false,
-        haltReason: haltData.haltReason || "",
+        haltReasonDescription: haltData.haltReasonDescription || "",
+        haltReasonCode: haltData.haltReasonCode || "",
+        haltReasonType: haltData.haltReasonType || "",
         remainedHalt: haltData.remainedHalt || false,
         remainReason: haltData.remainReason || "",
         status: haltData.status || "Halted",
@@ -217,7 +213,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
         createdTime: formatForBackend(haltData.createdTime) || "",
         lastModifiedBy: authUtils.getLoggedInUser() || "",
         lastModifiedTime: "",
-        sscbSrc: haltData.sscbSrc || "",
+        sscbSource: haltData.sscbSource || "",
         responseMessage: haltData.responseMessage || "",
         action: action,
         comment: haltData.comment || "",
