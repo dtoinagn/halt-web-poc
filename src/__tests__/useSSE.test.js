@@ -1,7 +1,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useSSE } from '../hooks/useSSE';
 import { apiService } from '../services/api';
-import { HALT_STATUSES, HALT_TYPES } from '../constants';
+import { HALT_STATES, HALT_TYPES } from '../constants';
 
 // Mock dependencies
 jest.mock('../services/api');
@@ -157,7 +157,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT001',
           symbol: 'AAPL',
-          status: HALT_STATUSES.HALTED,
+          state: HALT_STATES.ACTIVE_REG_HALT,
           haltType: HALT_TYPES.REG,
           haltTime: '20241015-09:30:00.000'
         })
@@ -190,7 +190,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT001',
           symbol: 'AAPL',
-          status: HALT_STATUSES.HALTED,
+          state: HALT_STATES.ACTIVE_REG_HALT,
           haltType: HALT_TYPES.REG,
           haltTime: '20241015-09:30:00.000'
         })
@@ -235,7 +235,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT001',
           symbol: 'AAPL',
-          status: HALT_STATUSES.HALTED,
+          state: HALT_STATES.ACTIVE_REG_HALT,
           haltType: HALT_TYPES.REG,
           haltTime: '20241015-09:30:00.000'
         })
@@ -269,7 +269,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT002',
           symbol: 'TSLA',
-          status: HALT_STATUSES.RESUMPTION_PENDING,
+          state: HALT_STATES.ACTIVE_SSCB_HALT,
           haltType: HALT_TYPES.SSCB,
           haltTime: '20241015-10:00:00.000'
         })
@@ -300,7 +300,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT003',
           symbol: 'GOOGL',
-          status: HALT_STATUSES.HALT_PENDING,
+          state: HALT_STATES.PENDING_HALT,
           haltType: HALT_TYPES.REG,
           haltTime: '20241015-11:00:00.000'
         })
@@ -322,7 +322,7 @@ describe('useSSE', () => {
       const existingHalt = {
         haltId: 'HALT001',
         symbol: 'AAPL',
-        status: HALT_STATUSES.HALTED,
+        state: HALT_STATES.ACTIVE_REG_HALT,
         haltType: HALT_TYPES.REG,
         extendedHalt: false
       };
@@ -346,7 +346,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT001',
           symbol: 'AAPL',
-          status: HALT_STATUSES.HALTED,
+          state: HALT_STATES.ACTIVE_REG_HALT,
           haltType: HALT_TYPES.REG,
           extendedHalt: true
         })
@@ -368,7 +368,7 @@ describe('useSSE', () => {
       const existingHalt = {
         haltId: 'HALT001',
         symbol: 'AAPL',
-        status: HALT_STATUSES.HALTED,
+        state: HALT_STATES.ACTIVE_REG_HALT,
         haltType: HALT_TYPES.REG
       };
 
@@ -393,7 +393,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT001',
           symbol: 'AAPL',
-          status: HALT_STATUSES.RESUMED,
+          state: HALT_STATES.ACTIVE_TRADING,
           haltType: HALT_TYPES.REG,
           resumptionTime: '20241015-10:00:00.000'
         })
@@ -415,7 +415,7 @@ describe('useSSE', () => {
       const existingHalt = {
         haltId: 'HALT002',
         symbol: 'TSLA',
-        status: HALT_STATUSES.RESUMPTION_PENDING,
+        state: HALT_STATES.ACTIVE_SSCB_HALT,
         haltType: HALT_TYPES.SSCB
       };
 
@@ -438,7 +438,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT002',
           symbol: 'TSLA',
-          status: HALT_STATUSES.RESUMED,
+          state: HALT_STATES.ACTIVE_TRADING,
           haltType: HALT_TYPES.SSCB,
           resumptionTime: '20241015-11:00:00.000'
         })
@@ -458,7 +458,7 @@ describe('useSSE', () => {
       const existingHalt = {
         haltId: 'HALT001',
         symbol: 'AAPL',
-        status: HALT_STATUSES.HALTED,
+        state: HALT_STATES.ACTIVE_REG_HALT,
         haltType: HALT_TYPES.REG
       };
 
@@ -480,7 +480,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT001',
           symbol: 'AAPL',
-          status: HALT_STATUSES.RESUMPTION_PENDING,
+          state: HALT_STATES.ACTIVE_REG_HALT,
           haltType: HALT_TYPES.REG,
           resumptionTime: '20241015-10:30:00.000'
         })
@@ -501,7 +501,7 @@ describe('useSSE', () => {
       const pendingHalt = {
         haltId: 'HALT003',
         symbol: 'GOOGL',
-        status: HALT_STATUSES.HALT_PENDING,
+        state: HALT_STATES.PENDING_HALT,
         haltType: HALT_TYPES.REG
       };
 
@@ -525,7 +525,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT003',
           symbol: 'GOOGL',
-          status: HALT_STATUSES.HALTED,
+          state: HALT_STATES.ACTIVE_REG_HALT,
           haltType: HALT_TYPES.REG,
           haltTime: '20241015-11:00:00.000'
         })
@@ -545,7 +545,7 @@ describe('useSSE', () => {
       const existingActiveHalt = {
         haltId: 'HALT004',
         symbol: 'MSFT',
-        status: HALT_STATUSES.HALTED,
+        state: HALT_STATES.ACTIVE_REG_HALT,
         haltType: HALT_TYPES.REG,
         haltTime: '20241015-09:00:00.000',
         resumptionTime: null
@@ -570,7 +570,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: 'HALT004',
           symbol: 'MSFT',
-          status: HALT_STATUSES.HALTED,
+          state: HALT_STATES.ACTIVE_REG_HALT,
           haltType: HALT_TYPES.REG,
           haltTime: '20241015-09:00:00.000',
           resumptionTime: '20241015-10:00:00.000'
@@ -640,12 +640,12 @@ describe('useSSE', () => {
 
       await waitFor(() => expect(eventSourceInstances.length).toBe(1));
 
-      // Step 1: Halt is scheduled (HALT_SCHEDULED)
+      // Step 1: Halt is scheduled (PENDING_HALT)
       const scheduledMessage = {
         data: JSON.stringify({
           haltId: "HALT005",
           symbol: "NFLX",
-          status: HALT_STATUSES.HALT_SCHEDULED,
+          state: HALT_STATES.PENDING_HALT,
           haltType: HALT_TYPES.REG,
           haltTime: "20241015-14:00:00.000",
         }),
@@ -665,7 +665,7 @@ describe('useSSE', () => {
       pendingData.push({
         haltId: "HALT005",
         symbol: "NFLX",
-        status: HALT_STATUSES.HALT_SCHEDULED,
+        state: HALT_STATES.PENDING_HALT,
         haltType: HALT_TYPES.REG,
         haltTime: "20241015-14:00:00.000",
       });
@@ -678,12 +678,12 @@ describe('useSSE', () => {
         activeRegData,
       });
 
-      // Step 2: Halt is triggered by backend scheduler (status becomes HALTED)
+      // Step 2: Halt is triggered by backend scheduler (state becomes ACTIVE_REG_HALT)
       const triggeredMessage = {
         data: JSON.stringify({
           haltId: "HALT005",
           symbol: "NFLX",
-          status: HALT_STATUSES.HALTED,
+          state: HALT_STATES.ACTIVE_REG_HALT,
           haltType: HALT_TYPES.REG,
           haltTime: "20241015-14:00:00.000",
           extendedHalt: false,
@@ -702,7 +702,7 @@ describe('useSSE', () => {
       activeRegData.push({
         haltId: "HALT005",
         symbol: "NFLX",
-        status: HALT_STATUSES.HALTED,
+        state: HALT_STATES.ACTIVE_REG_HALT,
         haltType: HALT_TYPES.REG,
         haltTime: "20241015-14:00:00.000",
         extendedHalt: false,
@@ -728,7 +728,7 @@ describe('useSSE', () => {
         data: JSON.stringify({
           haltId: "HALT005",
           symbol: "NFLX",
-          status: HALT_STATUSES.HALTED,
+          state: HALT_STATES.ACTIVE_REG_HALT,
           haltType: HALT_TYPES.REG,
           haltTime: "20241015-14:00:00.000",
           extendedHalt: true, // Changed from false to true

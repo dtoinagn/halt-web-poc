@@ -20,8 +20,8 @@ window.runConfig = {
 
   // Configuration values
   notificationTimeout: 5000,
-  inactivityLimitMinute: 3,
-  userLogInCookieExpirationMinute: 1,
+  inactivityLimitMinute: 300,
+  userLogInCookieExpirationMinute: 60,
   // Enable mock SSE
   useMockSSE: true,
 };

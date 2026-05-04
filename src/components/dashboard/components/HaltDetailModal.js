@@ -19,8 +19,7 @@ import { formatForHaltDetail } from "../../../utils/dateUtils";
 import { buildHaltPayload } from "../../../utils/haltDataUtils";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
-import { HALT_ACTIONS, HALT_STATUSES } from "../../../constants";
-import HaltReasonSelector from "./HaltReasonSelector";
+import { HALT_ACTIONS, HALT_STATES } from "../../../constants";
 import "./CreateNewHaltModal.css";
 
 const HaltDetailModal = ({
@@ -59,7 +58,7 @@ const HaltDetailModal = ({
       );
 
       // Check if it is a scheduled halt
-      const scheduled = (haltData.status === HALT_STATUSES.HALT_PENDING || haltData.status === HALT_STATUSES.HALT_SCHEDULED || haltData.status === HALT_STATUSES.HALT_PENDING_CANCELLED);
+      const scheduled = haltData.state === HALT_STATES.PENDING_HALT;
       setIsScheduled(scheduled);
 
       setFormData({
@@ -112,12 +111,13 @@ const HaltDetailModal = ({
   }, []);
 
   const handleHaltReasonChange = useCallback((value) => {
+    if (value && (value.reasonDescription === "Single Stock Circuit Breaker" || value.reasonDescription === "Market Wide Circuit Breaker")) {
+      setHaltReasonError("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
+    } else {
+      setHaltReasonError("");
+    }
     handleFieldChange("haltReason", value);
   }, [handleFieldChange]);
-
-  const handleHaltReasonError = useCallback((errorMsg) => {
-    setHaltReasonError(errorMsg);
-  }, []);
 
   const handleSave = useCallback(async () => {
     setError("");
@@ -438,7 +438,7 @@ const HaltDetailModal = ({
               value={haltData.issueName}
               isGray={true}
             />
-            <FieldRow label="Status" value={haltData.status} isGray={true} />
+            <FieldRow label="Status" value={haltData.state} isGray={true} />
 
             {/* Row 4 */}
             <FieldRow
@@ -519,24 +519,53 @@ const HaltDetailModal = ({
             {/* Row 9 - Halt Reason, Halt Reason Type */}
             {isScheduled ? (
               <Grid item xs={12} md={6}>
-                <HaltReasonSelector
-                  haltReasons={haltReasons}
-                  value={formData.haltReason}
-                  onChange={handleHaltReasonChange}
-                  onError={handleHaltReasonError}
-                  loading={loading}
-                  required={true}
-                  showType={false}
-                />
+                <Box className="halt-detail-field-container">
+                  <Typography className="halt-detail-label">
+                    Halt Reason <span style={{ color: "red" }}>*</span>
+                  </Typography>
+                  <Autocomplete
+                    fullWidth
+                    options={haltReasons}
+                    getOptionLabel={(option) => option.reasonDescription || ""}
+                    value={formData.haltReason}
+                    onChange={(event, newValue) => handleHaltReasonChange(newValue)}
+                    isOptionEqualToValue={(option, value) =>
+                      option.reasonDescription === value?.reasonDescription
+                    }
+                    disabled={loading}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        required
+                        error={!!haltReasonError}
+                        InputProps={{
+                          ...params.InputProps,
+                          style: { backgroundColor: "white", height: "36px", padding: "0", fontSize: "0.688rem" },
+                        }}
+                        inputProps={{
+                          ...params.inputProps,
+                          style: { padding: "8px 14px", fontSize: "0.688rem" },
+                        }}
+                      />
+                    )}
+                    sx={{
+                      "& .MuiOutlinedInput-root": { padding: "0 !important", height: "36px", fontSize: "0.688rem" },
+                      "& .MuiAutocomplete-endAdornment": { top: "calc(50% - 12px)" },
+                    }}
+                  />
+                </Box>
+                {haltReasonError && (
+                  <Typography variant="body2" className="create-halt-error-text-light" sx={{ paddingLeft: "32px" }}>
+                    {haltReasonError}
+                  </Typography>
+                )}
               </Grid>
             ) : (
-              <>
-                <FieldRow
-                  label="Halt Reason"
-                  value={formData.haltReason ? formData.haltReason.reasonDescription : ""}
-                  isGray={true}
-                />
-              </>
+              <FieldRow
+                label="Halt Reason"
+                value={formData.haltReason ? formData.haltReason.reasonDescription : ""}
+                isGray={true}
+              />
             )}
             <FieldRow
               label="Halt Reason Type"

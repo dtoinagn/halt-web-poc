@@ -315,6 +315,27 @@ const HaltTable = ({
             />
           </TableCell>
         );
+      case "Status": {
+        let displayStatus = cellContent;
+        if (row.subState === "Pending_Halt_Cancelled") displayStatus = "CANCELLED";
+        else if (row.subState === "Pending_Halt_Canceling") displayStatus = "CANCELING";
+        return (
+          <TableCell
+            key={idx}
+            sx={{
+              padding: "2px 4px",
+              fontSize: "0.75rem",
+              ...getColumnWidth(),
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {displayStatus}
+          </TableCell>
+        );
+      }
+
       case "Action":
         const actionColumnWidth = columnWidths[idx];
         return (

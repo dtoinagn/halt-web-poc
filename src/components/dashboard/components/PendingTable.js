@@ -30,9 +30,7 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled, haltReasons = [] }
   };
   const renderPendingAction = (row) => {
     // Hide both Edit and Cancel when the halt has been cancelled
-    if (row.state === "HaltPendingCancelled" || row.state === "HaltPendingCancelling"
-      || row.status === "HaltPendingCancelled"
-    ) {
+    if (row.subState === "Pending_Halt_Cancelled" || row.subState === "Pending_Halt_Canceling") {
       return null;
     }
 

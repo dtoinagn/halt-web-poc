@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { apiService } from "../services/api";
 import { processHaltData, buildHaltPayload } from "../utils/haltDataUtils";
 import { sortUtils, authUtils } from "../utils/storageUtils";
-import { HALT_ACTIONS, HALT_TYPES, HALT_STATUSES } from "../constants";
+import { HALT_ACTIONS, HALT_TYPES, HALT_STATES } from "../constants";
 
 export const useHaltData = () => {
   const [loading, setLoading] = useState(false);
@@ -83,7 +83,7 @@ export const useHaltData = () => {
     // Check active REG halts
     const activeHalts = activeRegData.filter((halt) => halt.symbol === symbol);
     // Check scheduled halts - only count pending scheduled halts
-    const scheduledHalts = pendingData.filter((halt) => halt.symbol === symbol && halt.status === HALT_STATUSES.HALT_PENDING);
+    const scheduledHalts = pendingData.filter((halt) => halt.symbol === symbol && halt.state === HALT_STATES.PENDING_HALT);
     return {
       hasActiveHalts: activeHalts.length > 0,
       hasScheduledHalts: scheduledHalts.length > 0,

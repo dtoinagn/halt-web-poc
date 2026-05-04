@@ -1,4 +1,4 @@
-import { HALT_STATUSES, HALT_TYPES } from "../constants";
+import { HALT_STATES } from "../constants";
 import { isHaltedSameDay, formatForBackend } from "./dateUtils";
 import { authUtils } from "./storageUtils";
 
@@ -17,10 +17,9 @@ export const processHaltData = (data) => {
     const haltId = item.haltId;
     processedData.haltList.push(haltId);
 
-    const haltType = item.haltType;
-    const haltStatus = item.status;
+    const haltState = item.state;
     const haltedSameDay = item.resumptionTime
-      ? isHaltedSameDay(null,  new Date(item.resumptionTime))
+      ? isHaltedSameDay(null, new Date(item.resumptionTime))
       : false;
     const extendedStatus = item.extendedHalt;
     const remainedHalt = item.remainedHalt;
@@ -30,29 +29,22 @@ export const processHaltData = (data) => {
       item.issueName = item.issueName.slice(0, 25);
     }
 
-    // Categorize data based on status and type
-    if (haltStatus === HALT_STATUSES.RESUMED && haltedSameDay) {
+    // Categorize data based on state
+    if (haltState === HALT_STATES.ACTIVE_TRADING && haltedSameDay) {
       processedData.liftedData.push(item);
-    } else if (
-      (haltStatus === HALT_STATUSES.HALTED ||
-        haltStatus === HALT_STATUSES.RESUMPTION_PENDING) &&
-      haltType === HALT_TYPES.REG
-    ) {
+    } else if (haltState === HALT_STATES.ACTIVE_REG_HALT) {
       processedData.activeRegData.push(item);
       processedData.activeRegHaltList.push(haltId);
 
-      // Track extended halts
+      // Track extended/remained halts
       if (extendedStatus === true || remainedHalt === true) {
         if (!processedData.extendedRegHaltIds.includes(haltId)) {
           processedData.extendedRegHaltIds.push(haltId);
         }
       }
-    } else if (
-       haltType === HALT_TYPES.SSCB && (haltStatus === HALT_STATUSES.RESUMPTION_PENDING ||
-        haltStatus === HALT_STATUSES.HALTED)     
-    ) {
+    } else if (haltState === HALT_STATES.ACTIVE_SSCB_HALT) {
       processedData.activeSSCBData.push(item);
-    } else if (haltStatus === HALT_STATUSES.HALT_PENDING || haltStatus === HALT_STATUSES.HALT_SCHEDULED || haltStatus === HALT_STATUSES.HALT_PENDING_CANCELLED) {
+    } else if (haltState === HALT_STATES.PENDING_HALT) {
       processedData.pendingData.push(item);
     }
   });
@@ -80,7 +72,7 @@ export const buildHaltPayload = (haltData) => {
     haltReasonCode: haltData.haltReasonCode || "",
     haltReasonType: haltData.haltReasonType || "",
     remainReason: haltData.remainReason || "",
-    status: haltData.status || "",
+    state: haltData.state || "",
     haltType: haltData.haltType || "",
     createdBy: haltData.createdBy || "",
     createdTime: haltData.createdTime ? formatForBackend(haltData.createdTime) : "",

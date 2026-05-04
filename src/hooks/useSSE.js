@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { apiService } from "../services/api";
-import { HALT_STATUSES, HALT_TYPES } from "../constants";
+import { HALT_STATES } from "../constants";
 import { getCurrentDateTime, formatDateTimeForDashboard, compareDateTimeToSecond } from "../utils/dateUtils";
 
 /**
@@ -100,7 +100,6 @@ export const useSSE = ({
           if (sseBody.haltTime) sseBody.haltTime = formatDateTimeForDashboard(sseBody.haltTime);
           if (sseBody.resumptionTime) sseBody.resumptionTime = formatDateTimeForDashboard(sseBody.resumptionTime);
 
-          const status = (sseBody.status || "");
           const state = (sseBody.state || "");
           const haltId = sseBody.haltId;
           const haltType = sseBody.haltType;
@@ -111,37 +110,31 @@ export const useSSE = ({
 
           if (haltId) seenIdsRef.current.add(haltId);
 
-          // 1) RESUMED flow
-          if (status === (HALT_STATUSES.RESUMED)) {
-            // ResumedSent: only update existing lifted entry
-            if (state === "ResumedSent") {
-              const idx = newLifted.findIndex(r => r.haltId === haltId);
-              if (idx !== -1) {
-                newLifted[idx] = { ...newLifted[idx], ...sseBody };
-              }
+          // 1) ACTIVE_TRADING: halt has been lifted/resumed
+          if (state === HALT_STATES.ACTIVE_TRADING) {
+            // If already in liftedData, just update the entry (resumption confirmation)
+            const existingLiftedIdx = newLifted.findIndex(r => r.haltId === haltId);
+            if (existingLiftedIdx !== -1) {
+              newLifted[existingLiftedIdx] = { ...newLifted[existingLiftedIdx], ...sseBody };
               return;
             }
 
-            // Normal resumed: remove from active/pending, add/update lifted
+            // Remove from active/pending, add to lifted
             newActiveReg = newActiveReg.filter(r => r.haltId !== haltId);
             newActiveRegList = newActiveRegList.filter(id => id !== haltId);
             newActiveSSCB = newActiveSSCB.filter(r => r.haltId !== haltId);
             newPending = newPending.filter(r => r.haltId !== haltId);
-            newExtendedRegHaltIds = newExtendedRegHaltIds.filter(id => id !== haltId); // remove from extended list
+            newExtendedRegHaltIds = newExtendedRegHaltIds.filter(id => id !== haltId);
 
             if (!sseBody.resumptionTime) sseBody.resumptionTime = getCurrentDateTime();
-
-            if (!newLifted.find(r => r.haltId === haltId)) newLifted.push(sseBody);
-            else newLifted = newLifted.map(r => (r.haltId === haltId ? { ...r, ...sseBody } : r));
-
+            newLifted.push(sseBody);
             notifications.add(`Halt has been resumed for ${symbol}`);
             return;
           }
 
-          // 2) HALTED (REG) flow - activation or update
-          if (status === HALT_STATUSES.HALTED && haltType === HALT_TYPES.REG) {
-            const prev = newActiveReg.find(o => o.haltId === haltId && o.haltType === HALT_TYPES.REG);
-            // If came from pending, remove pending
+          // 2) ACTIVE_REG_HALT: new or update to an active regulatory halt
+          if (state === HALT_STATES.ACTIVE_REG_HALT) {
+            const prev = newActiveReg.find(o => o.haltId === haltId);
             const pendingIdx = newPending.findIndex(p => p.haltId === haltId);
             if (pendingIdx !== -1) {
               newPending = newPending.filter(p => p.haltId !== haltId);
@@ -149,128 +142,72 @@ export const useSSE = ({
 
             const existingIdx = newActiveReg.findIndex(r => r.haltId === haltId);
             if (existingIdx !== -1) {
-              // update existing
               newActiveReg[existingIdx] = { ...newActiveReg[existingIdx], ...sseBody };
-            } else {
-              // new activation
-              newActiveReg.push(sseBody);
-              if (!newActiveRegList.includes(haltId)) newActiveRegList.push(haltId);
 
-              if (pendingIdx !== -1)
-                // Halt lifted from Scheduled Halt
-                notifications.add(`Scheduled halt is now active for ${symbol}`);
-              else
-                // Newly created Halt
-                notifications.add(`New regulatory halt has been created for ${symbol}`);
-            }
-
-            if (prev && prev.haltReasonDescription !== sseBody.haltReasonDescription) {
-              notifications.add(`Halt reason has been changed for ${symbol}`);
-            }
-
-            if (prev && extended !== prev.extendedHalt) {
-              if (extended) {
-                notifications.add(`Halt has been marked as extended for ${symbol}`);
-              } else {
-                notifications.add(`Halt has been marked as non-extended for ${symbol}`);
+              if (prev && prev.symbol !== symbol) {
+                notifications.add(`Symbol has been changed for halt ${haltId}: ${prev.symbol} → ${symbol}`);
               }
-              // Handle extended and remained flag: add to extendedRegHaltIds if extended or remained, remove if not
-              if (extended || remained) {
-                if (!newExtendedRegHaltIds.includes(haltId)) newExtendedRegHaltIds.push(haltId);
-              } else {
-                newExtendedRegHaltIds = newExtendedRegHaltIds.filter(id => id !== haltId);
-              }
-            } else if (prev && remained !== prev.remainedHalt) {
-              if (remained) {
-                notifications.add(`Halt has been marked as remained for ${symbol}`);
-              } else {
-                notifications.add(`Halt has been marked as non-remained for ${symbol}`);
-              }
-              // Handle extended and remained flag: add to extendedRegHaltIds if extended or remained, remove if not
-              if (extended || remained) {
-                if (!newExtendedRegHaltIds.includes(haltId)) newExtendedRegHaltIds.push(haltId);
-              } else {
-                newExtendedRegHaltIds = newExtendedRegHaltIds.filter(id => id !== haltId);
-              }
-            }
-            return;
-          }
-
-          // 3) RESUMPTION_PENDING for REG (resumption time set/updated)
-          if (status === HALT_STATUSES.RESUMPTION_PENDING && haltType === HALT_TYPES.REG) {
-            const idx = newActiveReg.findIndex(r => r.haltId === haltId);
-            const prev = newActiveReg.find(o => o.haltId === haltId && o.haltType === HALT_TYPES.REG);
-            if (idx !== -1) {
-              newActiveReg[idx] = { ...newActiveReg[idx], ...sseBody };
-            }
-            if (prev && prev.symbol !== symbol) {
-              // Symbol change (rare)
-              notifications.add(`Symbol has been changed for halt ${haltId}: ${prev.symbol} → ${symbol}`);
-            }
-            if (prev && prev.resumptionTime !== sseBody.resumptionTime) {
-              if (sseBody.resumptionTime) {
-                notifications.add(`Resumption time has been updated for ${symbol}`);
-              } else {
-                notifications.add(`Resumption has been cancelled for ${symbol}`);
-              }
-            } else {
-              // Handle Extended and Remained flags on new resumption pending
-              if (prev && extended !== prev.extendedHalt) {
-                if (extended) {
-                  notifications.add(`Halt has been marked as extended for ${symbol}`);
+              if (prev && prev.resumptionTime !== sseBody.resumptionTime) {
+                if (sseBody.resumptionTime) {
+                  notifications.add(`Resumption time has been updated for ${symbol}`);
                 } else {
-                  notifications.add(`Halt has been marked as non-extended for ${symbol}`);
+                  notifications.add(`Resumption has been cancelled for ${symbol}`);
                 }
-                // Handle extended and remained flag: add to extendedRegHaltIds if extended or remained, remove if not
+              }
+              if (prev && prev.haltReasonDescription !== sseBody.haltReasonDescription) {
+                notifications.add(`Halt reason has been changed for ${symbol}`);
+              }
+              if (prev && extended !== prev.extendedHalt) {
+                notifications.add(extended
+                  ? `Halt has been marked as extended for ${symbol}`
+                  : `Halt has been marked as non-extended for ${symbol}`);
                 if (extended || remained) {
                   if (!newExtendedRegHaltIds.includes(haltId)) newExtendedRegHaltIds.push(haltId);
                 } else {
                   newExtendedRegHaltIds = newExtendedRegHaltIds.filter(id => id !== haltId);
                 }
               } else if (prev && remained !== prev.remainedHalt) {
-                if (remained) {
-                  notifications.add(`Halt has been marked as remained for ${symbol}`);
-                } else {
-                  notifications.add(`Halt has been marked as non-remained for ${symbol}`);
-                }
-                // Handle extended and remained flag: add to extendedRegHaltIds if extended or remained, remove if not
+                notifications.add(remained
+                  ? `Halt has been marked as remained for ${symbol}`
+                  : `Halt has been marked as non-remained for ${symbol}`);
                 if (extended || remained) {
                   if (!newExtendedRegHaltIds.includes(haltId)) newExtendedRegHaltIds.push(haltId);
                 } else {
                   newExtendedRegHaltIds = newExtendedRegHaltIds.filter(id => id !== haltId);
                 }
               }
-
-            }
-
-            if (prev && prev.haltReasonDescription !== sseBody.haltReasonDescription) {
-              notifications.add(`Halt reason has been changed for ${symbol}`);
+            } else {
+              newActiveReg.push(sseBody);
+              if (!newActiveRegList.includes(haltId)) newActiveRegList.push(haltId);
+              if (pendingIdx !== -1) {
+                notifications.add(`Scheduled halt is now active for ${symbol}`);
+              } else {
+                notifications.add(`New regulatory halt has been created for ${symbol}`);
+              }
             }
             return;
           }
-          // 4) SSCB creation / update
-          if (haltType === HALT_TYPES.SSCB && (status === HALT_STATUSES.RESUMPTION_PENDING || status === HALT_STATUSES.HALTED)) {
+
+          // 3) ACTIVE_SSCB_HALT: new or update to an active SSCB halt
+          if (state === HALT_STATES.ACTIVE_SSCB_HALT) {
             const idx = newActiveSSCB.findIndex(r => r.haltId === haltId);
             if (idx === -1) {
               newActiveSSCB.push(sseBody);
               notifications.add(`New SSCB halt has been created for ${symbol}`);
-            }
-            else {
+            } else {
               newActiveSSCB[idx] = { ...newActiveSSCB[idx], ...sseBody };
             }
             return;
           }
 
-          // 5) PENDING / SCHEDULED
-          if (status === HALT_STATUSES.HALT_PENDING || status === HALT_STATUSES.HALT_SCHEDULED) {
+          // 4) PENDING_HALT: new or update to a pending/scheduled halt
+          if (state === HALT_STATES.PENDING_HALT) {
             const idx = newPending.findIndex(p => p.haltId === haltId);
             if (idx === -1) {
               newPending.push(sseBody);
               notifications.add(`New regulatory halt has been scheduled for ${symbol}`);
-            }
-            else {
-              // Update notifications
-              if (action === "ModifyScheduledHalt" && state === "HaltPending") {
+            } else {
+              if (action === "ModifyScheduledHalt") {
                 let notificationMsg = "";
                 if (compareDateTimeToSecond(newPending[idx].haltTime, sseBody.haltTime) !== 0) {
                   notificationMsg += `'Halt time' `;
@@ -287,20 +224,13 @@ export const useSSE = ({
               } else if (action === "CancelScheduledHalt") {
                 notifications.add(`Scheduled halt has been cancelled for ${symbol}`);
               }
-              // Update existing pending Halts
               newPending[idx] = { ...newPending[idx], ...sseBody };
             }
             return;
           }
-          // 7) CANCELED from PENDING, notification already sent so only update the attributes
-          if (status === HALT_STATUSES.HALT_PENDING_CANCELLED) {
-            const idx = newPending.findIndex(p => p.haltId === haltId);
-            if (idx !== -1) {
-              newPending[idx] = { ...newPending[idx], ...sseBody };
-            }
-          }
-          // 8) default: if unknown type/status and not seen before -> track as pending generically
-          console.log("Unhandled halt status/state/type, added to Pending List: ", haltId, status, state, haltType);
+
+          // Default: unknown state, add to pending generically
+          console.log("Unhandled halt state/type, added to Pending List: ", haltId, state, haltType);
           if (!newPending.find(p => p.haltId === haltId)) newPending.push(sseBody);
 
         } catch (e) {

@@ -152,7 +152,7 @@ const CreateNewHaltModal = ({
         haltReasonCode: formData.haltReason ? formData.haltReason.reasonCode : "",
         remainedHalt: false,
         remainReason: "",
-        status: formData.immediateHalt ? "Halted" : "HaltPending",
+        state: formData.immediateHalt ? "ACTIVE_REG_HALT" : "PENDING_HALT",
         haltType: "REG", // Default to REG for new halts
         createdBy: formData.createdBy || "",
         createdTime: "",

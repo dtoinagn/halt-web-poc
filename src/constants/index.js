@@ -2,13 +2,11 @@
 
 import { C } from "@table-library/react-table-library/Cell-a4350b14";
 
-export const HALT_STATUSES = {
-  HALTED: "Halted",
-  RESUMED: "Resumed",
-  RESUMPTION_PENDING: "ResumptionPending",
-  HALT_SCHEDULED: "HaltScheduled",
-  HALT_PENDING: "HaltPending",
-  HALT_PENDING_CANCELLED: "HaltPendingCancelled",
+export const HALT_STATES = {
+  ACTIVE_REG_HALT: "ACTIVE_REG_HALT",
+  ACTIVE_SSCB_HALT: "ACTIVE_SSCB_HALT",
+  PENDING_HALT: "PENDING_HALT",
+  ACTIVE_TRADING: "ACTIVE_TRADING",
 };
 
 export const HALT_TYPES = {
@@ -84,7 +82,7 @@ export const TABLE_COLUMNS = {
 export const COLUMN_KEY_MAP = {
   "Halt Event ID": "haltId",
   Symbol: "symbol",
-  Status: "status",
+  Status: "state",
   "Issue Name": "issueName",
   "Listing Mkt": "listingMarket",
   "All Issues": "allIssue",
