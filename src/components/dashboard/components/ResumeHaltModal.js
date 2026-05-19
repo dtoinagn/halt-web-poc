@@ -186,7 +186,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
       // Prepare halt time
       let newResumptionTime = null;
       if (formData.immediateResumption) {
-        newResumptionTime = getCurrentTimeBackendFormat();
+        newResumptionTime = dayjs().tz(EST_ZONE).add(2, "minute").format(DATETIME_FORMATS.BACKEND);
       } else {
         newResumptionTime = getCurrentTimeBackendFormat(formData.resumptionTime);
       }

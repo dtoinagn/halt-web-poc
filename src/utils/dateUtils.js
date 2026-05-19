@@ -210,6 +210,9 @@ export const roundUpDateTime = (dateTimeString) => {
   return formatToBackendDateTime(estDate.toDate());
 };
 
+
+// ResumptionTime can be in two formats: compact backend format (YYYYMMDD-HH:mm:ss.SSS) or regular ISO string. 
+// This function checks if the resumption time is on the same day as the current date in EST timezone.
 export const isHaltedSameDay = (haltTime, resumptionTime) => {
   // Get current time in EST
   const currTimeEST = dayjs().tz(EST_ZONE);

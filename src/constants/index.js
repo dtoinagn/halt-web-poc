@@ -12,6 +12,7 @@ export const HALT_STATES = {
 export const HALT_TYPES = {
   REG: "REG",
   SSCB: "SSCB",
+  SSCB_REG: "SSCB_REG",
 };
 
 export const HALT_ACTIONS = {
@@ -25,12 +26,10 @@ export const HALT_ACTIONS = {
   CANCEL_SCHEDULED_RESUMPTION: "CancelScheduledResumption",
   MODIFY_HALT_DETAILS: "ModifyHaltDetails",
   EXTEND_HALT: "ExtendHalt",
-  LIFT_HALT: "LiftHalt",
-  CANCEL_HALT: "CancelHalt",
-  SCHEDULE_HALT: "ScheduleHalt",
   REMAINED_HALT: "RemainedHalt",
-  PROLONG_5MIN: "ProlongSSCB5Min",
-  CONVERT_TO_REG: "ConvertSSCBToRegulatory",
+  PROLONG_5MIN: "ExtendSscbHalt",
+  CONVERT_TO_REG: "ConvertSscbToHalt",
+  MODIFY_HALT_REASON:"ModifyHaltReason"
 };
 
 export const TABLE_COLUMNS = {

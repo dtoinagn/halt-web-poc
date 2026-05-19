@@ -64,7 +64,7 @@ export const useSSE = ({
   };
 
   const showNotificationMessage = useCallback((messages) => {
-    if (!messages || (Array.isArray(messages) && messages.length === 0 )) return;
+    if (!messages || (Array.isArray(messages) && messages.length === 0)) return;
     const msgArray = Array.isArray(messages) ? messages : [messages];
     setNotification(msgArray);
     setShowNotification(true);
@@ -104,8 +104,8 @@ export const useSSE = ({
           const haltId = sseBody.haltId;
           const haltType = sseBody.haltType;
           const symbol = sseBody.symbol;
-          const extended = Boolean(sseBody.extendedHalt);
-          const remained = Boolean(sseBody.remainedHalt);
+          const extended = sseBody.extendedHalt;
+          const remained = sseBody.remainedHalt;
           const action = sseBody.action;
 
           if (haltId) seenIdsRef.current.add(haltId);
@@ -139,7 +139,11 @@ export const useSSE = ({
             if (pendingIdx !== -1) {
               newPending = newPending.filter(p => p.haltId !== haltId);
             }
-
+            //Check if this halt is converted from an active SSCB halt - if so, remove from active SSCB list and add to active REG list (with notification)
+            const sscbIdx = newActiveSSCB.findIndex(s => s.haltId === haltId);
+            if (sscbIdx !== -1) {
+              newActiveSSCB = newActiveSSCB.filter(s => s.haltId !== haltId);
+            }
             const existingIdx = newActiveReg.findIndex(r => r.haltId === haltId);
             if (existingIdx !== -1) {
               newActiveReg[existingIdx] = { ...newActiveReg[existingIdx], ...sseBody };
@@ -148,10 +152,12 @@ export const useSSE = ({
                 notifications.add(`Symbol has been changed for halt ${haltId}: ${prev.symbol} → ${symbol}`);
               }
               if (prev && prev.resumptionTime !== sseBody.resumptionTime) {
-                if (sseBody.resumptionTime) {
-                  notifications.add(`Resumption time has been updated for ${symbol}`);
-                } else {
+                if (!prev.resumptionTime && sseBody.resumptionTime) {
+                  notifications.add(`Resumption time has been set for ${symbol}`);
+                } else if (prev.resumptionTime && !sseBody.resumptionTime) {
                   notifications.add(`Resumption has been cancelled for ${symbol}`);
+                } else if (compareDateTimeToSecond(prev.resumptionTime, sseBody.resumptionTime)) {
+                  notifications.add(`Resumption time has been updated for ${symbol}`);
                 }
               }
               if (prev && prev.haltReasonDescription !== sseBody.haltReasonDescription) {
@@ -181,6 +187,8 @@ export const useSSE = ({
               if (!newActiveRegList.includes(haltId)) newActiveRegList.push(haltId);
               if (pendingIdx !== -1) {
                 notifications.add(`Scheduled halt is now active for ${symbol}`);
+              } else if (sscbIdx !== -1) {
+                notifications.add(`SSCB halt has been converted to regulatory halt for ${symbol}`);
               } else {
                 notifications.add(`New regulatory halt has been created for ${symbol}`);
               }

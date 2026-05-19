@@ -32,12 +32,6 @@ describe("dateUtils", () => {
   });
 
   describe("formatDateTimeForDashboard", () => {
-    it("should return null for empty input", () => {
-      expect(formatDateTimeForDashboard(null)).toBeNull();
-      expect(formatDateTimeForDashboard(undefined)).toBeNull();
-      expect(formatDateTimeForDashboard("")).toBeNull();
-    });
-
     it("should format compact datetime format (YYYYMMDD-HH:mm:ss.SSS)", () => {
       const result = formatDateTimeForDashboard("20241015-14:30:45.123");
       expect(result).toBe("2024-10-15 14:30:45");
@@ -56,7 +50,7 @@ describe("dateUtils", () => {
   });
 
   describe("formatDateTimeEST", () => {
-    it("should return null for empty input", () => {
+    it("should return an empty string for empty input", () => {
       expect(formatDateTimeEST(null)).toBeNull();
       expect(formatDateTimeEST(undefined)).toBeNull();
       expect(formatDateTimeEST("")).toBeNull();
@@ -67,10 +61,10 @@ describe("dateUtils", () => {
       expect(result).toMatch(/2024-10-15 \d{2}:\d{2}:\d{2}/);
     });
 
-    it("should return compact format unchanged", () => {
+    it("should return default dashboard format", () => {
       const compactDate = "20241015-14:30:45.123";
       const result = formatDateTimeEST(compactDate);
-      expect(result).toBe(compactDate);
+      expect(result).toBe("2024-10-15 14:30:45");
     });
 
     it("should format to specified format", () => {

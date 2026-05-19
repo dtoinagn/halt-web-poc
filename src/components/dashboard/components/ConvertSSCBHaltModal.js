@@ -19,7 +19,7 @@ import HaltModalField from "./HaltModalField";
 import HaltReasonSelector from "./HaltReasonSelector";
 import "./CreateNewHaltModal.css";
 
-const ConvertSSCBHaltModal = ({ open, onClose, haltData, haltReasons = [] }) => {
+const ConvertSSCBHaltModal = ({ open, onClose, haltData, haltReasons = [], onHaltUpdated }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
@@ -124,7 +124,7 @@ const ConvertSSCBHaltModal = ({ open, onClose, haltData, haltReasons = [] }) => 
     } finally {
       setLoading(false);
     }
-  }, [haltData, formData.haltReason, formData.allIssue, handleClose]);
+  }, [haltData, formData.haltReason, formData.allIssue, handleClose, onHaltUpdated]);
 
   return (
     <Dialog

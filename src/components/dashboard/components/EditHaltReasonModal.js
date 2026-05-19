@@ -14,6 +14,7 @@ import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import HaltModalField from "./HaltModalField";
+import { formatForBackend } from "../../../utils/dateUtils";
 import "./CreateNewHaltModal.css";
 import dayjs from "dayjs";
 
@@ -88,17 +89,19 @@ const EditHaltReasonModal = ({ open, onClose, haltData, haltReasons = [], onHalt
             }
 
             setLoading(true);
-
+            console.log("1111111111111", haltData.resumptionTime);
             // Build the payload
             const payload = {
                 ...haltData,
+                haltTime: formatForBackend(haltData.haltTime) || "",
+                resumptionTime: haltData.resumptionTime ? formatForBackend(haltData.resumptionTime) : "",
                 haltReasonDescription: formData.haltReason.reasonDescription,
                 haltReasonCode: formData.haltReason.reasonCode,
                 haltReasonType: formData.haltReason ? formData.haltReason.reasonTypeCode : "",
                 lastModifiedBy: authUtils.getLoggedInUser() || "",
-                action: HALT_ACTIONS.MODIFY_HALT_DETAILS,
+                action: HALT_ACTIONS.MODIFY_HALT_REASON,
             };
-
+            console.log("Updating halt with payload:", payload);
             await apiService.updateHalt(payload);
 
             // Call onHaltUpdated callback if provided

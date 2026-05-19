@@ -538,7 +538,99 @@ describe('useSSE', () => {
       expect(setPendingData).toHaveBeenCalled();
       expect(setActiveRegData).toHaveBeenCalled();
     });
+    it('should move active sscb halt to active when converted', async () => {
+      const setActiveSSCBData = jest.fn();
+      const setActiveRegData = jest.fn();
+      const setExtendedRegHaltIds = jest.fn();
 
+      const activeRegHalt = {
+        "haltId": "AAPL_20260511_S01",
+        "symbol": "AAPL",
+        "issueName": "",
+        "listingMarket": "CNSX",
+        "allIssue": "false",
+        "haltTime": "20260511-10:07:25.000",
+        "resumptionTime": null,
+        "createdTime": "20260511-10:06:41.545",
+        "lastModifiedTime": "20260511-11:30:55.960",
+        "extendedHalt": true,
+        "haltReasonDescription": "Pending Clarification Market Activity",
+        "haltReasonType": "1",
+        "haltReasonCode": "208",
+        "remainReason": "",
+        "remainedHalt": true,
+        "haltType": "SSCB_REG",
+        "createdBy": "sroot",
+        "lastModifiedBy": "dtian",
+        "sscbSource": "p1",
+        "responseMessage": null,
+        "action": null,
+        "comment": "",
+        "ipAddress": null,
+        "sscbExtended": false,
+        "command": "UPDATE_HALT_DETAILS",
+        "state": "ACTIVE_REG_HALT",
+        "subState": "Halt_Updated",
+        "target": null
+      }
+
+      const { result } = renderHook(() => useSSE({
+        ...defaultProps,
+        haltList: ['AAPL_20260511_S01'],
+        activeSSCBData: [],
+        activeRegData: [activeRegHalt],
+        setActiveSSCBData,
+        setActiveRegData,
+        setExtendedRegHaltIds
+      }));
+
+      await act(async () => {
+        await result.current.getSSETicket();
+      });
+
+      await waitFor(() => expect(eventSourceInstances.length).toBe(1));
+
+      const message = {
+        data: JSON.stringify({
+          "haltId": "AAPL_20260511_S01",
+          "symbol": "AAPL",
+          "issueName": "",
+          "listingMarket": "CNSX",
+          "allIssue": "false",
+          "haltTime": "20260511-10:07:25.000",
+          "resumptionTime": "",
+          "createdTime": "20260511-10:06:41.545",
+          "lastModifiedTime": "20260511-13:24:22.684",
+          "extendedHalt": true,
+          "haltReasonDescription": "Pending Clarification Market Activity",
+          "haltReasonType": "1",
+          "haltReasonCode": "208",
+          "remainReason": "",
+          "remainedHalt": false,
+          "haltType": "SSCB_REG",
+          "createdBy": "sroot",
+          "lastModifiedBy": "dtian",
+          "sscbSource": "p1",
+          "responseMessage": "",
+          "action": "ExtendHalt",
+          "comment": "",
+          "ipAddress": "172.22.104.109",
+          "sscbExtended": false,
+          "command": "UPDATE_HALT_DETAILS",
+          "state": "ACTIVE_REG_HALT",
+          "subState": "Halt_Updated",
+          "target": null
+        })
+      };
+
+      act(() => {
+        eventSourceInstances[0].onmessage(message);
+      });
+
+      expect(setExtendedRegHaltIds).toHaveBeenCalled();
+      expect(setActiveRegData).toHaveBeenCalled();
+      await waitFor(() => expect(extendedRegHaltIds.length).toBe(1));
+    });
     it('should update existing active halt without duplicating when receiving SSE event', async () => {
       const setActiveRegData = jest.fn();
 

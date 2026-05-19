@@ -91,9 +91,9 @@ export const useHaltData = () => {
   };
 
   // Helper: update list of extended/remained REG halts
-  // Track haltId if: (extendedHalt === true OR remainedHalt === true) AND haltType === REG
+  // Track haltId if: (extendedHalt === true OR remainedHalt === true) AND haltType === REG or SSCB_REG
   const updateExtendedRegHaltIdList = (haltId, extendedState, remainedState, haltType) => {
-    if (!haltId || haltType !== HALT_TYPES.REG) return;
+    if (!haltId || !(haltType == HALT_TYPES.REG || haltType == HALT_TYPES.SSCB_REG)) return;
 
     setExtendedRegHaltIds((prev) => {
       const exists = prev.includes(haltId);
