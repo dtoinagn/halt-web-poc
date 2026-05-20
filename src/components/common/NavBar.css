@@ -1,70 +1,78 @@
 .navbar {
-  background-color: #004644;
-  color: white;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
   position: absolute;
   float: left;
-  height: 95.5vh;
-  width: 12%;
+  height: calc(100vh - 48px);
+  width: 160px;
   z-index: 10;
 }
 
 .navbar-narrow {
-  background-color: #004644;
-  color: white;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
   position: absolute;
   float: left;
-  height: 95.5vh;
-  width: 68px;
+  height: calc(100vh - 48px);
+  width: 48px;
   z-index: 10;
 }
 
 .navbar-links {
-  transform: translateY(40px);
-  float: top;
-  align-items: flex-end;
-  justify-content: center;
+  padding-top: 12px;
 }
 
 .navbar-item {
-  padding-top: 20px;
+  padding: 2px 6px;
 }
 
 .navbar-item-link {
-  font-size: 14px;
-  color: white;
-  font-weight: bold;
+  font-size: 13px;
+  color: #555;
+  font-weight: 400;
   text-decoration: none;
-  opacity: 0.6;
-  margin-left: 50px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 8px;
+  padding: 7px 10px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
 .navbar-item-link:hover {
-  opacity: 0.8;
+  background-color: #f0f0f0;
+  color: #222;
 }
 
 .navbar-item-link-clicked {
-  font-size: 14px;
-  color: white;
-  font-weight: bold;
+  font-size: 13px;
+  color: #1e3a5f;
+  font-weight: 600;
   text-decoration: none;
-  opacity: 1;
-  margin-left: 50px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 8px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  background-color: #e8eef8;
   cursor: pointer;
 }
 
 .navbar-icon {
-  transform: translateY(-3px) translateX(-10px);
+  font-size: 18px !important;
+  flex-shrink: 0;
 }
 
 .navbar-icon-in-narrow-mode {
-  transform: translateY(5px) translateX(-26px);
+  font-size: 20px !important;
+  flex-shrink: 0;
+}
+
+/* Centre icon when in narrow (icon-only) mode */
+.navbar-narrow .navbar-item-link,
+.navbar-narrow .navbar-item-link-clicked {
+  justify-content: center;
+  padding: 7px 0;
 }
 
 .session-timeout-dialog {

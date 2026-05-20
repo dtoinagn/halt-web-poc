@@ -6,7 +6,7 @@ import { LoggedInUserContext } from "../../contexts/LoggedInUserContext";
 import { useAuth } from "../../hooks/useAuth";
 import { authUtils, cookieUtils } from "../../utils/storageUtils";
 import LogoutIcon from "@mui/icons-material/LogoutOutlined";
-import HelpIcon from "@mui/icons-material/Help";
+import HelpIcon from "@mui/icons-material/HelpOutline";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ROUTE_PATHS } from "../../constants";
 
@@ -155,35 +155,32 @@ const TopBar = () => {
 
   return (
     <div className="topbar">
-      <MenuIcon
-        onClick={handleMenu}
-        className="topbar-menubutton"
-        fontSize="large"
-      />
+      <div className="topbar-left">
+        <MenuIcon
+          onClick={handleMenu}
+          className="topbar-menubutton"
+          fontSize="large"
+        />
+        <img className="topbar-ciro-logo" src={Logo} alt="ciro company logo" />
+        <nav className="topbar-breadcrumb">
+          <span className="topbar-breadcrumb-pill">CIRO Equity Trading Halt Management Portal</span>
+        </nav>
+      </div>
 
-      <img className="topbar-ciro-logo" src={Logo} alt="ciro company logo" />
-      {showTitle && (
-        <div className="topbar-header">
-          CIRO Equity Trading Halt Management Portal
+      {userLoggedIn && (
+        <div className="topbar-right">
+          <HelpIcon
+            onClick={handleUserGuide}
+            className="topbar-icon-btn"
+            fontSize="large"
+          />
+          <LogoutIcon
+            onClick={handleLogout}
+            className="topbar-icon-btn"
+            fontSize="large"
+          />
+          {init && <div className="topbar-profilepic">{init}</div>}
         </div>
-      )}
-
-      {userLoggedIn && showTitle && (
-        <HelpIcon
-          onClick={handleUserGuide}
-          className="topbar-guide"
-          fontSize="large"
-        />
-      )}
-      {userLoggedIn && showTitle && init && (
-        <div className="topbar-profilepic">{init}</div>
-      )}
-      {userLoggedIn && showTitle && (
-        <LogoutIcon
-          onClick={handleLogout}
-          className="topbar-logoutbutton"
-          fontSize="large"
-        />
       )}
     </div>
   );

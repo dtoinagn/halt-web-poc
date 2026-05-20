@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { CssBaseline, ThemeProvider } from '@mui/material'
-import { ColorModeContext, useMode } from './theme'
+import { theme } from './theme'
 import { LoggedInUserContext } from './contexts/LoggedInUserContext';
 import { authUtils } from './utils/storageUtils';
 import { ROUTE_PATHS } from './constants';
@@ -20,7 +20,6 @@ function App() {
   const [loggedInUser, setLoggedInUser] = useState('notLoggedIn');
   const [loggedIn, setLoggedIn] = useState(false);
   const [userGuideClicked, setUserGuideClicked] = useState(false);
-  const [theme, colorMode] = useMode();
   const [navbarOpen, setNavbarOpen] = useState(true);
   const [showNavbarTitle, setShowNavbarTitle] = useState(true);
   const [narrowScreen, setNarrowScreen] = useState(false);
@@ -54,61 +53,59 @@ function App() {
   const userLoggedIn = authUtils.isLoggedIn();
 
   return (
-    <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <BrowserRouter>
-          <CssBaseline />
-          <div className='app' style={{ height: '100vh', overflowY: 'hidden' }}>
-            <LoggedInUserContext.Provider value={contextValue}>
-              <TopBar />
-              <NavBar />
-              <div
-                className={
-                  navbarOpen && narrowScreen
-                    ? 'content-next-to-narrow-navbar'
-                    : navbarOpen && !narrowScreen
-                      ? 'content-next-to-default-navbar'
-                      : 'content-full-width'
-                }
-              >
-                <Routes>
-                  {/* Root route: send authenticated users to dashboard, otherwise show Login */}
-                  <Route
-                    path={ROUTE_PATHS.ROOT}
-                    element={
-                      userLoggedIn ? (
-                        <Navigate to={ROUTE_PATHS.DASHBOARD} replace />
-                      ) : (
-                        <Login />
-                      )
-                    }
-                  />
+    <ThemeProvider theme={theme}>
+      <BrowserRouter>
+        <CssBaseline />
+        <div className='app' style={{ height: '100vh', overflowY: 'hidden' }}>
+          <LoggedInUserContext.Provider value={contextValue}>
+            <TopBar />
+            {userLoggedIn && <NavBar />}
+            <div
+              className={
+                userLoggedIn && navbarOpen && narrowScreen
+                  ? 'content-next-to-narrow-navbar'
+                  : userLoggedIn && navbarOpen && !narrowScreen
+                    ? 'content-next-to-default-navbar'
+                    : 'content-full-width'
+              }
+            >
+              <Routes>
+                {/* Root route: send authenticated users to dashboard, otherwise show Login */}
+                <Route
+                  path={ROUTE_PATHS.ROOT}
+                  element={
+                    userLoggedIn ? (
+                      <Navigate to={ROUTE_PATHS.DASHBOARD} replace />
+                    ) : (
+                      <Login />
+                    )
+                  }
+                />
 
-                  {/* Login route (explicit) */}
-                  <Route path={ROUTE_PATHS.LOGIN} element={<Login />} />
+                {/* Login route (explicit) */}
+                <Route path={ROUTE_PATHS.LOGIN} element={<Login />} />
 
-                  {/* Protected routes */}
-                  {userLoggedIn && (
-                    <Route path={ROUTE_PATHS.DASHBOARD} element={<Dashboard />} />
-                  )}
-                  {userLoggedIn && (
-                    <Route path={ROUTE_PATHS.HISTORY} element={<History />} />
-                  )}
+                {/* Protected routes */}
+                {userLoggedIn && (
+                  <Route path={ROUTE_PATHS.DASHBOARD} element={<Dashboard />} />
+                )}
+                {userLoggedIn && (
+                  <Route path={ROUTE_PATHS.HISTORY} element={<History />} />
+                )}
 
-                  {/* Restricted routes for non-authenticated users */}
-                  {!userLoggedIn && (
-                    <Route path={ROUTE_PATHS.HISTORY} element={<NotLoggedIn />} />
-                  )}
+                {/* Restricted routes for non-authenticated users */}
+                {!userLoggedIn && (
+                  <Route path={ROUTE_PATHS.HISTORY} element={<NotLoggedIn />} />
+                )}
 
-                  {/* Public routes */}
-                  <Route path={ROUTE_PATHS.USER_GUIDE} element={<UserGuide />} />
-                </Routes>
-              </div>
-            </LoggedInUserContext.Provider>
-          </div>
-        </BrowserRouter>
-      </ThemeProvider>
-    </ColorModeContext.Provider>
+                {/* Public routes */}
+                <Route path={ROUTE_PATHS.USER_GUIDE} element={<UserGuide />} />
+              </Routes>
+            </div>
+          </LoggedInUserContext.Provider>
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

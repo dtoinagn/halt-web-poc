@@ -1,87 +1,107 @@
 .topbar {
-  height: 56.5px;
-  background-color: #013737;
+  height: 48px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
   position: sticky;
   top: 0;
-  z-index: 1;
-}
-
-.topbar-header {
+  z-index: 1000;
   display: flex;
-  gap: 200px;
-  justify-content: space-between;
-  padding-left: 30px;
-  padding-top: 18px;
-  font-size: 16px;
-  color: white;
-  font-weight: bold;
-  text-decoration: none;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
 }
 
-.topbar-ciro-logo {
-  height: 46.215px;
-  width: 149.186px;
-  float: left;
-  margin-left: 0px;
-  margin-top: 3.5px;
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
 }
 
-.topbar-logoutbutton {
-  position: absolute;
-  right: 52px;
-  top: 13px;
-  background-color: #013737;
-  color: white;
-  cursor: pointer;
-  border: none;
-}
-
-.topbar-logoutbutton:hover {
-  opacity: 0.8;
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
 .topbar-menubutton {
-  justify-content: space-between;
-  float: left;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
-  margin-top: 10px;
-  background-color: #013737;
-  color: white;
+  color: #555;
   cursor: pointer;
-  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .topbar-menubutton:hover {
-  opacity: 0.8;
+  background-color: #f0f0f0;
 }
 
-.topbar-guide {
-  position: absolute;
-  right: 88px;
-  top: 13px;
-  background-color: #013737;
-  color: white;
+.topbar-ciro-logo {
+  height: 26px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.topbar-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.topbar-breadcrumb-pill {
+  background-color: #efefef;
+  color: #333;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.topbar-breadcrumb-separator {
+  color: #aaa;
+  font-size: 13px;
+  user-select: none;
+}
+
+.topbar-breadcrumb-item {
+  font-size: 13px;
+  color: #444;
+}
+
+
+.topbar-icon-btn {
+  color: #555;
   cursor: pointer;
-  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
 }
 
-.topbar-guide:hover {
-  opacity: 0.8;
+.topbar-icon-btn:hover {
+  background-color: #f0f0f0;
+  color: #222;
 }
 
 .topbar-profilepic {
-  position: absolute;
-  right: 8px;
-  top: 8px;
-  background: #6b5196;
+  background: #1e3a5f;
   color: white;
-  opacity: 1; 
-  font-weight: bold; 
-  border-radius: 50%; 
-  vertical-align: middle; 
-  width: 40px; 
-  height: 40px; 
-  line-height: 40px; 
-  text-align: center; 
+  font-weight: 600;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  cursor: default;
+  flex-shrink: 0;
+  margin-left: 2px;
 }
