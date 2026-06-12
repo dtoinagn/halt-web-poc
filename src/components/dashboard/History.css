@@ -1,0 +1,108 @@
+.history-container {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 20px 0;
+  box-sizing: border-box;
+}
+
+.history-filter-panel {
+  padding: 14px 16px !important;
+  background-color: #dce8e8 !important;
+  flex-shrink: 0;
+}
+
+.history-filter-title {
+  color: #004644 !important;
+  font-weight: bold !important;
+  margin-bottom: 10px !important;
+  font-size: 0.95rem !important;
+}
+
+.history-filters {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.history-search-button {
+  background-color: #006666 !important;
+  color: white !important;
+  font-size: 0.78rem !important;
+  padding: 5px 14px !important;
+  white-space: nowrap;
+}
+
+.history-search-button:hover {
+  background-color: #004d4d !important;
+}
+
+.history-reset-button {
+  border-color: #006666 !important;
+  color: #006666 !important;
+  font-size: 0.78rem !important;
+  padding: 5px 12px !important;
+  white-space: nowrap;
+}
+
+.history-reset-button:hover {
+  background-color: rgba(0, 102, 102, 0.06) !important;
+}
+
+.history-active-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  min-height: 32px;
+}
+
+.history-no-filters {
+  color: #6d8584 !important;
+  font-size: 0.78rem !important;
+  font-style: italic;
+}
+
+.history-divider {
+  flex-shrink: 0;
+  margin: 10px 0 !important;
+  border-color: #b8cccc !important;
+}
+
+.history-results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.history-count {
+  color: #004644;
+  font-size: 0.78rem !important;
+  margin-bottom: 4px !important;
+  padding-left: 2px;
+}
+
+.history-table-container {
+  background-color: #7d9c9c !important;
+  flex: 0 1 auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 290px);
+}
+
+.history-table-header {
+  background-color: #006666 !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 0.8rem !important;
+  padding: 4px 6px !important;
+  white-space: nowrap !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1 !important;
+}

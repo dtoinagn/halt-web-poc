@@ -6,7 +6,11 @@
       "Bash(npm run build:*)",
       "Bash(npm run build:dev:*)",
       "Bash(dir:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(Get-ChildItem -Path \"C:\\\\project\\\\ciro\\\\halt-portal\" -Recurse -Depth 3 -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object FullName)",
+      "PowerShell(head *)",
+      "Bash(node -e \"const fs = require\\('fs'\\); const content = fs.readFileSync\\('src/components/dashboard/History.js', 'utf8'\\); console.log\\(content.substring\\(0, 300\\)\\);\")"
     ],
     "deny": [],
     "ask": []
