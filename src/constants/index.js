@@ -109,6 +109,7 @@ export const ROUTE_PATHS = {
   LOGIN: "/login",
   DASHBOARD: "/dashboard",
   HISTORY: "/history",
+  SUMMARY: "/summary",
   USER_GUIDE: "/userguide",
   ROOT: "/",
 };

@@ -12,6 +12,7 @@ import TopBar from './components/common/TopBar';
 import NavBar from './components/common/NavBar';
 import Dashboard from './components/dashboard/Dashboard';
 import History from './components/dashboard/History';
+import DailySummary from './components/dashboard/DailySummary';
 import Login from './components/login/Login';
 import NotLoggedIn from './components/dashboard/NotLoggedIn';
 import UserGuide from './components/dashboard/UserGuide';
@@ -94,10 +95,16 @@ function App() {
                   {userLoggedIn && (
                     <Route path={ROUTE_PATHS.HISTORY} element={<History />} />
                   )}
+                  {userLoggedIn && (
+                    <Route path={ROUTE_PATHS.SUMMARY} element={<DailySummary />} />
+                  )}
 
                   {/* Restricted routes for non-authenticated users */}
                   {!userLoggedIn && (
                     <Route path={ROUTE_PATHS.HISTORY} element={<NotLoggedIn />} />
+                  )}
+                  {!userLoggedIn && (
+                    <Route path={ROUTE_PATHS.SUMMARY} element={<NotLoggedIn />} />
                   )}
 
                   {/* Public routes */}

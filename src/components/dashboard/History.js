@@ -11,13 +11,6 @@ import { formatDateTimeForDashboard } from '../../utils/dateUtils';
 import HaltDetailModal from './components/HaltDetailModal';
 import './History.css';
 
-const STATUS_OPTIONS = [
-  { value: 'ACTIVE_REG_HALT', label: 'Active Reg Halt' },
-  { value: 'ACTIVE_SSCB_HALT', label: 'Active SSCB Halt' },
-  { value: 'PENDING_HALT', label: 'Pending Halt' },
-  { value: 'ACTIVE_TRADING', label: 'Lifted' },
-];
-
 const MARKET_OPTIONS = ['CDX', 'NASDAQ', 'NYSE', 'TSX', 'TSE'];
 
 const HISTORY_COLUMNS = [
@@ -43,7 +36,12 @@ const parseHaltDate = (dateStr) => {
   return isNaN(parsed.getTime()) ? null : parsed;
 };
 
-const EMPTY_FILTERS = { fromDate: '', toDate: '', status: [], symbol: '', market: [] };
+const EMPTY_FILTERS = {
+  haltDateFrom: '', haltDateTo: '',
+  resumptionDateFrom: '', resumptionDateTo: '',
+  haltType: '', createdBy: '',
+  symbol: '', market: [],
+};
 
 const History = () => {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
@@ -84,24 +82,46 @@ const History = () => {
   const applyFilters = useCallback(() => {
     let result = [...allData];
 
-    if (filters.fromDate) {
-      const from = new Date(filters.fromDate + 'T00:00:00');
+    if (filters.haltDateFrom) {
+      const from = new Date(filters.haltDateFrom + 'T00:00:00');
       result = result.filter(h => {
         const d = parseHaltDate(h.haltTime);
         return d && d >= from;
       });
     }
 
-    if (filters.toDate) {
-      const to = new Date(filters.toDate + 'T23:59:59');
+    if (filters.haltDateTo) {
+      const to = new Date(filters.haltDateTo + 'T23:59:59');
       result = result.filter(h => {
         const d = parseHaltDate(h.haltTime);
         return d && d <= to;
       });
     }
 
-    if (filters.status.length > 0) {
-      result = result.filter(h => filters.status.includes(h.state));
+    if (filters.resumptionDateFrom) {
+      const from = new Date(filters.resumptionDateFrom + 'T00:00:00');
+      result = result.filter(h => {
+        const d = parseHaltDate(h.resumptionTime);
+        return d && d >= from;
+      });
+    }
+
+    if (filters.resumptionDateTo) {
+      const to = new Date(filters.resumptionDateTo + 'T23:59:59');
+      result = result.filter(h => {
+        const d = parseHaltDate(h.resumptionTime);
+        return d && d <= to;
+      });
+    }
+
+    if (filters.haltType.trim()) {
+      const ht = filters.haltType.trim().toUpperCase();
+      result = result.filter(h => h.haltType?.toUpperCase().includes(ht));
+    }
+
+    if (filters.createdBy.trim()) {
+      const cb = filters.createdBy.trim().toLowerCase();
+      result = result.filter(h => h.createdBy?.toLowerCase().includes(cb));
     }
 
     if (filters.symbol.trim()) {
@@ -201,8 +221,10 @@ const History = () => {
     );
   };
 
-  const hasActiveFilters = filters.fromDate || filters.toDate || filters.symbol ||
-    filters.status.length > 0 || filters.market.length > 0;
+  const hasActiveFilters = filters.haltDateFrom || filters.haltDateTo ||
+    filters.resumptionDateFrom || filters.resumptionDateTo ||
+    filters.haltType || filters.createdBy ||
+    filters.symbol || filters.market.length > 0;
 
   if (loading) {
     return (
@@ -233,46 +255,59 @@ const History = () => {
         <Typography className="history-filter-title">Search Halt History</Typography>
         <Box className="history-filters">
           <TextField
-            label="From Date"
+            label="Halt Date From"
             type="date"
             size="small"
-            value={filters.fromDate}
-            onChange={e => handleFilterChange('fromDate', e.target.value)}
+            value={filters.haltDateFrom}
+            onChange={e => handleFilterChange('haltDateFrom', e.target.value)}
             InputLabelProps={{ shrink: true }}
-            sx={{ minWidth: 148 }}
+            sx={{ minWidth: 155 }}
           />
           <TextField
-            label="To Date"
+            label="Halt Date To"
             type="date"
             size="small"
-            value={filters.toDate}
-            onChange={e => handleFilterChange('toDate', e.target.value)}
+            value={filters.haltDateTo}
+            onChange={e => handleFilterChange('haltDateTo', e.target.value)}
             InputLabelProps={{ shrink: true }}
-            sx={{ minWidth: 148 }}
+            sx={{ minWidth: 155 }}
           />
-          <FormControl size="small" sx={{ minWidth: 155 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
-              multiple
-              value={filters.status}
-              onChange={e => handleFilterChange('status', e.target.value)}
-              input={<OutlinedInput label="Status" />}
-              renderValue={selected =>
-                selected.length === 0
-                  ? ''
-                  : selected.length === 1
-                    ? STATUS_OPTIONS.find(o => o.value === selected[0])?.label
-                    : `${selected.length} selected`
-              }
-            >
-              {STATUS_OPTIONS.map(opt => (
-                <MenuItem key={opt.value} value={opt.value} dense>
-                  <Checkbox checked={filters.status.includes(opt.value)} size="small" sx={{ p: '2px 6px 2px 0' }} />
-                  <ListItemText primary={opt.label} primaryTypographyProps={{ fontSize: '0.82rem' }} />
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <TextField
+            label="Resumption Date From"
+            type="date"
+            size="small"
+            value={filters.resumptionDateFrom}
+            onChange={e => handleFilterChange('resumptionDateFrom', e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            sx={{ minWidth: 175 }}
+          />
+          <TextField
+            label="Resumption Date To"
+            type="date"
+            size="small"
+            value={filters.resumptionDateTo}
+            onChange={e => handleFilterChange('resumptionDateTo', e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            sx={{ minWidth: 175 }}
+          />
+          <TextField
+            label="Halt Type"
+            size="small"
+            value={filters.haltType}
+            onChange={e => handleFilterChange('haltType', e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && applyFilters()}
+            placeholder="e.g. REG"
+            sx={{ minWidth: 120 }}
+          />
+          <TextField
+            label="Created By"
+            size="small"
+            value={filters.createdBy}
+            onChange={e => handleFilterChange('createdBy', e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && applyFilters()}
+            placeholder="e.g. jsmith"
+            sx={{ minWidth: 130 }}
+          />
           <TextField
             label="Symbol"
             size="small"
@@ -323,18 +358,46 @@ const History = () => {
         <Box className="history-active-chips">
           {hasActiveFilters ? (
             <>
-              {filters.fromDate && (
+              {filters.haltDateFrom && (
                 <Chip
                   size="small"
-                  label={`From: ${filters.fromDate}`}
-                  onDelete={() => handleFilterChange('fromDate', '')}
+                  label={`Halt Date From: ${filters.haltDateFrom}`}
+                  onDelete={() => handleFilterChange('haltDateFrom', '')}
                 />
               )}
-              {filters.toDate && (
+              {filters.haltDateTo && (
                 <Chip
                   size="small"
-                  label={`To: ${filters.toDate}`}
-                  onDelete={() => handleFilterChange('toDate', '')}
+                  label={`Halt Date To: ${filters.haltDateTo}`}
+                  onDelete={() => handleFilterChange('haltDateTo', '')}
+                />
+              )}
+              {filters.resumptionDateFrom && (
+                <Chip
+                  size="small"
+                  label={`Resumption From: ${filters.resumptionDateFrom}`}
+                  onDelete={() => handleFilterChange('resumptionDateFrom', '')}
+                />
+              )}
+              {filters.resumptionDateTo && (
+                <Chip
+                  size="small"
+                  label={`Resumption To: ${filters.resumptionDateTo}`}
+                  onDelete={() => handleFilterChange('resumptionDateTo', '')}
+                />
+              )}
+              {filters.haltType && (
+                <Chip
+                  size="small"
+                  label={`Halt Type: ${filters.haltType}`}
+                  onDelete={() => handleFilterChange('haltType', '')}
+                />
+              )}
+              {filters.createdBy && (
+                <Chip
+                  size="small"
+                  label={`Created By: ${filters.createdBy}`}
+                  onDelete={() => handleFilterChange('createdBy', '')}
                 />
               )}
               {filters.symbol && (
@@ -344,14 +407,6 @@ const History = () => {
                   onDelete={() => handleFilterChange('symbol', '')}
                 />
               )}
-              {filters.status.map(s => (
-                <Chip
-                  key={s}
-                  size="small"
-                  label={STATUS_OPTIONS.find(o => o.value === s)?.label || s}
-                  onDelete={() => handleFilterChange('status', filters.status.filter(x => x !== s))}
-                />
-              ))}
               {filters.market.map(m => (
                 <Chip
                   key={m}

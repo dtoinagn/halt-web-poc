@@ -1,0 +1,137 @@
+.summary-container {
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 20px 0;
+  box-sizing: border-box;
+  background-color: #edf4f4;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+
+.summary-title {
+  color: #004644 !important;
+  font-weight: bold !important;
+  font-size: 1.1rem !important;
+}
+
+.summary-refresh-button {
+  border-color: #006666 !important;
+  color: #006666 !important;
+  font-size: 0.78rem !important;
+  padding: 5px 12px !important;
+}
+
+.summary-refresh-button:hover {
+  background-color: rgba(0, 102, 102, 0.06) !important;
+}
+
+
+.summary-divider {
+  margin: 14px 0 !important;
+  border-color: #b8cccc !important;
+  flex-shrink: 0;
+}
+
+.summary-chart-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.summary-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.summary-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.summary-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.summary-legend-label {
+  flex: 1;
+  font-size: 0.82rem !important;
+  color: #333;
+}
+
+.summary-legend-count {
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  min-width: 28px;
+  text-align: right;
+}
+
+.summary-legend-pct {
+  font-size: 0.75rem !important;
+  color: #888 !important;
+  min-width: 36px;
+  text-align: right;
+}
+
+.summary-section {
+  padding: 14px 16px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #c8dcdc !important;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+
+.summary-section-title {
+  color: #004644 !important;
+  font-weight: bold !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.summary-unresolved-count {
+  color: #6d8584 !important;
+  font-size: 0.75rem !important;
+  font-weight: normal !important;
+}
+
+.summary-table-header {
+  background-color: #006666 !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 0.78rem !important;
+  padding: 5px 8px !important;
+  white-space: nowrap !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1 !important;
+}
+
+.summary-table-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.summary-no-unresolved {
+  color: #6d8584 !important;
+  font-size: 0.82rem !important;
+  font-style: italic;
+  padding: 10px 0 !important;
+}

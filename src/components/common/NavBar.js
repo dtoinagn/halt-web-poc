@@ -7,6 +7,7 @@ import { cookieUtils } from '../../utils/storageUtils';
 import { ROUTE_PATHS } from '../../constants';
 import HomeIcon from '@mui/icons-material/Home';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography } from '@mui/material';
 
 const NavBar = () => {
@@ -23,6 +24,7 @@ const NavBar = () => {
 
   const [clickedDashboard, setClickedDashboard] = useState(true);
   const [clickedHistory, setClickedHistory] = useState(false);
+  const [clickedSummary, setClickedSummary] = useState(false);
   const [sessionTimeoutOpen, setSessionTimeoutOpen] = useState(false);
 
   const userLoggedIn = localStorage.getItem("loggedIn");
@@ -46,6 +48,7 @@ const NavBar = () => {
     if (!checkSession()) return;
     setClickedDashboard(true);
     setClickedHistory(false);
+    setClickedSummary(false);
     setUserGuideClicked?.(false);
   };
 
@@ -53,6 +56,15 @@ const NavBar = () => {
     if (!checkSession()) return;
     setClickedHistory(true);
     setClickedDashboard(false);
+    setClickedSummary(false);
+    setUserGuideClicked?.(false);
+  };
+
+  const toSummaryTab = () => {
+    if (!checkSession()) return;
+    setClickedSummary(true);
+    setClickedDashboard(false);
+    setClickedHistory(false);
     setUserGuideClicked?.(false);
   };
 
@@ -127,32 +139,64 @@ const NavBar = () => {
             
             {showNavbarTitle ? (
               <div className="navbar-item">
-                <Link 
-                  to={ROUTE_PATHS.HISTORY} 
+                <Link
+                  to={ROUTE_PATHS.HISTORY}
                   className={
-                    (clickedHistory && !userGuideClicked) 
-                      ? "navbar-item-link-clicked" 
+                    (clickedHistory && !userGuideClicked)
+                      ? "navbar-item-link-clicked"
                       : "navbar-item-link"
-                  } 
+                  }
                   onClick={toHistoryTab}
-                  style={{ display: 'flex', alignItems: 'flex-end' }} 
-                > 
+                  style={{ display: 'flex', alignItems: 'flex-end' }}
+                >
                   <CalendarMonthIcon className="navbar-icon" />
                   History
                 </Link>
               </div>
             ) : (
               <div className="navbar-item">
-                <Link 
-                  to={ROUTE_PATHS.HISTORY} 
+                <Link
+                  to={ROUTE_PATHS.HISTORY}
                   className={
-                    (clickedHistory && !userGuideClicked) 
-                      ? "navbar-item-link-clicked" 
+                    (clickedHistory && !userGuideClicked)
+                      ? "navbar-item-link-clicked"
                       : "navbar-item-link"
-                  } 
+                  }
                   onClick={toHistoryTab}
-                > 
+                >
                   <CalendarMonthIcon className="navbar-icon-in-narrow-mode" />
+                </Link>
+              </div>
+            )}
+
+            {showNavbarTitle ? (
+              <div className="navbar-item">
+                <Link
+                  to={ROUTE_PATHS.SUMMARY}
+                  className={
+                    (clickedSummary && !userGuideClicked)
+                      ? "navbar-item-link-clicked"
+                      : "navbar-item-link"
+                  }
+                  onClick={toSummaryTab}
+                  style={{ display: 'flex', alignItems: 'flex-end' }}
+                >
+                  <AssessmentIcon className="navbar-icon" />
+                  Summary
+                </Link>
+              </div>
+            ) : (
+              <div className="navbar-item">
+                <Link
+                  to={ROUTE_PATHS.SUMMARY}
+                  className={
+                    (clickedSummary && !userGuideClicked)
+                      ? "navbar-item-link-clicked"
+                      : "navbar-item-link"
+                  }
+                  onClick={toSummaryTab}
+                >
+                  <AssessmentIcon className="navbar-icon-in-narrow-mode" />
                 </Link>
               </div>
             )}
