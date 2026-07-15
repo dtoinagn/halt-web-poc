@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { CssBaseline, ThemeProvider } from '@mui/material'
 import { ColorModeContext, useMode } from './theme'
 import { LoggedInUserContext } from './contexts/LoggedInUserContext';
-import { authUtils } from './utils/storageUtils';
+import { authUtils, permissionUtils } from './utils/storageUtils';
 import { ROUTE_PATHS } from './constants';
 
 // Components
@@ -19,6 +19,7 @@ import UserGuide from './components/dashboard/UserGuide';
 function App() {
   const [loggedInUser, setLoggedInUser] = useState('notLoggedIn');
   const [loggedIn, setLoggedIn] = useState(false);
+  const [permissions, setPermissions] = useState([]);
   const [userGuideClicked, setUserGuideClicked] = useState(false);
   const [theme, colorMode] = useMode();
   const [navbarOpen, setNavbarOpen] = useState(true);
@@ -34,6 +35,7 @@ function App() {
     if (currentUser && currentUser !== 'notLoggedIn') {
       setLoggedInUser(currentUser);
     }
+    setPermissions(permissionUtils.getPermissions());
   }, []);
 
   const contextValue = {
@@ -49,6 +51,8 @@ function App() {
     setShowNavbarTitle,
     narrowScreen,
     setNarrowScreen,
+    permissions,
+    setPermissions,
   };
 
   const userLoggedIn = authUtils.isLoggedIn();

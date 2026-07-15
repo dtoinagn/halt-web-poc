@@ -1,7 +1,5 @@
 // Application constants
 
-import { C } from "@table-library/react-table-library/Cell-a4350b14";
-
 export const HALT_STATES = {
   ACTIVE_REG_HALT: "ACTIVE_REG_HALT",
   ACTIVE_SSCB_HALT: "ACTIVE_SSCB_HALT",

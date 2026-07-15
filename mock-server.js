@@ -14,6 +14,33 @@ app.use(express.json());
 // In-memory session store (for demo purposes)
 const activeSessions = new Map();
 
+const ROLE_ACTIONS = {
+  admin: [
+    "CreateImmediateHalt", "CreateImmediateResumption",
+    "CreateScheduledHalt", "CreateScheduledResumption",
+    "ModifyScheduledHalt", "ModifyScheduledResumption",
+    "CancelScheduledHalt", "CancelScheduledResumption",
+    "ModifyHaltDetails", "ExtendHalt", "RemainedHalt",
+    "ExtendSscbHalt", "ConvertSscbToHalt", "ModifyHaltReason",
+  ],
+  supervisor: [
+    "CreateImmediateHalt", "CreateImmediateResumption",
+    "CreateScheduledHalt", "CreateScheduledResumption",
+    "ModifyScheduledHalt", "ModifyScheduledResumption",
+    "CancelScheduledHalt", "CancelScheduledResumption",
+    "ModifyHaltDetails", "ExtendHalt", "RemainedHalt",
+    "ExtendSscbHalt", "ConvertSscbToHalt", "ModifyHaltReason",
+  ],
+  trader: [
+    "CreateImmediateHalt", "CreateImmediateResumption",
+    "CreateScheduledHalt", "CreateScheduledResumption",
+    "ModifyScheduledHalt", "ModifyScheduledResumption",
+    "CancelScheduledHalt", "CancelScheduledResumption",
+    "ExtendHalt", "RemainedHalt", "ExtendSscbHalt", "ConvertSscbToHalt",
+  ],
+  analyst: [],
+};
+
 // Helper function to generate JWT-like token
 const generateToken = (user) => {
   const payload = {
@@ -115,6 +142,7 @@ app.post("/auth/login", (req, res) => {
     status: "SUCCESS",
     username: user.username,
     jwt: token,
+    actions: ROLE_ACTIONS[user.role] ?? [],
     user: {
       username: user.username,
       role: user.role,

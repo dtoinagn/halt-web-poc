@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoggedInUserContext } from "../contexts/LoggedInUserContext";
 import { apiService } from "../services/api";
-import { authUtils, cookieUtils } from "../utils/storageUtils";
+import { authUtils, cookieUtils, permissionUtils } from "../utils/storageUtils";
 import { parseJWT, getJWTPayload, isJWTExpired } from "../utils/jwtUtils";
 
 import { ROUTE_PATHS } from "../constants";
@@ -30,13 +30,20 @@ export const useAuth = () => {
         // Store authentication data
         const token = response.jwt;
         authUtils.setToken(token);
-        const parsed = parseJWT(token);
-        console.log(parsed.header);  // Token header
-        console.log(parsed.payload); // Token claims/data
-
-        // Check expiration
-        if (isJWTExpired(token)) {
-          console.log("Token expired!");
+        const actions = 'actions' in response ? response.actions : null;
+        permissionUtils.setPermissions(actions);
+        if (context) {
+          context.setPermissions(actions);
+        }
+        try {
+          const parsed = parseJWT(token);
+          console.log(parsed.header);
+          console.log(parsed.payload);
+          if (isJWTExpired(token)) {
+            console.log("Token expired!");
+          }
+        } catch (jwtErr) {
+          console.warn("Token is not a standard JWT:", jwtErr.message);
         }
         authUtils.setLoggedIn(true);
         authUtils.setLoggedInUser(response.username);
@@ -84,6 +91,7 @@ export const useAuth = () => {
     if (context) {
       context.setLoggedInUser("notLoggedIn");
       context.setLoggedIn(false);
+      context.setPermissions([]);
     }
     navigate(ROUTE_PATHS.LOGIN, { replace: true });
     window.location.reload();

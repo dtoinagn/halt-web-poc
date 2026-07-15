@@ -36,9 +36,29 @@ export const authUtils = {
     storage.remove('token');
     storage.remove('loggedIn');
     storage.remove('loggedInUser');
+    storage.remove('permissions');
     cookieUtils.remove('userLogIn');
     cookieUtils.remove('userLogInCookie');
   }
+};
+
+// Permission utilities
+export const permissionUtils = {
+  // Returns null when the server did not send an actions list (no restriction),
+  // or an array (possibly empty) when it did.
+  getPermissions: () => {
+    const stored = storage.get('permissions');
+    return stored !== null ? JSON.parse(stored) : null;
+  },
+  // Passing null removes the key (server didn't send actions → no restriction).
+  setPermissions: (actions) => {
+    if (actions === null) {
+      storage.remove('permissions');
+    } else {
+      storage.set('permissions', JSON.stringify(actions));
+    }
+  },
+  removePermissions: () => storage.remove('permissions'),
 };
 
 // Sort preferences utilities
