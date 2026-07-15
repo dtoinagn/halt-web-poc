@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
-import { formatForBackend, formatForDateTimeLocal, compareDateTimeToSecond, DATETIME_FORMATS, getCurrentESTDateTime } from "../../../utils/dateUtils";
+import { formatForBackend, formatForDateTimeLocal, compareDateTimeToSecond, DATETIME_FORMATS, getCurrentESTDateTime, formatForHaltDetail} from "../../../utils/dateUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import HaltModalField from "./HaltModalField";
 import "./CreateNewHaltModal.css";
@@ -317,7 +317,7 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
 
         <HaltModalField
           label="Halt Time"
-          value={haltData?.haltTime ? dayjs(haltData.haltTime).format("YYYY-MM-DD HH:mm:ss.SSS") : ""}
+          value={formatForHaltDetail(haltData?.haltTime)}
         />
 
         <Box className="cancel-halt-field-container" sx={{ alignItems: "flex-start" }}>

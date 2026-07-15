@@ -42,6 +42,7 @@ const HaltDetailModal = ({
   const [haltReasonError, setHaltReasonError] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
+  const [isLifted, setIsLifted] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Initialize form data when haltData changes
@@ -60,6 +61,10 @@ const HaltDetailModal = ({
       // Check if it is a scheduled halt
       const scheduled = haltData.state === HALT_STATES.PENDING_HALT;
       setIsScheduled(scheduled);
+
+      // Check if it is a lifted halt
+      const lifted = haltData.state === HALT_STATES.ACTIVE_TRADING;
+      setIsLifted(lifted);
 
       setFormData({
         extendedHalt: haltData.extendedHalt || false,
@@ -411,7 +416,7 @@ const HaltDetailModal = ({
               value={formData.remainReason}
               onChange={(value) => handleFieldChange("remainReason", value)}
               options={remainReasons}
-              disabled={!formData.remainedHalt || loading}
+              disabled={!formData.remainedHalt || isLifted || loading}
             />
 
             {/* Row 2 */}
@@ -429,7 +434,7 @@ const HaltDetailModal = ({
                 { value: true, label: "Yes" },
                 { value: false, label: "No" },
               ]}
-              disabled={isScheduled || loading}
+              disabled={isScheduled || isLifted || loading}
             />
 
             {/* Row 3 */}
@@ -509,7 +514,7 @@ const HaltDetailModal = ({
                 { value: true, label: "Yes" },
                 { value: false, label: "No" },
               ]}
-              disabled={isScheduled || loading}
+              disabled={isScheduled || isLifted || loading}
             />
             <Grid item xs={12} md={6}>
               {/* Empty space */}

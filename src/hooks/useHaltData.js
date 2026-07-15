@@ -117,12 +117,7 @@ export const useHaltData = () => {
         throw new Error("Halt not found");
       }
 
-      // Update local state optimistically
       const updatedHaltData = { ...haltData, extendedHalt: newExtendedState };
-      const updatedActiveRegData = activeRegData.map((obj) =>
-        obj.haltId === haltId ? updatedHaltData : obj
-      );
-      setActiveRegData(updatedActiveRegData);
 
       // Update extended/remained halt IDs list
       // Pass: haltId, extendedState (new), remainedState (existing), haltType

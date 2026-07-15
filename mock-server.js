@@ -194,13 +194,6 @@ app.get("/api/halts/active", (req, res) => {
   res.json(activeHalts);
 });
 
-// Fetch halt history endpoint
-app.get("/api/halts/history", (req, res) => {
-  console.log("GET /api/halts/history");
-  const halts = readJsonFile("active-halts.json");
-  res.json(halts);
-});
-
 // Create new halt endpoint
 app.post("/api/halt/create", (req, res) => {
   console.log("POST /api/halt/create");
@@ -348,7 +341,6 @@ app.listen(PORT, () => {
   console.log("  GET  /api/halt-reasons");
   console.log("  GET  /api/halt-remain-reasons");
   console.log("  GET  /api/halts/active");
-  console.log("  GET  /api/halts/history");
   console.log("  POST /api/halt/create");
   console.log("  POST /api/halt/update");
   console.log("  POST /api/sse/ticket");

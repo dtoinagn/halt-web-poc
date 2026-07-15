@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { LoggedInUserContext } from "../contexts/LoggedInUserContext";
 import { apiService } from "../services/api";
 import { authUtils, cookieUtils } from "../utils/storageUtils";
+import { parseJWT, getJWTPayload, isJWTExpired } from "../utils/jwtUtils";
+
 import { ROUTE_PATHS } from "../constants";
 
 export const useAuth = () => {
@@ -26,7 +28,16 @@ export const useAuth = () => {
         }
 
         // Store authentication data
-        authUtils.setToken(response.jwt);
+        const token = response.jwt;
+        authUtils.setToken(token);
+        const parsed = parseJWT(token);
+        console.log(parsed.header);  // Token header
+        console.log(parsed.payload); // Token claims/data
+
+        // Check expiration
+        if (isJWTExpired(token)) {
+          console.log("Token expired!");
+        }
         authUtils.setLoggedIn(true);
         authUtils.setLoggedInUser(response.username);
 

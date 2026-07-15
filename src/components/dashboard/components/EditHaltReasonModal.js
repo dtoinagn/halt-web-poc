@@ -11,12 +11,19 @@ import {
     TextField,
 } from "@mui/material";
 import { apiService } from "../../../services/api";
+import { formatForHaltDetail } from "../../../utils/dateUtils";
 import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import HaltModalField from "./HaltModalField";
 import { formatForBackend } from "../../../utils/dateUtils";
 import "./CreateNewHaltModal.css";
 import dayjs from "dayjs";
+
+const formatDateTime = (dateTime) => {
+    if (!dateTime) return "";
+        return formatForHaltDetail(dateTime);
+};
+    
 
 const EditHaltReasonModal = ({ open, onClose, haltData, haltReasons = [], onHaltUpdated }) => {
     const [loading, setLoading] = useState(false);
@@ -162,7 +169,7 @@ const EditHaltReasonModal = ({ open, onClose, haltData, haltReasons = [], onHalt
 
                 <HaltModalField
                     label="Halt Time"
-                    value={haltData?.haltTime ? dayjs(haltData.haltTime).format("YYYY-MM-DD HH:mm:ss.SSS") : ""}
+                    value={formatDateTime(haltData?.haltTime)}
                 />
 
                 <HaltModalField

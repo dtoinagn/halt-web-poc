@@ -233,14 +233,6 @@ class ApiService {
   }
 
   // Halt data
-  async fetchHaltHistory() {
-    const response = await fetch(this.config.apiHistoryData, {
-      method: 'GET',
-      headers: this.getAuthHeader(),
-    });
-    return this.handleResponse(response);
-  }
-
   async fetchActiveHalts() {
     const response = await fetch(this.config.apiRetrieveData, {
       method: "GET",
