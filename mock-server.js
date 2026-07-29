@@ -15,7 +15,7 @@ app.use(express.json());
 const activeSessions = new Map();
 
 const ROLE_ACTIONS = {
-  admin: [
+  write: [
     "CreateImmediateHalt", "CreateImmediateResumption",
     "CreateScheduledHalt", "CreateScheduledResumption",
     "ModifyScheduledHalt", "ModifyScheduledResumption",
@@ -38,14 +38,14 @@ const ROLE_ACTIONS = {
     "CancelScheduledHalt", "CancelScheduledResumption",
     "ExtendHalt", "RemainedHalt", "ExtendSscbHalt", "ConvertSscbToHalt",
   ],
-  analyst: [],
+  read: [],
 };
 
 // Helper function to generate JWT-like token
 const generateToken = (user) => {
   const payload = {
     username: user.username,
-    role: user.role,
+    roles: user.roles ?? [],
     fullName: user.fullName,
     exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
   };
@@ -143,9 +143,10 @@ app.post("/auth/login", (req, res) => {
     username: user.username,
     jwt: token,
     actions: ROLE_ACTIONS[user.role] ?? [],
+    roles: user.roles?? [],
     user: {
       username: user.username,
-      role: user.role,
+      role: user.roles,
       fullName: user.fullName,
       email: user.email,
     },
@@ -220,6 +221,32 @@ app.get("/api/halts/active", (req, res) => {
   console.log("GET /api/halts/active");
   const activeHalts = readJsonFile("active-halts.json");
   res.json(activeHalts);
+});
+
+// Halt search endpoint
+app.get("/api/halt/search", (req, res) => {
+  console.log("GET /api/halt/search", req.query);
+  const halts = readJsonFile("active-halts.json");
+  const { dateFilterType = 'halt', from, to } = req.query;
+
+  let filtered = [...halts];
+  const dateField = dateFilterType === 'resumed' ? 'resumptionTime' : 'haltTime';
+
+  if (from) {
+    filtered = filtered.filter((halt) => {
+      const value = halt[dateField];
+      return value && value >= from;
+    });
+  }
+
+  if (to) {
+    filtered = filtered.filter((halt) => {
+      const value = halt[dateField];
+      return value && value <= to;
+    });
+  }
+
+  res.json(filtered);
 });
 
 // Create new halt endpoint
@@ -369,6 +396,7 @@ app.listen(PORT, () => {
   console.log("  GET  /api/halt-reasons");
   console.log("  GET  /api/halt-remain-reasons");
   console.log("  GET  /api/halts/active");
+  console.log("  GET  /api/halts/history");
   console.log("  POST /api/halt/create");
   console.log("  POST /api/halt/update");
   console.log("  POST /api/sse/ticket");

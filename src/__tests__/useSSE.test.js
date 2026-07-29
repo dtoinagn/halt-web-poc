@@ -21,18 +21,27 @@ describe('useSSE', () => {
     activeSSCBData: [],
     liftedData: [],
     pendingData: [],
-    notExtendedList: [],
+    extendedRegHaltIds: [],
     setActiveRegData: jest.fn(),
     setActiveSSCBData: jest.fn(),
     setLiftedData: jest.fn(),
     setPendingData: jest.fn(),
     setActiveRegHaltList: jest.fn(),
-    setNotExtendedList: jest.fn()
+    setExtendedRegHaltIds: jest.fn()
+  };
+
+  const flushRaf = () => {
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
     eventSourceInstances = [];
+
+    global.requestAnimationFrame = (callback) => setTimeout(callback, 0);
+    global.cancelAnimationFrame = (id) => clearTimeout(id);
 
     // Mock EventSource
     mockEventSource = class MockEventSource {
@@ -138,8 +147,10 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(heartbeatMessage);
       });
+      flushRaf();
 
-      expect(result.current.sseMessage).toBe('');
+      expect(result.current.notification).toEqual([]);
+      expect(result.current.showNotification).toBe(false);
     });
   });
 
@@ -165,6 +176,9 @@ describe('useSSE', () => {
 
       act(() => {
         eventSourceInstances[0].onmessage(message);
+      });
+      act(() => {
+        jest.advanceTimersByTime(0);
       });
 
       expect(result.current.showNotification).toBe(true);
@@ -198,6 +212,9 @@ describe('useSSE', () => {
 
       act(() => {
         eventSourceInstances[0].onmessage(message);
+      });
+      act(() => {
+        jest.advanceTimersByTime(0);
       });
 
       expect(result.current.showNotification).toBe(true);
@@ -244,6 +261,9 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
+      act(() => {
+        jest.advanceTimersByTime(0);
+      });
 
       expect(setActiveRegData).toHaveBeenCalled();
       expect(setActiveRegHaltList).toHaveBeenCalled();
@@ -278,6 +298,7 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
+      flushRaf();
 
       expect(setActiveSSCBData).toHaveBeenCalled();
     });
@@ -309,6 +330,7 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
+      flushRaf();
 
       expect(setPendingData).toHaveBeenCalled();
     });
@@ -355,8 +377,9 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
+      flushRaf();
 
-      expect(setNotExtendedList).toHaveBeenCalled();
+      expect(setExtendedRegHaltIds).toHaveBeenCalled();
       expect(setActiveRegData).toHaveBeenCalled();
     });
 
@@ -402,6 +425,7 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
+      flushRaf();
 
       expect(setActiveRegData).toHaveBeenCalled();
       expect(setLiftedData).toHaveBeenCalled();
@@ -447,6 +471,7 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
+      flushRaf();
 
       expect(setActiveSSCBData).toHaveBeenCalled();
       expect(setLiftedData).toHaveBeenCalled();
@@ -489,6 +514,7 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
+      flushRaf();
 
       expect(setActiveRegData).toHaveBeenCalled();
     });
@@ -534,6 +560,7 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
+      flushRaf();
 
       expect(setPendingData).toHaveBeenCalled();
       expect(setActiveRegData).toHaveBeenCalled();
@@ -626,10 +653,11 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
+      flushRaf();
 
       expect(setExtendedRegHaltIds).toHaveBeenCalled();
       expect(setActiveRegData).toHaveBeenCalled();
-      await waitFor(() => expect(extendedRegHaltIds.length).toBe(1));
+      expect(setExtendedRegHaltIds.mock.calls[0][0]).toContain('AAPL_20260511_S01');
     });
     it('should update existing active halt without duplicating when receiving SSE event', async () => {
       const setActiveRegData = jest.fn();
@@ -672,6 +700,9 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
+      act(() => {
+        jest.advanceTimersByTime(0);
+      });
 
       expect(setActiveRegData).toHaveBeenCalled();
 
@@ -687,10 +718,8 @@ describe('useSSE', () => {
       const setActiveRegData = jest.fn();
       const setActiveRegHaltList = jest.fn();
       const setPendingData = jest.fn();
-      const setNotExtendedList = jest.fn();
 
       const haltList = [];
-      const notExtendedList = [];
       const activeRegHaltList = [];
       const pendingData = [];
       const activeRegData = [];
@@ -698,7 +727,6 @@ describe('useSSE', () => {
       const { result, rerender } = renderHook(
         ({
           haltList,
-          notExtendedList,
           activeRegHaltList,
           pendingData,
           activeRegData,
@@ -706,19 +734,16 @@ describe('useSSE', () => {
           useSSE({
             ...defaultProps,
             haltList,
-            notExtendedList,
             activeRegHaltList,
             pendingData,
             activeRegData,
             setActiveRegData,
             setActiveRegHaltList,
             setPendingData,
-            setNotExtendedList,
           }),
         {
           initialProps: {
             haltList,
-            notExtendedList,
             activeRegHaltList,
             pendingData,
             activeRegData,
@@ -746,6 +771,7 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(scheduledMessage);
       });
+      flushRaf();
 
       expect(setPendingData).toHaveBeenCalled();
       expect(haltList).toContain("HALT005");
@@ -785,10 +811,10 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(triggeredMessage);
       });
+      flushRaf();
 
       expect(setPendingData).toHaveBeenCalledTimes(2); // Removes from pending
       expect(setActiveRegData).toHaveBeenCalled(); // Adds to active
-      expect(setNotExtendedList).toHaveBeenCalled(); // Should add HALT005 to notExtendedList
 
       // Simulate state update after triggered
       activeRegData.push({
@@ -829,6 +855,9 @@ describe('useSSE', () => {
 
       act(() => {
         eventSourceInstances[0].onmessage(extendedMessage);
+      });
+      act(() => {
+        jest.advanceTimersByTime(0);
       });
 
       // BUG CHECK: setNotExtendedList should be called to remove HALT005 from notExtendedList

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   Box,
   Table,
@@ -18,6 +18,7 @@ import ConfirmDialog from "../../ui/ConfirmDialog";
 import { TABLE_COLUMNS, COLUMN_KEY_MAP } from "../../../constants";
 import { sortUtils, hideExtendedUtils, columnWidthUtils } from "../../../utils/storageUtils";
 import { formatDateTimeForDashboard } from "../../../utils/dateUtils";
+import { LoggedInUserContext } from "../../../contexts/LoggedInUserContext";
 
 const HaltTable = ({
   tableType,
@@ -41,6 +42,11 @@ const HaltTable = ({
   const columns = TABLE_COLUMNS[tableTypeKey] || [];
   const sortPrefKey = `${tableType}OrderedBy`;
   const sortDirPrefKey = `${tableType}OrderDirection`;
+  const context = useContext(LoggedInUserContext);
+  const isReadOnlyUser = Array.isArray(context?.roles)
+    ? context.roles.includes("read") && !context.roles.includes("write")
+    : false;
+  const shouldShowActionColumn = showActionButtons && !isReadOnlyUser;
 
   // Extended halt visibility (only for ActiveReg)
   const [hideExtended, setHideExtended] = useState(
@@ -297,8 +303,19 @@ const HaltTable = ({
           >
             <Checkbox
               checked={row.extendedHalt || false}
-              onChange={() => handleExtendHalt(row, idx)}
+              onChange={() => {
+                if (!isReadOnlyUser) {
+                  handleExtendHalt(row, idx);
+                }
+              }}
+              disabled={isReadOnlyUser}
               size="small"
+              sx={{
+                color: isReadOnlyUser ? "rgba(0, 0, 0, 0.38)" : undefined,
+                '&.Mui-disabled': {
+                  color: "rgba(0, 0, 0, 0.38)",
+                },
+              }}
             />
           </TableCell>
         );
@@ -310,8 +327,19 @@ const HaltTable = ({
           >
             <Checkbox
               checked={row.remainedHalt || false}
-              onChange={() => handleRemainChange(row, idx)}
+              onChange={() => {
+                if (!isReadOnlyUser) {
+                  handleRemainChange(row, idx);
+                }
+              }}
+              disabled={isReadOnlyUser}
               size="small"
+              sx={{
+                color: isReadOnlyUser ? "rgba(0, 0, 0, 0.38)" : undefined,
+                '&.Mui-disabled': {
+                  color: "rgba(0, 0, 0, 0.38)",
+                },
+              }}
             />
           </TableCell>
         );
@@ -337,6 +365,10 @@ const HaltTable = ({
       }
 
       case "Action":
+        if (isReadOnlyUser) {
+          return null;
+        }
+
         const actionColumnWidth = columnWidths[idx];
         return (
           <TableCell
@@ -420,63 +452,69 @@ const HaltTable = ({
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow sx={{ backgroundColor: "#006666" }}>
-              {columns.map((head, idx) => (
-                <TableCell
-                  key={idx}
-                  sx={{
-                    color: "white",
-                    fontWeight: "bold",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 1,
-                    backgroundColor: "#006666",
-                    padding: "4px 6px",
-                    fontSize: "0.8rem",
-                    minWidth: "60px",
-                    width: columnWidths[idx] ? `${columnWidths[idx]}px` : "auto",
-                    maxWidth: columnWidths[idx] ? `${columnWidths[idx]}px` : "120px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    position: "relative",
-                  }}
-                >
-                  {COLUMN_KEY_MAP[head] ? (
-                    <TableSortLabel
-                      active={orderBy === COLUMN_KEY_MAP[head]}
-                      direction={
-                        orderBy === COLUMN_KEY_MAP[head]
-                          ? orderDirection
-                          : "asc"
-                      }
-                      onClick={() => handleSortRequest(COLUMN_KEY_MAP[head])}
-                      sx={{ color: "white" }}
-                    >
-                      {head}
-                    </TableSortLabel>
-                  ) : (
-                    head
-                  )}
-                  <Box
-                    onMouseDown={(e) => handleResizeStart(e, idx)}
+              {columns.map((head, idx) => {
+                if (head === "Action" && isReadOnlyUser) {
+                  return null;
+                }
+
+                return (
+                  <TableCell
+                    key={idx}
                     sx={{
-                      position: "absolute",
-                      right: 0,
+                      color: "white",
+                      fontWeight: "bold",
+                      position: "sticky",
                       top: 0,
-                      bottom: 0,
-                      width: "4px",
-                      cursor: "col-resize",
-                      userSelect: "none",
-                      backgroundColor: resizing === idx ? "#fff" : "transparent",
-                      "&:hover": {
-                        backgroundColor: "#fff",
-                        opacity: 0.5,
-                      },
-                      zIndex: 2,
+                      zIndex: 1,
+                      backgroundColor: "#006666",
+                      padding: "4px 6px",
+                      fontSize: "0.8rem",
+                      minWidth: "60px",
+                      width: columnWidths[idx] ? `${columnWidths[idx]}px` : "auto",
+                      maxWidth: columnWidths[idx] ? `${columnWidths[idx]}px` : "120px",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      position: "relative",
                     }}
-                  />
-                </TableCell>
-              ))}
+                  >
+                    {COLUMN_KEY_MAP[head] ? (
+                      <TableSortLabel
+                        active={orderBy === COLUMN_KEY_MAP[head]}
+                        direction={
+                          orderBy === COLUMN_KEY_MAP[head]
+                            ? orderDirection
+                            : "asc"
+                        }
+                        onClick={() => handleSortRequest(COLUMN_KEY_MAP[head])}
+                        sx={{ color: "white" }}
+                      >
+                        {head}
+                      </TableSortLabel>
+                    ) : (
+                      head
+                    )}
+                    <Box
+                      onMouseDown={(e) => handleResizeStart(e, idx)}
+                      sx={{
+                        position: "absolute",
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: "4px",
+                        cursor: "col-resize",
+                        userSelect: "none",
+                        backgroundColor: resizing === idx ? "#fff" : "transparent",
+                        "&:hover": {
+                          backgroundColor: "#fff",
+                          opacity: 0.5,
+                        },
+                        zIndex: 2,
+                      }}
+                    />
+                  </TableCell>
+                );
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -489,16 +527,20 @@ const HaltTable = ({
                   "&:hover": { backgroundColor: "#f0f8f8" },
                 }}
               >
-                {columns.map((columnHeader, cellIdx) =>
-                  renderTableCell(row, columnHeader, cellIdx)
-                )}
+                {columns.map((columnHeader, cellIdx) => {
+                  if (columnHeader === "Action" && isReadOnlyUser) {
+                    return null;
+                  }
+
+                  return renderTableCell(row, columnHeader, cellIdx);
+                })}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {showActionButtons && (
+      {shouldShowActionColumn && (
         <>
           <ConfirmDialog
             open={confirmDialog.open}

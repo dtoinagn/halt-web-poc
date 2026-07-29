@@ -1,68 +1,96 @@
-# Getting Started with Create React App
+# HALT Web Portal
+A React front-end that manage the order-halt workflow for trading systems.  The app is built on top of Create React App and uses an Express-based mock API (see `mock-server.js`) so you can experiment with halt/ resumption flows, idempotency handling, and server-sent events without requiring a real backend.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Project Structure & Highlights
 
-## Available Scripts
+* `src/` � React components, services, utilities, and tests.  Components are grouped by feature (dashboard, login, common UI, etc.).
+* `mock-server.js` � simple Express server serving data from `mock-data/*.json`.
+* `scripts/` � helper scripts (CSV conversion, PowerShell automation).
+* `public/` & `build/` � generated static assets.  Several `runtime-config-*.js` files are used to switch environments.
 
-In the project directory, you can run:
+The UI supports login, viewing/creating/editing halts, canceling/resuming halts, and a basic dashboard with live updates via SSE.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Prerequisites
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. **Node.js** (16.x or later recommended) and npm/yarn installed.
+2. Clone the repository:
+   ```bash
+   git clone https://Market-Surveillance@dev.azure.com/Market-Surveillance/Equity%20Halt%20Trading/_git/Halt_Web_Portal halt-web
+   cd halt-web
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Getting Started Locally
 
-### `npm run build`
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Start the mock API
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+In one terminal:
+```bash
+npm run mock-server
+```
+The server listens on port 3001 by default and returns the contents of the JSON files under `mock-data/`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Run the React app
 
-### `npm run eject`
+You have a couple of options:
+* **Development only**
+  ```bash
+  npm start
+  ```
+  Opens [http://localhost:3000](http://localhost:3000) and reloads when you edit source files.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+* **API + app together**
+  ```bash
+  npm run local
+  ```
+  Uses `concurrently` to launch both `mock-server` and `start` in a single command.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+* **Environment-specific dev server**
+  ```bash
+  npm run test-dev          # uses .env.dev
+  ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Runtime configuration is determined by the `runtime-config-*.js` file copied into `public/` during build; inspect the `build/` folder to see the output used for each environment.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
+## Available npm Scripts
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+| Script | Description |
+|--------|-------------|
+| `start` | Start CRA development server (PORT=3000) |
+| `mock-server` | Launch express mock API on port�3001 |
+| `local` | Run both `start` and `mock-server` concurrently |
+| `test` | Launch Jest test runner (watch mode) |
+| `test-dev` | Development server with `.env.dev` configurations |
+| `build:dev`/`:qa`/`:prod` | Build static assets for the indicated environment |
+| `eject` | Eject CRA configuration (one-way) |
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
+## Testing
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Unit tests live alongside source code under `src/__tests__/`.  The suite includes idempotency utilities, date helpers, and a handful of basic component tests.  Run them with:
+```bash
+npm test
+```
 
-### Analyzing the Bundle Size
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Deployment
 
-### Making a Progressive Web App
+Build commands use `env-cmd` to load environment variables from `.env.*` files.  Output is placed in `build/`; serve it with any static file server or deploy to an S3 bucket, Netlify, etc.  The `runtime-config-<env>.js` file allows the same build to be re-used across environments by swapping the config script.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### Advanced Configuration
+## Useful Tips & Tasks
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+* **Inspect mock data** � JSON files under `mock-data/` are the canonical source for API responses.
+* **Adding new endpoints** � edit `mock-server.js` and restart the server.
+* **Cleaning coverage** � a coverage report is generated under `coverage/` when tests run.
+* **Contributing** � follow standard git workflow; linting/formatting is handled by CRA defaults.
 
-### Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---

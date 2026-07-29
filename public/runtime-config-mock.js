@@ -1,7 +1,7 @@
 window.runConfig = {
   // Mock server endpoints running on localhost:3001
   apiRetrieveData: "http://localhost:3001/api/halts/active",
-  apiHistoryData: "http://localhost:3001/api/halts/history",
+  apiHaltSearch: "http://localhost:3001/api/halt/search",
   apiFetchSecurities: "http://localhost:3001/api/securities",
   apiFetchHaltReasons: "http://localhost:3001/api/halt-reasons",
   apiFetchHaltRemainReasons: "http://localhost:3001/api/halt-remain-reasons",

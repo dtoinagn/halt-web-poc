@@ -10,8 +10,10 @@
   
 	  <properties>
 		  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		  <halt-web-portal.version>0.6.0</halt-web-portal.version>
-		  <halt-web-portal.release>rc1</halt-web-portal.release>
+		  <maven.compiler.source>21</maven.compiler.source>
+		  <maven.compiler.target>21</maven.compiler.target>
+		  <halt-web-portal.version>0.17.0</halt-web-portal.version>
+		  <halt-web-portal.release>dev</halt-web-portal.release>
           <halt-web-portal.dir>/var/www/haltweb_html</halt-web-portal.dir>
 		  <halt-web-portal.environment>dev</halt-web-portal.environment>
 	  </properties> 
@@ -21,7 +23,7 @@
 		  <plugin>
 			  <groupId>org.springframework.boot</groupId>
 			  <artifactId>spring-boot-maven-plugin</artifactId>
-				<version>2.5.1</version>
+				<version>3.2.12</version>
 	  
 		  </plugin>
           

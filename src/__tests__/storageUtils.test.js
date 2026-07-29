@@ -6,6 +6,7 @@ import {
   hideExtendedUtils,
   columnWidthUtils,
   permissionUtils,
+  roleUtils,
 } from "../utils/storageUtils";
 
 // Singleton cookie instance shared across all storageUtils calls
@@ -174,6 +175,7 @@ describe("authUtils", () => {
       localStorage.setItem("loggedIn", "true");
       localStorage.setItem("loggedInUser", "admin");
       localStorage.setItem("permissions", JSON.stringify(["CreateImmediateHalt"]));
+      localStorage.setItem("roles", JSON.stringify(["Trader", "Admin"]));
 
       authUtils.logout();
 
@@ -181,6 +183,7 @@ describe("authUtils", () => {
       expect(localStorage.getItem("loggedIn")).toBeNull();
       expect(localStorage.getItem("loggedInUser")).toBeNull();
       expect(localStorage.getItem("permissions")).toBeNull();
+      expect(localStorage.getItem("roles")).toBeNull();
     });
 
     it("removes both user cookies", () => {
@@ -309,5 +312,26 @@ describe("permissionUtils", () => {
   it("getPermissions returns an empty array for invalid stored JSON", () => {
     localStorage.setItem("permissions", "not-valid-json");
     expect(() => permissionUtils.getPermissions()).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// roleUtils
+// ---------------------------------------------------------------------------
+describe("roleUtils", () => {
+  it("getRoles returns null when nothing is stored", () => {
+    expect(roleUtils.getRoles()).toBeNull();
+  });
+
+  it("setRoles and getRoles round-trip correctly", () => {
+    const roles = ["Trader", "Admin"];
+    roleUtils.setRoles(roles);
+    expect(roleUtils.getRoles()).toEqual(roles);
+  });
+
+  it("removeRoles clears stored roles", () => {
+    roleUtils.setRoles(["Trader"]);
+    roleUtils.removeRoles();
+    expect(roleUtils.getRoles()).toBeNull();
   });
 });

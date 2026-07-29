@@ -37,6 +37,7 @@ export const authUtils = {
     storage.remove('loggedIn');
     storage.remove('loggedInUser');
     storage.remove('permissions');
+    storage.remove('roles');
     cookieUtils.remove('userLogIn');
     cookieUtils.remove('userLogInCookie');
   }
@@ -59,6 +60,22 @@ export const permissionUtils = {
     }
   },
   removePermissions: () => storage.remove('permissions'),
+};
+
+// Role utilities
+export const roleUtils = {
+  getRoles: () => {
+    const stored = storage.get('roles');
+    return stored !== null ? JSON.parse(stored) : null;
+  },
+  setRoles: (roles) => {
+    if (roles === null) {
+      storage.remove('roles');
+    } else {
+      storage.set('roles', JSON.stringify(roles));
+    }
+  },
+  removeRoles: () => storage.remove('roles'),
 };
 
 // Sort preferences utilities

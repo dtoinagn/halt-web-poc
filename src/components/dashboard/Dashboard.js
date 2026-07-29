@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
 import "./Dashboard.css";
 import { useHaltData } from "../../hooks/useHaltData";
 import { useSSE } from "../../hooks/useSSE";
+import { LoggedInUserContext } from "../../contexts/LoggedInUserContext";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import ErrorMessage from "../ui/ErrorMessage";
 import Notification from "../ui/Notification";
@@ -57,6 +58,10 @@ const Dashboard = () => {
   } = useHaltData();
 
   const navigate = useNavigate();
+  const context = useContext(LoggedInUserContext);
+  const hasWriteRole = Array.isArray(context?.roles)
+    ? context.roles.includes("write")
+    : false;
 
   const { getSSETicket, notification, showNotification, hideNotification } =
     useSSE({
@@ -151,6 +156,7 @@ const Dashboard = () => {
             lifted: liftedData.length,
           }}
           onNewHaltClick={handleNewHaltModalOpen}
+          canCreateNewHalt={hasWriteRole}
           windowHeight={windowDimensions.height}
         />
 

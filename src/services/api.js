@@ -233,6 +233,28 @@ class ApiService {
   }
 
   // Halt data
+  async fetchHaltHistory() {
+    const response = await fetch(this.config.apiHistoryData, {
+      method: 'GET',
+      headers: this.getAuthHeader(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async searchHaltHistory(params = {}) {
+    const query = new URLSearchParams({
+      dateFilterType: params.dateFilterType || 'halt',
+      from: params.from || '',
+      to: params.to || '',
+    }).toString();
+
+    const response = await fetch(`${this.config.apiHaltSearch || '/api/halt/search'}?${query}`, {
+      method: 'GET',
+      headers: this.getAuthHeader(),
+    });
+    return this.handleResponse(response);
+  }
+
   async fetchActiveHalts() {
     const response = await fetch(this.config.apiRetrieveData, {
       method: "GET",

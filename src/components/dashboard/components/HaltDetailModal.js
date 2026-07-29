@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -20,6 +20,7 @@ import { buildHaltPayload } from "../../../utils/haltDataUtils";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { HALT_ACTIONS, HALT_STATES } from "../../../constants";
+import { LoggedInUserContext } from "../../../contexts/LoggedInUserContext";
 import "./CreateNewHaltModal.css";
 
 const HaltDetailModal = ({
@@ -30,6 +31,11 @@ const HaltDetailModal = ({
   remainReasons = [],
   onHaltUpdated,
 }) => {
+  const context = useContext(LoggedInUserContext);
+  const isReadOnlyUser = Array.isArray(context?.roles)
+    ? context.roles.includes("read") && !context.roles.includes("write")
+    : false;
+
   const [formData, setFormData] = useState({
     extendedHalt: false,
     haltReason: null,
@@ -127,6 +133,11 @@ const HaltDetailModal = ({
   const handleSave = useCallback(async () => {
     setError("");
 
+    if (isReadOnlyUser) {
+      setError("You do not have permission to update this halt.");
+      return;
+    }
+
     try {
       if (!haltData) {
         throw new Error("No halt data available");
@@ -175,7 +186,7 @@ const HaltDetailModal = ({
     } finally {
       setLoading(false);
     }
-  }, [haltData, formData, onHaltUpdated, onClose]);
+  }, [haltData, formData, isReadOnlyUser, onHaltUpdated, onClose]);
 
   const handleClose = useCallback(() => {
     if (!loading) {
@@ -271,7 +282,7 @@ const HaltDetailModal = ({
           fullWidth
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
+          disabled={disabled || isReadOnlyUser}
           style={{
             backgroundColor: "white",
             height: "36px",
@@ -320,7 +331,7 @@ const HaltDetailModal = ({
           isOptionEqualToValue={(option, value) =>
             option.description === value?.description
           }
-          disabled={disabled}
+          disabled={disabled || isReadOnlyUser}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -414,9 +425,13 @@ const HaltDetailModal = ({
             <EditableAutocompleteField
               label="Remain Reason"
               value={formData.remainReason}
-              onChange={(value) => handleFieldChange("remainReason", value)}
+              onChange={(value) => {
+                if (!isReadOnlyUser) {
+                  handleFieldChange("remainReason", value);
+                }
+              }}
               options={remainReasons}
-              disabled={!formData.remainedHalt || isLifted || loading}
+              disabled={!formData.remainedHalt || isLifted || loading || isReadOnlyUser}
             />
 
             {/* Row 2 */}
@@ -429,12 +444,16 @@ const HaltDetailModal = ({
             <EditableSelectField
               label="Remain Halt"
               value={formData.remainedHalt}
-              onChange={(value) => handleFieldChange("remainedHalt", value)}
+              onChange={(value) => {
+                if (!isReadOnlyUser) {
+                  handleFieldChange("remainedHalt", value);
+                }
+              }}
               options={[
                 { value: true, label: "Yes" },
                 { value: false, label: "No" },
               ]}
-              disabled={isScheduled || isLifted || loading}
+              disabled={isScheduled || isLifted || loading || isReadOnlyUser}
             />
 
             {/* Row 3 */}
@@ -509,12 +528,16 @@ const HaltDetailModal = ({
             <EditableSelectField
               label="Extended Halt"
               value={formData.extendedHalt}
-              onChange={(value) => handleFieldChange("extendedHalt", value)}
+              onChange={(value) => {
+                if (!isReadOnlyUser) {
+                  handleFieldChange("extendedHalt", value);
+                }
+              }}
               options={[
                 { value: true, label: "Yes" },
                 { value: false, label: "No" },
               ]}
-              disabled={isScheduled || isLifted || loading}
+              disabled={isScheduled || isLifted || loading || isReadOnlyUser}
             />
             <Grid item xs={12} md={6}>
               {/* Empty space */}
@@ -533,11 +556,15 @@ const HaltDetailModal = ({
                     options={haltReasons}
                     getOptionLabel={(option) => option.reasonDescription || ""}
                     value={formData.haltReason}
-                    onChange={(event, newValue) => handleHaltReasonChange(newValue)}
+                    onChange={(event, newValue) => {
+                      if (!isReadOnlyUser) {
+                        handleHaltReasonChange(newValue);
+                      }
+                    }}
                     isOptionEqualToValue={(option, value) =>
                       option.reasonDescription === value?.reasonDescription
                     }
-                    disabled={loading}
+                    disabled={loading || isReadOnlyUser}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -592,7 +619,7 @@ const HaltDetailModal = ({
         <DialogActions className="create-halt-dialog-actions">
           <Button
             onClick={handleSave}
-            disabled={!hasChanges || loading}
+            disabled={!hasChanges || loading || isReadOnlyUser}
             variant="contained"
             className="create-halt-submit-button"
           >

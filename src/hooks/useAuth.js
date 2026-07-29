@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoggedInUserContext } from "../contexts/LoggedInUserContext";
 import { apiService } from "../services/api";
-import { authUtils, cookieUtils, permissionUtils } from "../utils/storageUtils";
+import { authUtils, cookieUtils, permissionUtils, roleUtils } from "../utils/storageUtils";
 import { parseJWT, getJWTPayload, isJWTExpired } from "../utils/jwtUtils";
 
 import { ROUTE_PATHS } from "../constants";
@@ -31,9 +31,12 @@ export const useAuth = () => {
         const token = response.jwt;
         authUtils.setToken(token);
         const actions = 'actions' in response ? response.actions : null;
+        const roles = 'roles' in response ? response.roles : null;
         permissionUtils.setPermissions(actions);
+        roleUtils.setRoles(roles);
         if (context) {
           context.setPermissions(actions);
+          context.setRoles(roles);
         }
         try {
           const parsed = parseJWT(token);
@@ -91,8 +94,10 @@ export const useAuth = () => {
     if (context) {
       context.setLoggedInUser("notLoggedIn");
       context.setLoggedIn(false);
-      context.setPermissions([]);
+      context.setPermissions(null);
+      context.setRoles(null);
     }
+
     navigate(ROUTE_PATHS.LOGIN, { replace: true });
     window.location.reload();
   };

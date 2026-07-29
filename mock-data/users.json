@@ -2,16 +2,22 @@
   {
     "username": "admin",
     "password": "password123",
-    "role": "admin",
+    "role": "write",
     "fullName": "Administrator",
-    "email": "admin@halt-portal.com"
+    "email": "admin@halt-portal.com",
+    "roles": ["write","read"]
   },
   {
     "username": "trader1",
     "password": "trader123",
     "role": "trader",
     "fullName": "John Smith",
-    "email": "jsmith@halt-portal.com"
+    "email": "jsmith@halt-portal.com",
+    "roles": ["read"],
+    "actions": [
+    "view.halt.details",
+    "view.halt.active"
+    ] 
   },
   {
     "username": "trader2",

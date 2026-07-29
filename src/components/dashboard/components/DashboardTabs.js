@@ -5,6 +5,7 @@ const DashboardTabs = ({
   onTabChange, 
   counts, 
   onNewHaltClick, 
+  canCreateNewHalt,
   windowHeight 
 }) => {
   const mainTabHeight = 0.08 * windowHeight;
@@ -75,12 +76,14 @@ const DashboardTabs = ({
         <button className="tab-num">{counts.lifted}</button>
       </Box>
       
-      <button 
-        className="newhalt-button" 
-        onClick={onNewHaltClick}
-      >  
-        Create New Halt 
-      </button>
+      {canCreateNewHalt && (
+        <button 
+          className="newhalt-button" 
+          onClick={onNewHaltClick}
+        >  
+          Create New Halt 
+        </button>
+      )}
     </Box>
   );
 };
