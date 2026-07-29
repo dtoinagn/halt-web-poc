@@ -30,11 +30,12 @@ const HaltDetailModal = ({
   haltReasons = [],
   remainReasons = [],
   onHaltUpdated,
+  forceReadOnly = false,
 }) => {
   const context = useContext(LoggedInUserContext);
-  const isReadOnlyUser = Array.isArray(context?.roles)
+  const isReadOnlyUser = forceReadOnly || (Array.isArray(context?.roles)
     ? context.roles.includes("read") && !context.roles.includes("write")
-    : false;
+    : false);
 
   const [formData, setFormData] = useState({
     extendedHalt: false,

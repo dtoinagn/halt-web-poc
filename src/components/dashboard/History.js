@@ -1,14 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   Box, Paper, Typography, TextField, Select, MenuItem,
   FormControl, InputLabel, Button, OutlinedInput, Checkbox,
   ListItemText, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, TableSortLabel, Tooltip, Chip,
+  TableHead, TableRow, TableSortLabel, Tooltip,
   CircularProgress, Alert, Divider, RadioGroup, FormControlLabel,
   Radio,
 } from '@mui/material';
 import { apiService } from '../../services/api';
 import { formatDateTimeForDashboard } from '../../utils/dateUtils';
+import { HALT_TYPES } from '../../constants';
 import HaltDetailModal from './components/HaltDetailModal';
 import './History.css';
 
@@ -20,6 +21,19 @@ const STATUS_OPTIONS = [
 ];
 
 const MARKET_OPTIONS = ['CDX', 'NASDAQ', 'NYSE', 'TSX', 'TSE'];
+
+const AUTO_CLOSE_DELAY_MS = 1500;
+
+const HALT_TYPE_OPTIONS = Object.values(HALT_TYPES);
+
+const EMPTY_COLUMN_FILTERS = {
+  symbol: '',
+  issueName: '',
+  listingMarket: [],
+  state: [],
+  haltType: [],
+  createdBy: '',
+};
 
 const HISTORY_COLUMNS = [
   { key: 'symbol', label: 'Symbol' },
@@ -54,6 +68,7 @@ const EMPTY_FILTERS = {
 
 const History = () => {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [columnFilters, setColumnFilters] = useState(EMPTY_COLUMN_FILTERS);
   const [dateFilterType, setDateFilterType] = useState('halt');
   const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -63,6 +78,10 @@ const History = () => {
   const [orderDirection, setOrderDirection] = useState('desc');
   const [selectedHalt, setSelectedHalt] = useState(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [openMenuField, setOpenMenuField] = useState(null);
+  const autoCloseTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(autoCloseTimerRef.current), []);
 
   const handleSearch = useCallback(async () => {
     setLoading(true);
@@ -114,8 +133,30 @@ const History = () => {
 
   const resetFilters = () => {
     setFilters(EMPTY_FILTERS);
+    setColumnFilters(EMPTY_COLUMN_FILTERS);
     setDateFilterType('halt');
     setFilteredData(allData);
+  };
+
+  const handleColumnFilterChange = (field, value) => {
+    setColumnFilters(prev => ({ ...prev, [field]: value }));
+  };
+
+  const clearAutoCloseTimer = () => {
+    clearTimeout(autoCloseTimerRef.current);
+    autoCloseTimerRef.current = null;
+  };
+
+  const scheduleAutoClose = (field) => {
+    clearAutoCloseTimer();
+    autoCloseTimerRef.current = setTimeout(() => {
+      setOpenMenuField(current => (current === field ? null : current));
+    }, AUTO_CLOSE_DELAY_MS);
+  };
+
+  const handleMultiSelectChange = (field, value) => {
+    handleColumnFilterChange(field, value);
+    scheduleAutoClose(field);
   };
 
   const handleSort = (key) => {
@@ -124,7 +165,40 @@ const History = () => {
     setOrderDirection(isAsc ? 'desc' : 'asc');
   };
 
-  const sortedData = [...filteredData].sort((a, b) => {
+  const columnFilteredData = useMemo(() => {
+    let result = filteredData;
+
+    if (columnFilters.symbol.trim()) {
+      const q = columnFilters.symbol.trim().toUpperCase();
+      result = result.filter(h => h.symbol?.toUpperCase().includes(q));
+    }
+
+    if (columnFilters.issueName.trim()) {
+      const q = columnFilters.issueName.trim().toLowerCase();
+      result = result.filter(h => h.issueName?.toLowerCase().includes(q));
+    }
+
+    if (columnFilters.listingMarket.length > 0) {
+      result = result.filter(h => columnFilters.listingMarket.includes(h.listingMarket));
+    }
+
+    if (columnFilters.state.length > 0) {
+      result = result.filter(h => columnFilters.state.includes(h.state));
+    }
+
+    if (columnFilters.haltType.length > 0) {
+      result = result.filter(h => columnFilters.haltType.includes(h.haltType));
+    }
+
+    if (columnFilters.createdBy.trim()) {
+      const q = columnFilters.createdBy.trim().toLowerCase();
+      result = result.filter(h => h.createdBy?.toLowerCase().includes(q));
+    }
+
+    return result;
+  }, [filteredData, columnFilters]);
+
+  const sortedData = [...columnFilteredData].sort((a, b) => {
     let aVal = a[orderBy] ?? '';
     let bVal = b[orderBy] ?? '';
 
@@ -198,6 +272,106 @@ const History = () => {
     );
   };
 
+  const renderColumnFilter = (col) => {
+    const inputSx = {
+      width: '100%',
+      backgroundColor: 'white',
+      borderRadius: 0.5,
+      '& .MuiInputBase-input': { fontSize: '0.7rem', padding: '3px 6px' },
+      '& .MuiSelect-select': { fontSize: '0.7rem', padding: '3px 20px 3px 6px' },
+    };
+
+    if (col.key === 'symbol' || col.key === 'issueName' || col.key === 'createdBy') {
+      return (
+        <TextField
+          variant="outlined"
+          size="small"
+          placeholder="Filter..."
+          value={columnFilters[col.key]}
+          onChange={e => handleColumnFilterChange(col.key, e.target.value)}
+          sx={inputSx}
+        />
+      );
+    }
+
+    if (col.key === 'listingMarket') {
+      return (
+        <Select
+          variant="outlined"
+          size="small"
+          multiple
+          displayEmpty
+          open={openMenuField === 'listingMarket'}
+          onOpen={() => { setOpenMenuField('listingMarket'); scheduleAutoClose('listingMarket'); }}
+          onClose={() => { setOpenMenuField(null); clearAutoCloseTimer(); }}
+          value={columnFilters.listingMarket}
+          onChange={e => handleMultiSelectChange('listingMarket', e.target.value)}
+          renderValue={selected => (selected.length === 0 ? 'All' : '...')}
+          sx={inputSx}
+        >
+          {MARKET_OPTIONS.map(mkt => (
+            <MenuItem key={mkt} value={mkt} dense>
+              <Checkbox size="small" checked={columnFilters.listingMarket.includes(mkt)} />
+              <ListItemText primary={mkt} />
+            </MenuItem>
+          ))}
+        </Select>
+      );
+    }
+
+    if (col.key === 'state') {
+      return (
+        <Select
+          variant="outlined"
+          size="small"
+          multiple
+          displayEmpty
+          open={openMenuField === 'state'}
+          onOpen={() => { setOpenMenuField('state'); scheduleAutoClose('state'); }}
+          onClose={() => { setOpenMenuField(null); clearAutoCloseTimer(); }}
+          value={columnFilters.state}
+          onChange={e => handleMultiSelectChange('state', e.target.value)}
+          renderValue={selected => (selected.length === 0 ? 'All' : '...')}
+          sx={inputSx}
+        >
+          {STATUS_OPTIONS.map(opt => (
+            <MenuItem key={opt.value} value={opt.value} dense>
+              <Checkbox size="small" checked={columnFilters.state.includes(opt.value)} />
+              <ListItemText primary={opt.label} />
+            </MenuItem>
+          ))}
+        </Select>
+      );
+    }
+
+    if (col.key === 'haltType') {
+      return (
+        <Select
+          variant="outlined"
+          size="small"
+          multiple
+          displayEmpty
+          open={openMenuField === 'haltType'}
+          onOpen={() => { setOpenMenuField('haltType'); scheduleAutoClose('haltType'); }}
+          onClose={() => { setOpenMenuField(null); clearAutoCloseTimer(); }}
+          value={columnFilters.haltType}
+          onChange={e => handleMultiSelectChange('haltType', e.target.value)}
+          renderValue={selected => (selected.length === 0 ? 'All' : '...')}
+          sx={inputSx}
+        >
+          {HALT_TYPE_OPTIONS.map(type => (
+            <MenuItem key={type} value={type} dense>
+              <Checkbox size="small" checked={columnFilters.haltType.includes(type)} />
+              <ListItemText primary={type} />
+            </MenuItem>
+          ))}
+        </Select>
+      );
+    }
+
+    return null;
+  };
+
   const hasActiveFilters = filters.fromDate || filters.toDate ||
     filters.symbol || filters.status.length > 0 || filters.market.length > 0;
 
@@ -222,7 +396,6 @@ const History = () => {
     <Box className="history-container">
       {/* Filter panel */}
       <Paper className="history-filter-panel" elevation={2}>
-        <Typography className="history-filter-title">Search Halt History</Typography>
         <Box className="history-filters">
           <Box
             display="flex"
@@ -236,7 +409,7 @@ const History = () => {
             }}
           >
             <Typography variant="caption" sx={{ fontWeight: 600, color: '#004644' }}>
-              Filter by date
+              Search Historical Halts by date:
             </Typography>
             <RadioGroup
               row
@@ -320,43 +493,6 @@ const History = () => {
             </Button>
           </Box>
         </Box>
-
-        <Box className="history-active-chips">
-          {hasActiveFilters ? (
-            <>
-              {filters.fromDate && (
-                <Chip
-                  size="small"
-                  label={`Halt From: ${filters.fromDate}`}
-                  onDelete={() => handleFilterChange('fromDate', '')}
-                />
-              )}
-              {filters.toDate && (
-                <Chip
-                  size="small"
-                  label={`Halt To: ${filters.toDate}`}
-                  onDelete={() => handleFilterChange('toDate', '')}
-                />
-              )}
-              {filters.resumedFromDate && (
-                <Chip
-                  size="small"
-                  label={`Resumed From: ${filters.resumedFromDate}`}
-                  onDelete={() => handleFilterChange('resumedFromDate', '')}
-                />
-              )}
-              {filters.resumedToDate && (
-                <Chip
-                  size="small"
-                  label={`Resumed To: ${filters.resumedToDate}`}
-                  onDelete={() => handleFilterChange('resumedToDate', '')}
-                />
-              )}
-            </>
-          ) : (
-            <Typography className="history-no-filters">No filters applied</Typography>
-          )}
-        </Box>
       </Paper>
 
       <Divider className="history-divider" />
@@ -364,7 +500,7 @@ const History = () => {
       {/* Results table */}
       <Box className="history-results">
         <Typography className="history-count">
-          {filteredData.length} record{filteredData.length !== 1 ? 's' : ''} found
+          {sortedData.length} record{sortedData.length !== 1 ? 's' : ''} found
         </Typography>
 
         <TableContainer component={Paper} className="history-table-container">
@@ -385,6 +521,13 @@ const History = () => {
                     >
                       {col.label}
                     </TableSortLabel>
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow>
+                {HISTORY_COLUMNS.map(col => (
+                  <TableCell key={col.key} className="history-filter-header-cell">
+                    {renderColumnFilter(col)}
                   </TableCell>
                 ))}
               </TableRow>
@@ -426,6 +569,7 @@ const History = () => {
         haltReasons={[]}
         remainReasons={[]}
         onHaltUpdated={() => {}}
+        forceReadOnly
       />
     </Box>
   );

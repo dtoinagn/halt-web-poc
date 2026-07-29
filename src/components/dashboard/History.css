@@ -31,7 +31,7 @@
 .history-search-button {
   background-color: #006666 !important;
   color: white !important;
-  font-size: 0.78rem !important;
+  font-size: 0.65rem !important;
   padding: 5px 14px !important;
   white-space: nowrap;
 }
@@ -43,28 +43,13 @@
 .history-reset-button {
   border-color: #006666 !important;
   color: #006666 !important;
-  font-size: 0.78rem !important;
+  font-size: 0.65rem !important;
   padding: 5px 12px !important;
   white-space: nowrap;
 }
 
 .history-reset-button:hover {
   background-color: rgba(0, 102, 102, 0.06) !important;
-}
-
-.history-active-chips {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-  min-height: 32px;
-}
-
-.history-no-filters {
-  color: #6d8584 !important;
-  font-size: 0.78rem !important;
-  font-style: italic;
 }
 
 .history-divider {
@@ -104,5 +89,13 @@
   white-space: nowrap !important;
   position: sticky !important;
   top: 0 !important;
+  z-index: 2 !important;
+}
+
+.history-filter-header-cell {
+  background-color: #dce8e8 !important;
+  padding: 4px 6px !important;
+  position: sticky !important;
+  top: 34px !important;
   z-index: 1 !important;
 }
