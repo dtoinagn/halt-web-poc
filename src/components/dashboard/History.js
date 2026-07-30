@@ -556,10 +556,7 @@ const History = () => {
 
       {/* Results table */}
       <Box className="history-results">
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography className="history-count">
-            {sortedData.length} record{sortedData.length !== 1 ? 's' : ''} found
-          </Typography>
+        <Box display="flex" gap={2} alignItems="center">
           <Button
             variant="contained"
             onClick={handleExportCsv}
@@ -568,6 +565,9 @@ const History = () => {
           >
             Export to CSV
           </Button>
+          <Typography className="history-count">
+            {sortedData.length} record{sortedData.length !== 1 ? 's' : ''} found
+          </Typography>
         </Box>
 
         <TableContainer component={Paper} className="history-table-container">
