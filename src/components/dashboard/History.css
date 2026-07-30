@@ -73,6 +73,24 @@
   padding-left: 2px;
 }
 
+.history-export-button {
+  background-color: #006666 !important;
+  color: white !important;
+  font-size: 0.7rem !important;
+  padding: 4px 14px !important;
+  margin-bottom: 4px !important;
+  white-space: nowrap;
+}
+
+.history-export-button:hover {
+  background-color: #004d4d !important;
+}
+
+.history-export-button.Mui-disabled {
+  background-color: #b8cccc !important;
+  color: #6d8584 !important;
+}
+
 .history-table-container {
   background-color: #7d9c9c !important;
   flex: 0 1 auto;

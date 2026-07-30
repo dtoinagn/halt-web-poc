@@ -88,7 +88,7 @@ const HaltDetailModal = ({
 
   // Check if form data has changed
   useEffect(() => {
-    if (!haltData) return;
+    if (!haltData || isReadOnlyUser) return;
 
     const extendedChanged = (formData.extendedHalt || false) !== (haltData.extendedHalt || false);
     const remainedChanged = (formData.remainedHalt || false) !== (haltData.remainedHalt || false);
@@ -192,7 +192,8 @@ const HaltDetailModal = ({
   const handleClose = useCallback(() => {
     if (!loading) {
       // Compute changes in-place to avoid stale state issues
-      if (!haltData) {
+      if (!haltData || isReadOnlyUser) {
+        setError("");
         onClose();
         return;
       }
@@ -222,7 +223,7 @@ const HaltDetailModal = ({
         onClose();
       }
     }
-  }, [loading, formData, haltData, onClose]);
+  }, [loading, formData, haltData, isReadOnlyUser, onClose]);
 
   const handleDiscardChanges = useCallback(() => {
     setShowConfirmDialog(false);
@@ -618,14 +619,16 @@ const HaltDetailModal = ({
         </DialogContent>
 
         <DialogActions className="create-halt-dialog-actions">
-          <Button
-            onClick={handleSave}
-            disabled={!hasChanges || loading || isReadOnlyUser}
-            variant="contained"
-            className="create-halt-submit-button"
-          >
-            {loading ? "Saving..." : "Save"}
-          </Button>
+          {!isReadOnlyUser && (
+            <Button
+              onClick={handleSave}
+              disabled={!hasChanges || loading}
+              variant="contained"
+              className="create-halt-submit-button"
+            >
+              {loading ? "Saving..." : "Save"}
+            </Button>
+          )}
           <Button
             onClick={handleClose}
             disabled={loading}

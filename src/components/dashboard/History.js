@@ -28,6 +28,7 @@ const HALT_TYPE_OPTIONS = Object.values(HALT_TYPES);
 
 const EMPTY_COLUMN_FILTERS = {
   symbol: '',
+  haltId: '',
   issueName: '',
   listingMarket: [],
   state: [],
@@ -173,6 +174,11 @@ const History = () => {
       result = result.filter(h => h.symbol?.toUpperCase().includes(q));
     }
 
+    if (columnFilters.haltId.trim()) {
+      const q = columnFilters.haltId.trim().toLowerCase();
+      result = result.filter(h => h.haltId?.toLowerCase().includes(q));
+    }
+
     if (columnFilters.issueName.trim()) {
       const q = columnFilters.issueName.trim().toLowerCase();
       result = result.filter(h => h.issueName?.toLowerCase().includes(q));
@@ -211,6 +217,55 @@ const History = () => {
     if (aVal > bVal) return orderDirection === 'asc' ? 1 : -1;
     return 0;
   });
+
+  const csvEscape = (value) => {
+    const str = String(value ?? '');
+    return /[",\r\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+  };
+
+  const buildCsv = (rows) => {
+    const header = HISTORY_COLUMNS.map(col => csvEscape(col.label)).join(',');
+    const lines = rows.map(row => HISTORY_COLUMNS.map(col => {
+      const raw = col.isDate
+        ? (row[col.key] ? formatDateTimeForDashboard(row[col.key]) : '')
+        : (row[col.key] ?? '');
+      return csvEscape(raw);
+    }).join(','));
+    return [header, ...lines].join('\r\n');
+  };
+
+  const handleExportCsv = async () => {
+    if (sortedData.length === 0) return;
+
+    const csvContent = buildCsv(sortedData);
+    const filename = `halt-history-${new Date().toISOString().slice(0, 10)}.csv`;
+
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: 'CSV file', accept: { 'text/csv': ['.csv'] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(csvContent);
+        await writable.close();
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        console.error('File picker save failed, falling back to default download', err);
+      }
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const handleHaltIdClick = (halt) => {
     setSelectedHalt(halt);
@@ -281,7 +336,7 @@ const History = () => {
       '& .MuiSelect-select': { fontSize: '0.7rem', padding: '3px 20px 3px 6px' },
     };
 
-    if (col.key === 'symbol' || col.key === 'issueName' || col.key === 'createdBy') {
+    if (col.key === 'symbol' || col.key === 'haltId' || col.key === 'issueName' || col.key === 'createdBy') {
       return (
         <TextField
           variant="outlined"
@@ -444,6 +499,7 @@ const History = () => {
                     '& fieldset': {
                       border: 'none',
                     },
+                    borderBottom: '1px solid #006666',
                     '& input': {
                       fontSize: '0.75rem',
                     },
@@ -466,6 +522,7 @@ const History = () => {
                     '& fieldset': {
                       border: 'none',
                     },
+                    borderBottom: '1px solid #006666',
                     '& input': {
                       fontSize: '0.75rem',
                     },
@@ -499,9 +556,19 @@ const History = () => {
 
       {/* Results table */}
       <Box className="history-results">
-        <Typography className="history-count">
-          {sortedData.length} record{sortedData.length !== 1 ? 's' : ''} found
-        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography className="history-count">
+            {sortedData.length} record{sortedData.length !== 1 ? 's' : ''} found
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={handleExportCsv}
+            disabled={sortedData.length === 0}
+            className="history-export-button"
+          >
+            Export to CSV
+          </Button>
+        </Box>
 
         <TableContainer component={Paper} className="history-table-container">
           <Table stickyHeader size="small">
