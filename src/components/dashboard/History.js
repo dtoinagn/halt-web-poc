@@ -8,7 +8,7 @@ import {
   Radio,
 } from '@mui/material';
 import { apiService } from '../../services/api';
-import { formatDateTimeForDashboard } from '../../utils/dateUtils';
+import { formatDateTimeForDashboard, formatDateForBackend } from '../../utils/dateUtils';
 import { HALT_TYPES } from '../../constants';
 import HaltDetailModal from './components/HaltDetailModal';
 import './History.css';
@@ -90,8 +90,8 @@ const History = () => {
     try {
       const payload = {
         dateFilterType: dateFilterType,
-        from: filters.fromDate || '',
-        to: filters.toDate || '',
+        from: formatDateForBackend(filters.fromDate),
+        to: formatDateForBackend(filters.toDate),
       };
 
       const data = await apiService.searchHaltHistory(payload);

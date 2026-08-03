@@ -16,6 +16,7 @@ import {
   isHaltedSameDay,
   getCurrentDateTime,
   compareDateTimeToSecond,
+  formatDateForBackend,
 } from "../utils/dateUtils";
 
 dayjs.extend(utc);
@@ -97,6 +98,16 @@ describe("dateUtils", () => {
     it("should return compact format unchanged", () => {
       const compactDate = "20241015-14:30:45.123";
       expect(formatForBackend(compactDate)).toBe(compactDate);
+    });
+  });
+
+  describe("formatDateForBackend", () => {
+    it("should format a date picker value into YYYYMMDD", () => {
+      expect(formatDateForBackend("2024-10-15")).toBe("20241015");
+    });
+
+    it("should leave already compact dates unchanged", () => {
+      expect(formatDateForBackend("20241015")).toBe("20241015");
     });
   });
 

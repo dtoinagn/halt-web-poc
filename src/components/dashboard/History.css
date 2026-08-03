@@ -31,9 +31,10 @@
 .history-search-button {
   background-color: #006666 !important;
   color: white !important;
-  font-size: 0.65rem !important;
-  padding: 5px 14px !important;
+  font-size: 0.6rem !important;
+  padding: 3px 14px !important;
   white-space: nowrap;
+  border-radius: 999px !important;
 }
 
 .history-search-button:hover {
@@ -43,9 +44,10 @@
 .history-reset-button {
   border-color: #006666 !important;
   color: #006666 !important;
-  font-size: 0.65rem !important;
-  padding: 5px 12px !important;
+  font-size: 0.6rem !important;
+  padding: 3px 12px !important;
   white-space: nowrap;
+  border-radius: 999px !important;
 }
 
 .history-reset-button:hover {
@@ -76,10 +78,11 @@
 .history-export-button {
   background-color: #006666 !important;
   color: white !important;
-  font-size: 0.7rem !important;
-  padding: 4px 14px !important;
+  font-size: 0.6rem !important;
+  padding: 3px 14px !important;
   margin-bottom: 4px !important;
   white-space: nowrap;
+  border-radius: 999px !important;
 }
 
 .history-export-button:hover {

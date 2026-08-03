@@ -118,6 +118,25 @@ export const formatForBackend = (dateTimeString) => {
   return formatDateTimeEST(dateTimeString, DATETIME_FORMATS.BACKEND);
 };
 
+export const formatDateForBackend = (dateString) => {
+  if (!dateString) return "";
+
+  const compactMatch = String(dateString).match(/^\d{8}$/);
+  if (compactMatch) {
+    return dateString;
+  }
+
+  const normalized = String(dateString).trim();
+  if (!normalized) return "";
+
+  const isoMatch = normalized.match(/^\d{4}-\d{2}-\d{2}$/);
+  if (isoMatch) {
+    return normalized.replace(/-/g, "");
+  }
+
+  return normalized;
+};
+
 export const formatForHaltDetail = (dateTimeString) => {
   return formatDateTimeEST(dateTimeString, DATETIME_FORMATS.HALT_DETAIL);
 };

@@ -44,7 +44,7 @@ export const processHaltData = (data) => {
       }
     } else if (haltState === HALT_STATES.ACTIVE_SSCB_HALT) {
       processedData.activeSSCBData.push(item);
-    } else if (haltState === HALT_STATES.PENDING_HALT) {
+    } else if (haltState === HALT_STATES.PENDING_HALT || haltState === HALT_STATES.DRAFT_REG_HALT) {
       processedData.pendingData.push(item);
     }
   });

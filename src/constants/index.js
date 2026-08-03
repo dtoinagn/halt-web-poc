@@ -5,6 +5,7 @@ export const HALT_STATES = {
   ACTIVE_SSCB_HALT: "ACTIVE_SSCB_HALT",
   PENDING_HALT: "PENDING_HALT",
   ACTIVE_TRADING: "ACTIVE_TRADING",
+  DRAFT_REG_HALT: "DRAFT_REG_HALT",
 };
 
 export const HALT_TYPES = {
@@ -15,19 +16,28 @@ export const HALT_TYPES = {
 
 export const HALT_ACTIONS = {
   CREATE_IMMEDIATE_HALT: "CreateImmediateHalt",
+  CREATE_HALT_DRAFT: "CreateHaltDraft",
   CREATE_IMMEDIATE_RESUMPTION: "CreateImmediateResumption",
   CREATE_SCHEDULED_HALT: "CreateScheduledHalt",
   CREATE_SCHEDULED_RESUMPTION: "CreateScheduledResumption",
+  CREATE_RESUMPTION_DRAFT: "CreateResumptionDraft",
   MODIFY_SCHEDULED_HALT: "ModifyScheduledHalt",
   MODIFY_SCHEDULED_RESUMPTION: "ModifyScheduledResumption",
+  MODIFY_HALT_DRAFT: "ModifyHaltDraft",
+  MODIFY_RESUMPTION_DRAFT: "ModifyResumptionDraft",
   CANCEL_SCHEDULED_HALT: "CancelScheduledHalt",
   CANCEL_SCHEDULED_RESUMPTION: "CancelScheduledResumption",
+  CANCEL_HALT_DRAFT: "CancelHaltDraft",
+  CANCEL_RESUMPTION_DRAFT: "CancelResumptionDraft",
+  SUBMIT_HALT_DRAFT: "SubmitHaltDraft",
+  SUBMIT_RESUMPTION_DRAFT: "SubmitResumptionDraft",
   MODIFY_HALT_DETAILS: "ModifyHaltDetails",
   EXTEND_HALT: "ExtendHalt",
   REMAINED_HALT: "RemainedHalt",
   PROLONG_5MIN: "ExtendSscbHalt",
   CONVERT_TO_REG: "ConvertSscbToHalt",
-  MODIFY_HALT_REASON:"ModifyHaltReason"
+  MODIFY_HALT_REASON:"ModifyHaltReason",
+  CREATE_DRAFT_RESUMPTION: "CreateDraftResumption",
 };
 
 export const TABLE_COLUMNS = {

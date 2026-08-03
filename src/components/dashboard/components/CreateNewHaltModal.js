@@ -45,6 +45,7 @@ const getInitialFormData = () => ({
   resumptionTime: "",
   immediateHalt: false,
   extendedHalt: false,
+  isDraft: false,
   createdBy: authUtils.getLoggedInUser() || "",
   comment: "",
 });
@@ -138,6 +139,14 @@ const CreateNewHaltModal = ({
       } else {
         newHaltTime = getCurrentTimeBackendFormat(formData.haltTime);
       }
+      let newAction = null;
+      if (formData.isDraft) {
+        newAction = HALT_ACTIONS.CREATE_HALT_DRAFT;
+      } else {
+        newAction = formData.immediateHalt
+          ? HALT_ACTIONS.CREATE_IMMEDIATE_HALT
+          : HALT_ACTIONS.CREATE_SCHEDULED_HALT;
+      }
       const payload = {
         haltId: "",
         symbol: symbolInput || "",
@@ -160,11 +169,10 @@ const CreateNewHaltModal = ({
         lastModifiedTime: "",
         sscbSource: "",
         responseMessage: "",
-        action: formData.immediateHalt
-          ? HALT_ACTIONS.CREATE_IMMEDIATE_HALT
-          : HALT_ACTIONS.CREATE_SCHEDULED_HALT,
+        action: newAction,
         comment: formData.comment || "",
       };
+      
 
       await apiService.createNewHalt(payload);
 
@@ -172,7 +180,6 @@ const CreateNewHaltModal = ({
       if (onHaltCreated) {
         await onHaltCreated();
       }
-
       handleSavedClose();
     } catch (err) {
       console.error("Failed to create halt:", err);
@@ -188,7 +195,71 @@ const CreateNewHaltModal = ({
     handleClose,
   ]);
 
-  // Validate and show confirmation dialog before submitting
+  // Validate and show confirmation dialog before submitting for drafting a future scheduled halt
+  const handleSaveDraftClick = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    formData.isDraft = true; // Mark the form data as a draft
+    try {
+      // Validate required fields
+      if (!symbolInput || symbolInput.trim() === "") {
+        throw new Error("Please enter a symbol");
+      }
+
+      // Check for existing active or pending halts for the symbol
+      const existingActiveHalts = checkExistingHaltsForSymbol(symbolInput);
+      if (existingActiveHalts.hasActiveHalts) {
+        throw new Error(
+          `An active halt already exists for symbol ${symbolInput}`
+        );
+      }
+      if (existingActiveHalts.hasScheduledHalts) {
+        throw new Error(
+          `A scheduled halt already exists for symbol ${symbolInput}, please cancel it before creating a new halt.`
+        );
+      }
+
+      if (!formData.immediateHalt && !formData.haltTime) {
+        throw new Error("Please select a halt time for scheduled halt");
+      }
+      if (!formData.allIssue) {
+        throw new Error("Please select if halt is for all issues");
+      }
+      if (!formData.haltReason) {
+        throw new Error("Please select a halt reason");
+      }
+      if (formData.haltReason
+        && (formData.haltReason.reasonDescription === "Single Stock Circuit Breaker" ||
+          formData.haltReason.reasonDescription === "Market Wide Circuit Breaker")) {
+        // should never happen because we clear on selection, but guard anyway
+        throw new Error("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
+      }
+      // Validate halt time for scheduled halts
+      if (!formData.immediateHalt) {
+        const haltDateEST = dayjs.tz(formData.haltTime, EST_ZONE);
+        const nowEST = dayjs().tz(EST_ZONE);
+        const endOfTodayEST = nowEST.endOf("day");
+
+        if (compareDateTimeToSecond(haltDateEST, nowEST) < 0) {
+          throw new Error("Halt time must be in the future");
+        }
+      }
+      // Directly submit for drafted halts
+      handleSubmit();
+    } catch (error) {
+      setError(error.message);
+    }
+  }, [
+    symbolInput,
+    formData.immediateHalt,
+    formData.haltTime,
+    formData.allIssue,
+    formData.haltReason,
+    checkExistingHaltsForSymbol,
+    handleSubmit
+  ]);
+
+  // Validate and show confirmation dialog before submitting for creating an immediate/scheduled halt
   const handleCreateClick = useCallback(() => {
     setError("");
     try {
@@ -576,6 +647,14 @@ const CreateNewHaltModal = ({
           >
             {loading ? "Creating..." : "Create Halt"}
           </Button>
+          <Button
+            onClick={handleSaveDraftClick}
+            disabled={isSubmitDisabled}
+            variant="contained"
+            className="create-halt-submit-button"
+          >
+          Save Draft
+          </Button>          
           <Button
             onClick={handleClose}
             disabled={loading}

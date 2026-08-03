@@ -14,7 +14,7 @@ import {
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
 import { formatForBackend, formatForDateTimeLocal, compareDateTimeToSecond } from "../../../utils/dateUtils";
-import { HALT_ACTIONS } from "../../../constants";
+import { HALT_ACTIONS, HALT_STATES } from "../../../constants";
 import HaltReasonSelector from "./HaltReasonSelector";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -24,7 +24,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const EST_ZONE = "America/New_York";
 
-const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) => {
+const EditScheduledHaltModal = ({ open, onClose, haltData, action = null, haltReasons = [] }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
@@ -74,6 +74,17 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) =
     setError(errorMsg);
   }, []);
 
+  const getModalTitle = useCallback(() => {
+    switch (action) {
+      case HALT_ACTIONS.SUBMIT_HALT_DRAFT:
+        return "Submit Drafted Halt";
+      case HALT_ACTIONS.CANCEL_HALT_DRAFT:
+        return "Cancel Drafted Halt";
+      default:
+        return haltData?.state === HALT_STATES.DRAFT_REG_HALT ? "Edit Draft Halt" : "Edit Scheduled Halt";
+    }
+  }, [action, haltData?.state]);
+
   const handleConfirm = useCallback(async () => {
     setError("");
 
@@ -96,12 +107,17 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) =
       const haltDateEST = dayjs.tz(formData.haltTime, EST_ZONE);
       const nowEST = dayjs().tz(EST_ZONE);
       const endOfTodayEST = nowEST.endOf("day");
+      let newAction = action || HALT_ACTIONS.MODIFY_SCHEDULED_HALT;
 
       if (compareDateTimeToSecond(haltDateEST, nowEST) < 0) {
         throw new Error("Halt time must be in the future");
       }
-      if (compareDateTimeToSecond(haltDateEST, endOfTodayEST) > 0) {
-        throw new Error("Halt time must be within today");
+      if (!action && haltData.state === HALT_STATES.DRAFT_REG_HALT) {
+        newAction = HALT_ACTIONS.MODIFY_HALT_DRAFT;
+      } else if (!action) {
+        if (compareDateTimeToSecond(haltDateEST, endOfTodayEST) > 0) {
+          throw new Error("Halt time must be within today");
+        }
       }
 
       setLoading(true);
@@ -129,7 +145,7 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) =
         lastModifiedTime: "",
         sscbSource: haltData.sscbSource || "",
         responseMessage: haltData.responseMessage || "",
-        action: HALT_ACTIONS.MODIFY_SCHEDULED_HALT,
+        action: newAction,
         comment: "",
       };
       await apiService.updateHalt(payload);
@@ -140,7 +156,7 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) =
     } finally {
       setLoading(false);
     }
-  }, [haltData, formData, handleClose]);
+  }, [action, haltData, formData, handleClose]);
 
   return (
     <Dialog
@@ -165,7 +181,7 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, haltReasons = [] }) =
           component="div"
           className="cancel-halt-dialog-title-text"
         >
-          Edit Scheduled Halt
+          {getModalTitle()}
         </Typography>
       </DialogTitle>
 
