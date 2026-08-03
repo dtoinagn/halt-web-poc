@@ -9,7 +9,6 @@ global.window = {
   runConfig: {
     apiNewHalt: "http://localhost:8081/api/halt/create",
     apiHaltUpdate: "http://localhost:8081/api/halt/update",
-    apiResumption: "http://localhost:8081/api/halt/update",
   },
 };
 

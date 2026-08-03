@@ -8,6 +8,11 @@ export const HALT_STATES = {
   DRAFT_REG_HALT: "DRAFT_REG_HALT",
 };
 
+export const HALT_SUB_STATES = {
+  RESUMPTION_DRAFTED: "Resumption_Drafted",
+  RESUMPTION_DRAFT_CANCELLED: "Resumption_Draft_Cancelled"
+}
+
 export const HALT_TYPES = {
   REG: "REG",
   SSCB: "SSCB",

@@ -66,7 +66,7 @@
     "remainReason": "",
     "remainedHalt": false,
     "state": "ACTIVE_REG_HALT",
-    "subState": "Resumption_Scheduled",
+    "subState": "Resumption_Drafted",
     "haltType": "REG",
     "createdBy": "aadmin",
     "createdTime": "2026-05-04T11:15:00.000",

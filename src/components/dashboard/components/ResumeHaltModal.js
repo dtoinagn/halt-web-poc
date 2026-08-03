@@ -26,7 +26,10 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const EST_ZONE = "America/New_York";
 
-const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
+const ResumeHaltModal = ({ open, onClose, haltData, securities = [], action = null }) => {
+  const isEditDraftMode = action === HALT_ACTIONS.MODIFY_RESUMPTION_DRAFT;
+  const isSubmitDraftMode = action === HALT_ACTIONS.SUBMIT_RESUMPTION_DRAFT;
+  const isEditResumptionMode = action === HALT_ACTIONS.MODIFY_SCHEDULED_RESUMPTION;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [symbolInput, setSymbolInput] = useState("");
@@ -149,6 +152,35 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
     }));
   }, [getCurrentDateTime]);
 
+  const buildResumptionPayload = useCallback((action, newResumptionTime) => {
+    // Build the payload matching the update request structure
+    return {
+      haltId: haltData.haltId || "",
+      symbol: symbolInput.trim() || "",
+      issueName: formData.issueName || "",
+      listingMarket: formData.listingMarket || "",
+      allIssue: haltData.allIssue === "Yes" ? "true" : "false",
+      haltTime: formatForBackend(haltData.haltTime) || "",
+      resumptionTime: newResumptionTime || "",
+      extendedHalt: haltData.extendedHalt || false,
+      haltReasonDescription: haltData.haltReasonDescription || "",
+      haltReasonCode: haltData.haltReasonCode || "",
+      haltReasonType: haltData.haltReasonType || "",
+      remainedHalt: haltData.remainedHalt || false,
+      remainReason: haltData.remainReason || "",
+      state: haltData.state || "ACTIVE_REG_HALT",
+      haltType: haltData.haltType || "REG",
+      createdBy: haltData.createdBy || "",
+      createdTime: formatForBackend(haltData.createdTime) || "",
+      lastModifiedBy: authUtils.getLoggedInUser() || "",
+      lastModifiedTime: "",
+      sscbSource: haltData.sscbSource || "",
+      responseMessage: haltData.responseMessage || "",
+      action: action,
+      comment: haltData.comment || "",
+    };
+  }, [haltData, formData, symbolInput]);
+
   const handleConfirm = useCallback(async () => {
     setError("");
 
@@ -159,10 +191,12 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
       }
 
       // Determine the action based on immediate resumption checkbox
-      const action = haltData.resumptionTime ? HALT_ACTIONS.MODIFY_SCHEDULED_RESUMPTION :
-        (formData.immediateResumption
-          ? HALT_ACTIONS.CREATE_IMMEDIATE_RESUMPTION
-          : HALT_ACTIONS.CREATE_SCHEDULED_RESUMPTION);
+      const resumptionAction = isSubmitDraftMode
+        ? HALT_ACTIONS.SUBMIT_RESUMPTION_DRAFT
+        : (haltData.resumptionTime ? HALT_ACTIONS.MODIFY_SCHEDULED_RESUMPTION :
+          (formData.immediateResumption
+            ? HALT_ACTIONS.CREATE_IMMEDIATE_RESUMPTION
+            : HALT_ACTIONS.CREATE_SCHEDULED_RESUMPTION));
 
       // Validate resumption time for scheduled resumption
       if (!formData.immediateResumption) {
@@ -172,13 +206,15 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
 
         const resumptionDateEST = dayjs.tz(formData.resumptionTime, EST_ZONE);
         const nowEST = dayjs().tz(EST_ZONE);
-        const endOfTodayEST = nowEST.endOf("day");
 
         if (compareDateTimeToSecond(resumptionDateEST, nowEST) < 0) {
           throw new Error("Resumption time must be in the future");
         }
-        if (compareDateTimeToSecond(resumptionDateEST, endOfTodayEST) > 0) {
-          throw new Error("Resumption time must be within today");
+        if (!isSubmitDraftMode) {
+          const endOfTodayEST = nowEST.endOf("day");
+          if (compareDateTimeToSecond(resumptionDateEST, endOfTodayEST) > 0) {
+            throw new Error("Resumption time must be within today");
+          }
         }
       }
 
@@ -191,33 +227,12 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
         newResumptionTime = getCurrentTimeBackendFormat(formData.resumptionTime);
       }
 
-      // Build the payload matching the update request structure
-      const payload = {
-        haltId: haltData.haltId || "",
-        symbol: symbolInput.trim() || "",
-        issueName: formData.issueName || "",
-        listingMarket: formData.listingMarket || "",
-        allIssue: haltData.allIssue === "Yes" ? "true" : "false",
-        haltTime: formatForBackend(haltData.haltTime) || "",
-        resumptionTime: newResumptionTime || "",
-        extendedHalt: haltData.extendedHalt || false,
-        haltReasonDescription: haltData.haltReasonDescription || "",
-        haltReasonCode: haltData.haltReasonCode || "",
-        haltReasonType: haltData.haltReasonType || "",
-        remainedHalt: haltData.remainedHalt || false,
-        remainReason: haltData.remainReason || "",
-        state: haltData.state || "ACTIVE_REG_HALT",
-        haltType: haltData.haltType || "REG",
-        createdBy: haltData.createdBy || "",
-        createdTime: formatForBackend(haltData.createdTime) || "",
-        lastModifiedBy: authUtils.getLoggedInUser() || "",
-        lastModifiedTime: "",
-        sscbSource: haltData.sscbSource || "",
-        responseMessage: haltData.responseMessage || "",
-        action: action,
-        comment: haltData.comment || "",
-      };
-      await apiService.updateResumption(payload);
+      const payload = buildResumptionPayload(resumptionAction, newResumptionTime);
+      if (isSubmitDraftMode) {
+        await apiService.saveResumptionDraft(payload);
+      } else {
+        await apiService.updateResumption(payload);
+      }
       handleClose();
     } catch (err) {
       console.error("Failed to resume halt:", err);
@@ -225,7 +240,39 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
     } finally {
       setLoading(false);
     }
-  }, [haltData, formData, symbolInput, handleClose, getCurrentTimeBackendFormat]);
+  }, [haltData, formData, symbolInput, handleClose, getCurrentTimeBackendFormat, buildResumptionPayload, isSubmitDraftMode]);
+
+  const handleSaveDraft = useCallback(async () => {
+    setError("");
+
+    try {
+      // Validate symbol
+      if (!symbolInput || !symbolInput.trim()) {
+        throw new Error("Please enter a symbol");
+      }
+
+      setLoading(true);
+      // Prepare resumption time
+      let newResumptionTime = null;
+      if (formData.immediateResumption) {
+        newResumptionTime = dayjs().tz(EST_ZONE).add(2, "minute").format(DATETIME_FORMATS.BACKEND);
+      } else {
+        newResumptionTime = getCurrentTimeBackendFormat(formData.resumptionTime);
+      }
+
+      const draftAction = isEditDraftMode
+        ? HALT_ACTIONS.MODIFY_RESUMPTION_DRAFT
+        : HALT_ACTIONS.CREATE_RESUMPTION_DRAFT;
+      const payload = buildResumptionPayload(draftAction, newResumptionTime);
+      await apiService.saveResumptionDraft(payload);
+      handleClose();
+    } catch (err) {
+      console.error("Failed to save resumption draft:", err);
+      setError(err.message || "Failed to save resumption draft. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [formData, symbolInput, handleClose, getCurrentTimeBackendFormat, buildResumptionPayload, isEditDraftMode]);
 
   return (
     <Dialog
@@ -250,7 +297,11 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
           component="div"
           className="cancel-halt-dialog-title-text"
         >
-          Resume Halt
+          {isEditDraftMode
+            ? "Edit Drafted Resumption"
+            : isSubmitDraftMode
+              ? "Submit Drafted Resumption"
+              : "Resume Halt"}
         </Typography>
       </DialogTitle>
 
@@ -356,14 +407,46 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [] }) => {
       </DialogContent>
 
       <DialogActions className="cancel-halt-dialog-actions">
-        <Button
-          onClick={handleConfirm}
-          disabled={loading}
-          variant="contained"
-          className="create-halt-submit-button"
-        >
-          {loading ? "Saving..." : "Save"}
-        </Button>
+        {isEditDraftMode ? (
+          <Button
+            onClick={handleSaveDraft}
+            disabled={loading}
+            variant="contained"
+            className="create-halt-submit-button"
+          >
+            {loading ? "Saving..." : "Save Draft"}
+          </Button>
+        ) : isSubmitDraftMode ? (
+          <Button
+            onClick={handleConfirm}
+            disabled={loading}
+            variant="contained"
+            className="create-halt-submit-button"
+          >
+            {loading ? "Submitting..." : "Submit Draft"}
+          </Button>
+        ) : (
+          <>
+            <Button
+              onClick={handleConfirm}
+              disabled={loading}
+              variant="contained"
+              className="create-halt-submit-button"
+            >
+              {loading ? "Saving..." : "Save"}
+            </Button>
+            {!isEditResumptionMode && (
+              <Button
+                onClick={handleSaveDraft}
+                disabled={loading}
+                variant="contained"
+                className="create-halt-submit-button"
+              >
+                Save as Draft
+              </Button>
+            )}
+          </>
+        )}
         <Button
           onClick={handleClose}
           disabled={loading}

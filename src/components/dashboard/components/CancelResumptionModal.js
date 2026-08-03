@@ -14,7 +14,7 @@ import { formatForBackend } from "../../../utils/dateUtils";
 import { HALT_ACTIONS } from "../../../constants";
 import "./CreateNewHaltModal.css";
 
-const CancelResumptionModal = ({ open, onClose, haltData, onResumptionCancelled }) => {
+const CancelResumptionModal = ({ open, onClose, haltData, action = null, onResumptionCancelled }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -24,6 +24,13 @@ const CancelResumptionModal = ({ open, onClose, haltData, onResumptionCancelled 
       onClose();
     }
   }, [loading, onClose]);
+
+  const getModalTitle = useCallback(() => {
+    if (action === HALT_ACTIONS.CANCEL_RESUMPTION_DRAFT) {
+      return "Cancel Drafted Resumption";
+    }
+    return "Cancel Resumption";
+  }, [action]);
 
   const handleConfirm = useCallback(async () => {
     setLoading(true);
@@ -53,7 +60,7 @@ const CancelResumptionModal = ({ open, onClose, haltData, onResumptionCancelled 
         lastModifiedTime: "",
         sscbSource: haltData.sscbSource || "",
         responseMessage: haltData.responseMessage || "",
-        action: HALT_ACTIONS.CANCEL_SCHEDULED_RESUMPTION,
+        action: action || HALT_ACTIONS.CANCEL_SCHEDULED_RESUMPTION,
         comment: "",
       };
 
@@ -71,7 +78,7 @@ const CancelResumptionModal = ({ open, onClose, haltData, onResumptionCancelled 
     } finally {
       setLoading(false);
     }
-  }, [haltData, onResumptionCancelled, handleClose]);
+  }, [haltData, action, onResumptionCancelled, handleClose]);
 
   return (
     <Dialog
@@ -96,7 +103,7 @@ const CancelResumptionModal = ({ open, onClose, haltData, onResumptionCancelled 
           component="div"
           className="cancel-halt-dialog-title-text"
         >
-          Cancel Resumption
+          {getModalTitle()}
         </Typography>
       </DialogTitle>
 

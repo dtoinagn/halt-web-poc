@@ -9,7 +9,6 @@ window['runConfig'] = {
     apiFetchHaltReasons: 'http://stg-01-qa:8081/api/halt-reasons',
     apiFetchHaltRemainReasons: 'http://stg-01-qa:8081/api/halt-remain-reasons',
     apiHaltUpdate: 'http://stg-01-qa:8081/api/halt/update',
-    apiResumption: 'http://stg-01-qa:8081/api/halt/update',
     closingHour: 22,
     openingHour: 7, 
     inactivityLimitMinute: 480,
