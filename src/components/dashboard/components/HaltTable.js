@@ -295,6 +295,27 @@ const HaltTable = ({
           </TableCell>
         );
 
+      case "All Issues":
+        return (
+          <TableCell
+            key={idx}
+            sx={{
+              padding: "2px 4px",
+              fontSize: "0.75rem",
+              ...getColumnWidth(),
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {row.allIssue === "Yes" ||
+            row.allIssue === "true" ||
+            row.allIssue === true
+              ? "Yes"
+              : "No"}
+          </TableCell>
+        );
+
       case "Extd":
         return (
           <TableCell

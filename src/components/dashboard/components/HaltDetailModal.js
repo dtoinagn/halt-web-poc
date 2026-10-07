@@ -502,7 +502,13 @@ const HaltDetailModal = ({
             {/* Row 5 */}
             <FieldRow
               label="All Issues"
-              value={haltData.allIssue}
+              value={
+                haltData.allIssue === "Yes" ||
+                haltData.allIssue === "true" ||
+                haltData.allIssue === true
+                  ? "Yes"
+                  : "No"
+              }
               isGray={true}
             />
             <FieldRow
