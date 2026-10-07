@@ -72,16 +72,16 @@
 
 .topbar-profilepic {
   position: absolute;
-  right: 8px;
-  top: 8px;
+  right: 10px;
+  top: 10px;
   background: #6b5196;
   color: white;
   opacity: 1; 
-  font-weight: bold; 
+  font-weight-absolute: 1; 
   border-radius: 50%; 
   vertical-align: middle; 
-  width: 40px; 
-  height: 40px; 
-  line-height: 40px; 
+  width: 30px; 
+  height: 30px; 
+  line-height: 30px; 
   text-align: center; 
 }

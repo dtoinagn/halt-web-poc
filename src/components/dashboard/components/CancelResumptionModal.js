@@ -32,6 +32,13 @@ const CancelResumptionModal = ({ open, onClose, haltData, action = null, onResum
     return "Cancel Resumption";
   }, [action]);
 
+  const getConfirmation = useCallback(() => {
+    if (action === HALT_ACTIONS.CANCEL_RESUMPTION_DRAFT) {
+      return "Please confirm cancellation of the drafted resumption:";
+    }
+    return "Please confirm cancellation of the scheduled resumption:";
+  }, [action]);
+
   const handleConfirm = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -115,7 +122,7 @@ const CancelResumptionModal = ({ open, onClose, haltData, action = null, onResum
         )}
 
         <Typography className="cancel-halt-confirmation-text">
-          Please confirm the cancellation of the scheduled resumption:
+          {getConfirmation()}
         </Typography>
 
         <Box className="cancel-halt-field-container">

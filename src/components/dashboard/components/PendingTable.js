@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import HaltTable from './HaltTable';
 import { HALT_ACTIONS, HALT_STATES } from "../../../constants/index";
-import { Tooltip } from "@mui/material";
 import CancelHaltModal from './CancelHaltModal';
 import EditScheduledHaltModal from './EditScheduledHaltModal';
 
@@ -42,7 +41,7 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled, haltReasons = [] }
   };
   const renderPendingAction = (row) => {
     // Hide both Edit and Cancel when the halt has been cancelled
-    if (row.subState === "Pending_Halt_Cancelled" || row.subState === "Pending_Halt_Canceling") {
+    if (row.subState === "Pending_Halt_Cancelled" || row.subState === "Pending_Halt_Canceling" || row.subState === "Halt_Drafted_Cancelled") {
       return null;
     }
 
@@ -54,13 +53,9 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled, haltReasons = [] }
       ? HALT_ACTIONS.CANCEL_HALT_DRAFT
       : HALT_ACTIONS.CANCEL_SCHEDULED_HALT;
 
-    if (row.state === HALT_STATES.DRAFT_REG_HALT) {
+    if ((row.state === HALT_STATES.DRAFT_REG_HALT)) {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
-          <Tooltip
-            title={`Edit Draft Halt: ${row.haltId}`}
-            arrow
-          >
             <button
               className="halt-action-button"
               action={editAction}
@@ -70,12 +65,7 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled, haltReasons = [] }
             >
               Edit Drafted Halt
             </button>
-          </Tooltip>
 
-          <Tooltip
-            title={`Submit Draft Halt: ${row.haltId}`}
-            arrow
-          >
             <button
               className="halt-action-button-red"
               action={submitAction}
@@ -85,12 +75,7 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled, haltReasons = [] }
             >
               Submit Drafted Halt
             </button>
-          </Tooltip>
 
-          <Tooltip
-            title={`Cancel Draft Halt: ${row.haltId}`}
-            arrow
-          >
             <button
               className="halt-action-button"
               action={cancelAction}
@@ -100,17 +85,12 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled, haltReasons = [] }
             >
               Cancel Drafted Halt
             </button>
-          </Tooltip>
         </div>
       );
     }
 
     return (
       <>
-        <Tooltip
-          title={`Edit Halt: ${row.haltId}`}
-          arrow
-        >
           <button
             className="halt-action-button"
             action={editAction}
@@ -118,14 +98,9 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled, haltReasons = [] }
             onClick={() => handleEditClick(row, editAction)}
             style={{ marginLeft: 0 }}
           >
-            Edit
+            Edit Halt
           </button>
-        </Tooltip>
 
-        <Tooltip
-          title={`Cancel Halt: ${row.haltId}`}
-          arrow
-        >
           <button
             className="halt-action-button-red"
             action={cancelAction}
@@ -133,9 +108,8 @@ const PendingTable = ({ data, onHaltIdClick, onHaltCancelled, haltReasons = [] }
             onClick={() => handleCancelClick(row, cancelAction)}
             style={{ marginLeft: 0 }}
           >
-            Cancel
+            Cancel Halt
           </button>
-        </Tooltip>
       </>
     );
   };

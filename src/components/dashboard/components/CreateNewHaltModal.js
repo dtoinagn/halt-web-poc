@@ -197,13 +197,18 @@ const CreateNewHaltModal = ({
 
   // Validate and show confirmation dialog before submitting for drafting a future scheduled halt
   const handleSaveDraftClick = useCallback(async () => {
-    setLoading(true);
     setError("");
-    formData.isDraft = true; // Mark the form data as a draft
+    formData.isDraft = true;
     try {
       // Validate required fields
       if (!symbolInput || symbolInput.trim() === "") {
         throw new Error("Please enter a symbol");
+      }
+      if (!formData.issueName || formData.issueName.trim() === "") {
+        throw new Error("Please enter an issue name");
+      }
+      if (!formData.listingMarket || formData.listingMarket.trim() === "") {
+        throw new Error("Please select a listing market");
       }
 
       // Check for existing active or pending halts for the symbol
@@ -228,11 +233,15 @@ const CreateNewHaltModal = ({
       if (!formData.haltReason) {
         throw new Error("Please select a halt reason");
       }
-      if (formData.haltReason
-        && (formData.haltReason.reasonDescription === "Single Stock Circuit Breaker" ||
-          formData.haltReason.reasonDescription === "Market Wide Circuit Breaker")) {
+      if (
+        formData.haltReason &&
+        (formData.haltReason.reasonDescription === "Single Stock Circuit Breaker" ||
+          formData.haltReason.reasonDescription === "Market Wide Circuit Breaker")
+      ) {
         // should never happen because we clear on selection, but guard anyway
-        throw new Error("You cannot select this halt reason. Circuit Breaker halts are created automatically by the system.");
+        throw new Error(
+          "You cannot select this halt reason. Circuit Breaker halts are created automatically by the system."
+        );
       }
       // Validate halt time for scheduled halts
       if (!formData.immediateHalt) {
@@ -245,18 +254,20 @@ const CreateNewHaltModal = ({
         }
       }
       // Directly submit for drafted halts
-      handleSubmit();
+      await handleSubmit();
     } catch (error) {
       setError(error.message);
     }
   }, [
     symbolInput,
+    formData.issueName,
+    formData.listingMarket,
     formData.immediateHalt,
     formData.haltTime,
     formData.allIssue,
     formData.haltReason,
     checkExistingHaltsForSymbol,
-    handleSubmit
+    handleSubmit,
   ]);
 
   // Validate and show confirmation dialog before submitting for creating an immediate/scheduled halt
@@ -266,6 +277,12 @@ const CreateNewHaltModal = ({
       // Validate required fields
       if (!symbolInput || symbolInput.trim() === "") {
         throw new Error("Please enter a symbol");
+      }
+      if (!formData.issueName || formData.issueName.trim() === "") {
+        throw new Error("Please enter an issue name");
+      }
+      if (!formData.listingMarket || formData.listingMarket.trim() === "") {
+        throw new Error("Please select a listing market");
       }
 
       // Check for existing active or pending halts for the symbol
@@ -321,6 +338,8 @@ const CreateNewHaltModal = ({
     }
   }, [
     symbolInput,
+    formData.issueName,
+    formData.listingMarket,
     formData.immediateHalt,
     formData.haltTime,
     formData.allIssue,
@@ -563,8 +582,55 @@ const CreateNewHaltModal = ({
               {symbolError}
             </Typography>
           )}
-          <HaltModalField label="Issue Name" value={formData.issueName} />
-          <HaltModalField label="Listing Market" value={formData.listingMarket} />
+          {formData.security === null && symbolInput.trim() !== "" ? (
+            <>
+              <Box className="cancel-halt-field-container">
+                <Typography className="cancel-halt-label">
+                  Issue Name <span style={{ color: "red" }}>*</span>
+                </Typography>
+                <TextField
+                  fullWidth
+                  value={formData.issueName}
+                  onChange={(e) => handleFieldChange("issueName", e.target.value)}
+                  disabled={loading}
+                  variant="outlined"
+                  error={!formData.issueName && !!error}
+                  required
+                  InputProps={{
+                    style: { backgroundColor: "white", height: "36px" },
+                  }}
+                />
+              </Box>
+              <Box className="cancel-halt-field-container">
+                <Typography className="cancel-halt-label">
+                  Listing Market <span style={{ color: "red" }}>*</span>
+                </Typography>
+                <TextField
+                  select
+                  fullWidth
+                  value={formData.listingMarket}
+                  onChange={(e) => handleFieldChange("listingMarket", e.target.value)}
+                  disabled={loading}
+                  variant="outlined"
+                  error={!formData.listingMarket && !!error}
+                  required
+                  InputProps={{
+                    style: { backgroundColor: "white", height: "36px" },
+                  }}
+                >
+                  <MenuItem value="TSE">TSE</MenuItem>
+                  <MenuItem value="CDX">CDX</MenuItem>
+                  <MenuItem value="AQL">AQL</MenuItem>
+                  <MenuItem value="CNQ">CNQ</MenuItem>
+                </TextField>
+              </Box>
+            </>
+          ) : (
+            <>
+              <HaltModalField label="Issue Name" value={formData.issueName} />
+              <HaltModalField label="Listing Market" value={formData.listingMarket} />
+            </>
+          )}
 
           <Box className="cancel-halt-field-container">
             <Typography className="cancel-halt-label">

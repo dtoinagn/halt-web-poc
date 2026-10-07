@@ -158,7 +158,7 @@ const TopBar = () => {
       <MenuIcon
         onClick={handleMenu}
         className="topbar-menubutton"
-        fontSize="large"
+        fontSize="small"
       />
 
       <img className="topbar-ciro-logo" src={Logo} alt="ciro company logo" />
@@ -172,7 +172,7 @@ const TopBar = () => {
         <HelpIcon
           onClick={handleUserGuide}
           className="topbar-guide"
-          fontSize="large"
+          fontSize="medium"
         />
       )}
       {userLoggedIn && showTitle && init && (
@@ -182,7 +182,7 @@ const TopBar = () => {
         <LogoutIcon
           onClick={handleLogout}
           className="topbar-logoutbutton"
-          fontSize="large"
+          fontSize="medium"
         />
       )}
     </div>

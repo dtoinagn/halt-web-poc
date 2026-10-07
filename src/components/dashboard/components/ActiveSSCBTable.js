@@ -1,6 +1,5 @@
 import { useState } from "react";
 import HaltTable from "./HaltTable";
-import { Tooltip } from "@mui/material";
 import ProlongSSCBHaltModal from "./ProlongSSCBHaltModal";
 import ConvertSSCBHaltModal from "./ConvertSSCBHaltModal";
 
@@ -34,24 +33,20 @@ const ActiveSSCBTable = ({ data, onHaltIdClick, haltReasons = [], onHaltUpdated,
   const renderSSCBAction = (row) => (
     <>
       {row.sscbExtended ? null :
-        <Tooltip title={`Prolong SSCB: ${row.haltId}`} arrow>
           <button
             className="halt-action-button"
             onClick={() => handleProlongHalt(row)}
             style={{ marginLeft: 0 }}
           >
           Prolong SSCB 5 Min
-        </button>
-      </Tooltip> }
-      <Tooltip title={`Convert: ${row.haltId}`} arrow>
-        <button
-          className="halt-action-button"
-          onClick={() => handleConvertHalt(row)}
-          style={{ marginLeft: 0 }}
-        >
-          Convert to Regulatory
-        </button>
-      </Tooltip>
+        </button> }
+          <button
+            className="halt-action-button"
+            onClick={() => handleConvertHalt(row)}
+            style={{ marginLeft: 0 }}
+          >
+            Convert to Regulatory
+          </button>
     </>
   );
 

@@ -191,6 +191,12 @@ const HaltDetailModal = ({
 
   const handleClose = useCallback(() => {
     if (!loading) {
+      if (forceReadOnly) {
+        setError("");
+        onClose();
+        return;
+      }
+
       // Compute changes in-place to avoid stale state issues
       if (!haltData) {
         onClose();
@@ -222,7 +228,7 @@ const HaltDetailModal = ({
         onClose();
       }
     }
-  }, [loading, formData, haltData, onClose]);
+  }, [forceReadOnly, loading, formData, haltData, onClose]);
 
   const handleDiscardChanges = useCallback(() => {
     setShowConfirmDialog(false);
@@ -423,17 +429,25 @@ const HaltDetailModal = ({
               value={haltData.haltId}
               isGray={true}
             />
-            <EditableAutocompleteField
-              label="Remain Reason"
-              value={formData.remainReason}
-              onChange={(value) => {
-                if (!isReadOnlyUser) {
-                  handleFieldChange("remainReason", value);
-                }
-              }}
-              options={remainReasons}
-              disabled={!formData.remainedHalt || isLifted || loading || isReadOnlyUser}
-            />
+            {forceReadOnly ? (
+              <FieldRow
+                label="Remain Reason"
+                value={haltData.remainReason}
+                isGray={true}
+              />
+            ) : (
+              <EditableAutocompleteField
+                label="Remain Reason"
+                value={formData.remainReason}
+                onChange={(value) => {
+                  if (!isReadOnlyUser) {
+                    handleFieldChange("remainReason", value);
+                  }
+                }}
+                options={remainReasons}
+                disabled={!formData.remainedHalt || isLifted || loading || isReadOnlyUser}
+              />
+            )}
 
             {/* Row 2 */}
             <FieldRow
@@ -442,20 +456,28 @@ const HaltDetailModal = ({
               isGray={true}
               isBlue={false}
             />
-            <EditableSelectField
-              label="Remain Halt"
-              value={formData.remainedHalt}
-              onChange={(value) => {
-                if (!isReadOnlyUser) {
-                  handleFieldChange("remainedHalt", value);
-                }
-              }}
-              options={[
-                { value: true, label: "Yes" },
-                { value: false, label: "No" },
-              ]}
-              disabled={isScheduled || isLifted || loading || isReadOnlyUser}
-            />
+            {forceReadOnly ? (
+              <FieldRow
+                label="Remain Halt"
+                value={haltData.remainedHalt ? "Yes" : "No"}
+                isGray={true}
+              />
+            ) : (
+              <EditableSelectField
+                label="Remain Halt"
+                value={formData.remainedHalt}
+                onChange={(value) => {
+                  if (!isReadOnlyUser) {
+                    handleFieldChange("remainedHalt", value);
+                  }
+                }}
+                options={[
+                  { value: true, label: "Yes" },
+                  { value: false, label: "No" },
+                ]}
+                disabled={isScheduled || isLifted || loading || isReadOnlyUser}
+              />
+            )}
 
             {/* Row 3 */}
             <FieldRow
@@ -526,27 +548,35 @@ const HaltDetailModal = ({
             />
 
             {/* Row 9 */}
-            <EditableSelectField
-              label="Extended Halt"
-              value={formData.extendedHalt}
-              onChange={(value) => {
-                if (!isReadOnlyUser) {
-                  handleFieldChange("extendedHalt", value);
-                }
-              }}
-              options={[
-                { value: true, label: "Yes" },
-                { value: false, label: "No" },
-              ]}
-              disabled={isScheduled || isLifted || loading || isReadOnlyUser}
-            />
+            {forceReadOnly ? (
+              <FieldRow
+                label="Extended Halt"
+                value={haltData.extendedHalt ? "Yes" : "No"}
+                isGray={true}
+              />
+            ) : (
+              <EditableSelectField
+                label="Extended Halt"
+                value={formData.extendedHalt}
+                onChange={(value) => {
+                  if (!isReadOnlyUser) {
+                    handleFieldChange("extendedHalt", value);
+                  }
+                }}
+                options={[
+                  { value: true, label: "Yes" },
+                  { value: false, label: "No" },
+                ]}
+                disabled={isScheduled || isLifted || loading || isReadOnlyUser}
+              />
+            )}
             <Grid item xs={12} md={6}>
               {/* Empty space */}
             </Grid>
 
             {/* Full Width - Halt Reason */}
             {/* Row 9 - Halt Reason, Halt Reason Type */}
-            {isScheduled ? (
+            {isScheduled && !forceReadOnly ? (
               <Grid item xs={12} md={6}>
                 <Box className="halt-detail-field-container">
                   <Typography className="halt-detail-label">
@@ -596,13 +626,13 @@ const HaltDetailModal = ({
             ) : (
               <FieldRow
                 label="Halt Reason"
-                value={formData.haltReason ? formData.haltReason.reasonDescription : ""}
+                value={formData.haltReason?.reasonDescription || haltData.haltReasonDescription}
                 isGray={true}
               />
             )}
             <FieldRow
               label="Halt Reason Type"
-              value={formData.haltReason ? formData.haltReason.reasonTypeDescription : ""}
+              value={formData.haltReason?.reasonTypeDescription || haltData.haltReasonType}
               isGray={true}
             />
             {/* Full Width - SSCB Source (if exists) */}
@@ -618,14 +648,16 @@ const HaltDetailModal = ({
         </DialogContent>
 
         <DialogActions className="create-halt-dialog-actions">
-          <Button
-            onClick={handleSave}
-            disabled={!hasChanges || loading || isReadOnlyUser}
-            variant="contained"
-            className="create-halt-submit-button"
-          >
-            {loading ? "Saving..." : "Save"}
-          </Button>
+          {!forceReadOnly && (
+            <Button
+              onClick={handleSave}
+              disabled={!hasChanges || loading || isReadOnlyUser}
+              variant="contained"
+              className="create-halt-submit-button"
+            >
+              {loading ? "Saving..." : "Save"}
+            </Button>
+          )}
           <Button
             onClick={handleClose}
             disabled={loading}

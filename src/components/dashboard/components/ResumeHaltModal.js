@@ -11,6 +11,7 @@ import {
   Checkbox,
   FormControlLabel,
   Autocomplete,
+  MenuItem,
 } from "@mui/material";
 import { apiService } from "../../../services/api";
 import { authUtils } from "../../../utils/storageUtils";
@@ -189,6 +190,12 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [], action = nu
       if (!symbolInput || !symbolInput.trim()) {
         throw new Error("Please enter a symbol");
       }
+      if (!formData.issueName || !formData.issueName.trim()) {
+        throw new Error("Please enter an issue name");
+      }
+      if (!formData.listingMarket || !formData.listingMarket.trim()) {
+        throw new Error("Please select a listing market");
+      }
 
       // Determine the action based on immediate resumption checkbox
       const resumptionAction = isSubmitDraftMode
@@ -208,12 +215,12 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [], action = nu
         const nowEST = dayjs().tz(EST_ZONE);
 
         if (compareDateTimeToSecond(resumptionDateEST, nowEST) < 0) {
-          throw new Error("Resumption time must be in the future");
+          throw new Error("Resumption Time must be the current date and 2 minutes greater than the current time");
         }
         if (!isSubmitDraftMode) {
           const endOfTodayEST = nowEST.endOf("day");
           if (compareDateTimeToSecond(resumptionDateEST, endOfTodayEST) > 0) {
-            throw new Error("Resumption time must be within today");
+            throw new Error("Resumption Time must be the current date and 2 minutes greater than the current time");
           }
         }
       }
@@ -249,6 +256,12 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [], action = nu
       // Validate symbol
       if (!symbolInput || !symbolInput.trim()) {
         throw new Error("Please enter a symbol");
+      }
+      if (!formData.issueName || !formData.issueName.trim()) {
+        throw new Error("Please enter an issue name");
+      }
+      if (!formData.listingMarket || !formData.listingMarket.trim()) {
+        throw new Error("Please select a listing market");
       }
 
       setLoading(true);
@@ -301,7 +314,9 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [], action = nu
             ? "Edit Drafted Resumption"
             : isSubmitDraftMode
               ? "Submit Drafted Resumption"
-              : "Resume Halt"}
+              : isEditResumptionMode
+                ? "Edit Resumption"
+                : "Resume Halt"}
         </Typography>
       </DialogTitle>
 
@@ -357,9 +372,55 @@ const ResumeHaltModal = ({ open, onClose, haltData, securities = [], action = nu
           </Box>
         </Box>
 
-        <HaltModalField label="Issue Name" value={formData.issueName} />
-
-        <HaltModalField label="Listing Market" value={formData.listingMarket} />
+        {formData.security === null && symbolInput.trim() !== "" ? (
+          <>
+            <Box className="cancel-halt-field-container">
+              <Typography className="cancel-halt-label">
+                Issue Name <span style={{ color: "red" }}>*</span>
+              </Typography>
+              <TextField
+                fullWidth
+                value={formData.issueName}
+                onChange={(e) => handleFieldChange("issueName", e.target.value)}
+                disabled={loading}
+                variant="outlined"
+                error={!formData.issueName && !!error}
+                required
+                InputProps={{
+                  style: { backgroundColor: "white", height: "36px" },
+                }}
+              />
+            </Box>
+            <Box className="cancel-halt-field-container">
+              <Typography className="cancel-halt-label">
+                Listing Market <span style={{ color: "red" }}>*</span>
+              </Typography>
+              <TextField
+                select
+                fullWidth
+                value={formData.listingMarket}
+                onChange={(e) => handleFieldChange("listingMarket", e.target.value)}
+                disabled={loading}
+                variant="outlined"
+                error={!formData.listingMarket && !!error}
+                required
+                InputProps={{
+                  style: { backgroundColor: "white", height: "36px" },
+                }}
+              >
+                <MenuItem value="TSE">TSE</MenuItem>
+                <MenuItem value="CDX">CDX</MenuItem>
+                <MenuItem value="AQL">AQL</MenuItem>
+                <MenuItem value="CNQ">CNQ</MenuItem>
+              </TextField>
+            </Box>
+          </>
+        ) : (
+          <>
+            <HaltModalField label="Issue Name" value={formData.issueName} />
+            <HaltModalField label="Listing Market" value={formData.listingMarket} />
+          </>
+        )}
 
         <HaltModalField
           label="All Issues"

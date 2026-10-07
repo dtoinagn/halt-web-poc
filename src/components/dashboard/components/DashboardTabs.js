@@ -48,7 +48,7 @@ const DashboardTabs = ({
           marginLeft: 1
         }}
       > 
-        Active Reg Halt
+        Active Reg Halts
         <button className="tab-num">{counts.activeReg}</button>
       </Box>
       
@@ -56,7 +56,7 @@ const DashboardTabs = ({
         onClick={() => onTabChange('sscb')}
         sx={tabStyle(activeTab === 'sscb')}
       > 
-        Active SSCB Halt
+        Active SSCB Halts
         <button className="tab-num">{counts.activeSSCB}</button>
       </Box>
       
@@ -72,7 +72,7 @@ const DashboardTabs = ({
         onClick={() => onTabChange('lifted')}
         sx={tabStyle(activeTab === 'lifted')}
       > 
-        Today Lifted Halt
+        Today's Resumptions
         <button className="tab-num">{counts.lifted}</button>
       </Box>
       

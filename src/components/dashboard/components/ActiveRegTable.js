@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import HaltTable from './HaltTable';
-import { Tooltip } from "@mui/material";
 import ResumeHaltModal from './ResumeHaltModal';
 import CancelResumptionModal from './CancelResumptionModal';
 import RemainHaltModal from './RemainHaltModal';
@@ -82,10 +81,6 @@ const ActiveRegTable = ({
     if (row.subState === "Resumption_Drafted") {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
-          <Tooltip
-            title={`Edit drafted resumption: ${row.haltId}`}
-            arrow
-          >
             <button
               className="halt-action-button"
               onClick={() => handleResumeClick(row, HALT_ACTIONS.MODIFY_RESUMPTION_DRAFT)}
@@ -93,12 +88,7 @@ const ActiveRegTable = ({
             >
               Edit Drafted Resumption
             </button>
-          </Tooltip>
 
-          <Tooltip
-            title={`Edit halt reason: ${row.haltId}`}
-            arrow
-          >
             <button
               className="halt-action-button"
               onClick={() => handleEditHaltReasonClick(row)}
@@ -106,12 +96,7 @@ const ActiveRegTable = ({
             >
               Edit Halt Reason
             </button>
-          </Tooltip>
 
-          <Tooltip
-            title={`Submit drafted resumption: ${row.haltId}`}
-            arrow
-          >
             <button
               className="halt-action-button-red"
               onClick={() => handleResumeClick(row, HALT_ACTIONS.SUBMIT_RESUMPTION_DRAFT)}
@@ -119,12 +104,7 @@ const ActiveRegTable = ({
             >
               Submit Drafted Resumption
             </button>
-          </Tooltip>
 
-          <Tooltip
-            title={`Cancel drafted resumption: ${row.haltId}`}
-            arrow
-          >
             <button
               className="halt-action-button"
               onClick={() => handleCancelResumptionClick(row, HALT_ACTIONS.CANCEL_RESUMPTION_DRAFT)}
@@ -132,7 +112,6 @@ const ActiveRegTable = ({
             >
               Cancel Drafted Resumption
             </button>
-          </Tooltip>
         </div>
       );
     }
@@ -140,10 +119,6 @@ const ActiveRegTable = ({
     return (
     <>
       {row.resumptionTime ? (
-        <Tooltip
-          title={`Edit scheduled resumption: ${row.haltId}`}
-          arrow
-        >
           <button
             className="halt-action-button"
             onClick={() => handleResumeClick(row, HALT_ACTIONS.MODIFY_SCHEDULED_RESUMPTION)}
@@ -151,13 +126,8 @@ const ActiveRegTable = ({
           >
             Edit Resumption
           </button>
-        </Tooltip>
 
       ) : (
-        <Tooltip
-          title={`Schedule a resumption: ${row.haltId}`}
-          arrow
-        >
           <button
             className="halt-action-button"
             onClick={() => handleResumeClick(row)}
@@ -165,25 +135,15 @@ const ActiveRegTable = ({
           >
             Resume Trading
           </button>
-        </Tooltip>
       )}
-      <Tooltip
-        title={`Edit halt reason: ${row.haltId}`}
-        arrow
+      <button
+        className="halt-action-button"
+        onClick={() => handleEditHaltReasonClick(row)}
+        style={{ marginLeft: 0 }}
       >
-        <button
-          className="halt-action-button"
-          onClick={() => handleEditHaltReasonClick(row)}
-          style={{ marginLeft: 0 }}
-        >
-          Edit Halt Reason
-        </button>
-      </Tooltip>
+        Edit Halt Reason
+      </button>
       {row.resumptionTime ? (
-        <Tooltip
-          title={`Cancel scheduled resumption: ${row.haltId}`}
-          arrow
-        >
           <button
             className="halt-action-button"
             onClick={() => handleCancelResumptionClick(row)}
@@ -191,7 +151,6 @@ const ActiveRegTable = ({
           >
             Cancel Resumption
           </button>
-        </Tooltip>
 
       ) : (null)
       }

@@ -296,7 +296,7 @@ class ApiService {
   }
 
   async updateResumption(payload) {
-    return this.executeHaltRequest(this.config.apiHaltUpdate, payload);
+    return this.executeHaltRequest(this.config.apiResumption, payload);
   }
 
   async saveResumptionDraft(payload) {

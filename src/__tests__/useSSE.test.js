@@ -7,7 +7,8 @@ import { HALT_STATES, HALT_TYPES } from '../constants';
 jest.mock('../services/api');
 jest.mock('../utils/dateUtils', () => ({
   getCurrentDateTime: jest.fn(() => '20241015-14:30:45.000'),
-  formatDateTimeForDashboard: jest.fn((time) => time?.replace(/(\d{8})-/, '$1 ').replace(/\.\d{3}$/, '') || time)
+  formatDateTimeForDashboard: jest.fn((time) => time?.replace(/(\d{8})-/, '$1 ').replace(/\.\d{3}$/, '') || time),
+  compareDateTimeToSecond: jest.fn(() => 0),
 }));
 
 describe('useSSE', () => {
@@ -96,9 +97,7 @@ describe('useSSE', () => {
 
       const { result } = renderHook(() => useSSE(defaultProps));
 
-      await act(async () => {
-        await result.current.getSSETicket();
-      });
+      await expect(result.current.getSSETicket()).rejects.toThrow('Network error');
 
       expect(consoleError).toHaveBeenCalledWith('Failed to get SSE ticket:', expect.any(Error));
       consoleError.mockRestore();
@@ -177,12 +176,10 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
-      act(() => {
-        jest.advanceTimersByTime(0);
-      });
+      flushRaf();
 
       expect(result.current.showNotification).toBe(true);
-      expect(result.current.notification).toContain('AAPL');
+      expect(result.current.notification[0]).toContain('AAPL');
 
       act(() => {
         jest.advanceTimersByTime(3000);
@@ -213,9 +210,7 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
-      act(() => {
-        jest.advanceTimersByTime(0);
-      });
+      flushRaf();
 
       expect(result.current.showNotification).toBe(true);
 
@@ -232,12 +227,10 @@ describe('useSSE', () => {
       const setActiveRegData = jest.fn();
       const setActiveRegHaltList = jest.fn();
       const haltList = [];
-      const notExtendedList = [];
 
       const { result } = renderHook(() => useSSE({
         ...defaultProps,
         haltList,
-        notExtendedList,
         setActiveRegData,
         setActiveRegHaltList
       }));
@@ -261,14 +254,11 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
-      act(() => {
-        jest.advanceTimersByTime(0);
-      });
+      flushRaf();
 
       expect(setActiveRegData).toHaveBeenCalled();
       expect(setActiveRegHaltList).toHaveBeenCalled();
-      expect(haltList).toContain('HALT001');
-      expect(notExtendedList).toContain('HALT001');
+      expect(setActiveRegHaltList.mock.calls[0][0]).toContain('HALT001');
     });
 
     it('should add new SSCB halt to active SSCB data', async () => {
@@ -338,7 +328,7 @@ describe('useSSE', () => {
 
   describe('existing halt updates', () => {
     it('should update extended status for existing halt', async () => {
-      const setNotExtendedList = jest.fn();
+      const setExtendedRegHaltIds = jest.fn();
       const setActiveRegData = jest.fn();
 
       const existingHalt = {
@@ -354,7 +344,7 @@ describe('useSSE', () => {
         haltList: ['HALT001'],
         activeRegData: [existingHalt],
         activeRegHaltList: ['HALT001'],
-        setNotExtendedList,
+        setExtendedRegHaltIds,
         setActiveRegData
       }));
 
@@ -522,7 +512,6 @@ describe('useSSE', () => {
     it('should move pending halt to active when activated', async () => {
       const setPendingData = jest.fn();
       const setActiveRegData = jest.fn();
-      const setNotExtendedList = jest.fn();
 
       const pendingHalt = {
         haltId: 'HALT003',
@@ -538,7 +527,6 @@ describe('useSSE', () => {
         activeRegData: [],
         setPendingData,
         setActiveRegData,
-        setNotExtendedList
       }));
 
       await act(async () => {
@@ -700,9 +688,7 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(message);
       });
-      act(() => {
-        jest.advanceTimersByTime(0);
-      });
+      flushRaf();
 
       expect(setActiveRegData).toHaveBeenCalled();
 
@@ -714,32 +700,32 @@ describe('useSSE', () => {
   });
 
   describe("scheduled halt to triggered halt with extension tracking", () => {
-    it("should correctly update notExtendedList when scheduled halt becomes triggered then extended", async () => {
+    it("should track a scheduled halt after it becomes triggered and extended", async () => {
       const setActiveRegData = jest.fn();
       const setActiveRegHaltList = jest.fn();
       const setPendingData = jest.fn();
+      const setExtendedRegHaltIds = jest.fn();
 
-      const haltList = [];
       const activeRegHaltList = [];
+      const haltList = [];
       const pendingData = [];
       const activeRegData = [];
 
       const { result, rerender } = renderHook(
         ({
-          haltList,
           activeRegHaltList,
           pendingData,
           activeRegData,
         }) =>
           useSSE({
             ...defaultProps,
-            haltList,
             activeRegHaltList,
             pendingData,
             activeRegData,
             setActiveRegData,
             setActiveRegHaltList,
             setPendingData,
+            setExtendedRegHaltIds,
           }),
         {
           initialProps: {
@@ -774,12 +760,6 @@ describe('useSSE', () => {
       flushRaf();
 
       expect(setPendingData).toHaveBeenCalled();
-      expect(haltList).toContain("HALT005");
-      // At this point: activeRegHaltList = [], notExtendedList = []
-      // Label calculation: 0 - 0 = 0
-
-      // Update state to simulate pending halt
-      haltList.push("HALT005");
       pendingData.push({
         haltId: "HALT005",
         symbol: "NFLX",
@@ -789,8 +769,6 @@ describe('useSSE', () => {
       });
 
       rerender({
-        haltList,
-        notExtendedList,
         activeRegHaltList,
         pendingData,
         activeRegData,
@@ -826,19 +804,13 @@ describe('useSSE', () => {
         extendedHalt: false,
       });
       activeRegHaltList.push("HALT005");
-      notExtendedList.push("HALT005");
       pendingData.length = 0;
 
       rerender({
-        haltList,
-        notExtendedList,
         activeRegHaltList,
         pendingData,
         activeRegData,
       });
-
-      // At this point: activeRegHaltList.length = 1, notExtendedList.length = 1
-      // Label calculation: 1 - 1 = 0 extended halts (correct, halt is not extended)
 
       // Step 3: User extends the halt
       jest.clearAllMocks();
@@ -856,21 +828,11 @@ describe('useSSE', () => {
       act(() => {
         eventSourceInstances[0].onmessage(extendedMessage);
       });
-      act(() => {
-        jest.advanceTimersByTime(0);
-      });
+      flushRaf();
 
-      // BUG CHECK: setNotExtendedList should be called to remove HALT005 from notExtendedList
-      expect(setNotExtendedList).toHaveBeenCalled();
-
-      // Verify that HALT005 was removed from notExtendedList
-      const notExtendedListUpdates = setNotExtendedList.mock.calls;
-      const lastUpdate =
-        notExtendedListUpdates[notExtendedListUpdates.length - 1][0];
-      expect(lastUpdate).not.toContain("HALT005");
-
-      // Expected: activeRegHaltList.length = 1, notExtendedList.length = 0
-      // Label calculation should be: 1 - 0 = 1 extended halt (correct)
+      expect(setExtendedRegHaltIds).toHaveBeenCalled();
+      const extendedIds = setExtendedRegHaltIds.mock.calls.at(-1)[0];
+      expect(extendedIds).toContain("HALT005");
     });
   });
 

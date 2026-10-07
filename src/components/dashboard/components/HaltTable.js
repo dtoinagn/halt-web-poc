@@ -345,8 +345,7 @@ const HaltTable = ({
         );
       case "Status": {
         let displayStatus = cellContent;
-        if (row.subState === "Pending_Halt_Cancelled") displayStatus = "CANCELLED";
-        else if (row.subState === "Pending_Halt_Canceling") displayStatus = "CANCELING";
+        if (row.subState.includes("Draft")) displayStatus = row.subState;
         return (
           <TableCell
             key={idx}
@@ -446,7 +445,8 @@ const HaltTable = ({
           backgroundColor: "#7d9c9c",
           marginTop: 2,
           maxHeight: "calc(100vh - 280px)",
-          overflowY: sortedRows.length > 10 ? "auto" : "hidden",
+          overflowY: "auto",
+          overflowX: "auto",
         }}
       >
         <Table stickyHeader size="small">

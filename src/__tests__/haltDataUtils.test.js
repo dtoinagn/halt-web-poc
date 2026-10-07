@@ -1,6 +1,14 @@
 import { processHaltData } from "../utils/haltDataUtils";
 
 describe("haltDataUtils", () => {
+  beforeEach(() => {
+    jest.useFakeTimers().setSystemTime(new Date("2026-05-06T15:00:00-04:00"));
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it("should detect same-day resumption when resumptionTime is compact backend format", () => {
     const data = [
       {

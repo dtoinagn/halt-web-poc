@@ -47,8 +47,8 @@ export const HALT_ACTIONS = {
 
 export const TABLE_COLUMNS = {
   ACTIVE_REG: [
+    "Halt Event ID", 
     "Symbol",
-    "Halt Event ID",
     "Status",
     "Issue Name",
     "Listing Mkt",
@@ -61,8 +61,8 @@ export const TABLE_COLUMNS = {
     "Action",
   ],
   ACTIVE_SSCB: [
-    "Symbol",
     "Halt Event ID",
+    "Symbol",
     "Issue Name",
     "Listing Mkt",
     "Halt Time",
@@ -70,8 +70,8 @@ export const TABLE_COLUMNS = {
     "Action",
   ],
   PENDING: [
-    "Symbol",
     "Halt Event ID",
+    "Symbol",
     "Status",
     "Issue Name",
     "Listing Mkt",
@@ -81,8 +81,8 @@ export const TABLE_COLUMNS = {
     "Action",
   ],
   LIFTED: [
-    "Symbol",
     "Halt Event ID",
+    "Symbol",
     "Issue Name",
     "Listing Mkt",
     "All Issues",

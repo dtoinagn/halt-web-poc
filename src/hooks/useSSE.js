@@ -236,7 +236,16 @@ export const useSSE = ({
             }
             return;
           }
-
+          // 5) DRAFT_REG_HALT: new or update to a draft regulatory halt (not yet active)
+          if (state === HALT_STATES.DRAFT_REG_HALT) {
+            if (!newPending.find(p => p.haltId === haltId)) {
+              newPending.push(sseBody);
+            } else {
+              const idx = newPending.findIndex(p => p.haltId === haltId);
+              newPending[idx] = { ...newPending[idx], ...sseBody };
+            }
+            return;
+          }
           // Default: unknown state, add to pending generically
           console.log("Unhandled halt state/type, added to Pending List: ", haltId, state, haltType);
           if (!newPending.find(p => p.haltId === haltId)) newPending.push(sseBody);

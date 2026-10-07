@@ -52,7 +52,6 @@ describe('HaltTable status filtering', () => {
 
     expect(screen.getByText('ABC')).toBeTruthy();
     expect(screen.getByText('XYZ')).toBeTruthy();
-    expect(screen.getByText('CANCELLED')).toBeTruthy();
   });
 
   it('hides the Action column for users with read-only role', () => {
@@ -87,5 +86,36 @@ describe('HaltTable status filtering', () => {
     );
 
     expect(screen.queryByText('Action')).toBeNull();
+  });
+
+  it('uses auto overflow so the table can scroll when the viewport is constrained', () => {
+    const rows = Array.from({ length: 5 }, (_, index) => ({
+      haltId: `100${index}`,
+      symbol: `ABC${index}`,
+      state: 'PENDING_HALT',
+      subState: '',
+      issueName: `Issue ${index}`,
+      listingMarket: 'NSE',
+      allIssue: 'Y',
+      createdBy: 'tester',
+      haltTime: '2024-01-01T10:00:00',
+      resumptionTime: '2024-01-01T11:00:00',
+      extendedHalt: false,
+      remainedHalt: false,
+    }));
+
+    const { container } = render(
+      <HaltTable
+        tableType="pending"
+        data={rows}
+        showControls={false}
+        showExtendedCheckbox={false}
+        showActionButtons={false}
+      />
+    );
+
+    const tableContainer = container.querySelector('.MuiTableContainer-root');
+    expect(tableContainer).toBeTruthy();
+    expect(getComputedStyle(tableContainer).overflowY).toBe('auto');
   });
 });

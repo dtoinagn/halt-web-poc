@@ -15,7 +15,8 @@ const HaltReasonSelector = ({
   loading = false,
   required = true,
   showType = true,
-  error: externalError = ""
+  error: externalError = "",
+  disabled = false,
 }) => {
   const [internalError, setInternalError] = useState("");
 
@@ -54,7 +55,7 @@ const HaltReasonSelector = ({
             getOptionLabel={(option) => option.reasonDescription || option}
             value={value}
             onChange={handleHaltReasonChange}
-            disabled={loading}
+            disabled={loading || disabled}
             renderInput={(params) => (
               <TextField
                 {...params}

@@ -74,6 +74,8 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, action = null, haltRe
     setError(errorMsg);
   }, []);
 
+  const isReadOnly = action === HALT_ACTIONS.SUBMIT_HALT_DRAFT;
+
   const getModalTitle = useCallback(() => {
     switch (action) {
       case HALT_ACTIONS.SUBMIT_HALT_DRAFT:
@@ -91,12 +93,12 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, action = null, haltRe
     try {
       // Validate halt time
       if (!formData.haltTime) {
-        throw new Error("Please select a halt time");
+        throw new Error("Halt time is required");
       }
 
       // Validate halt reason is selected
       if (!formData.haltReason) {
-        throw new Error("Please select a halt reason");
+        throw new Error("Halt reason is required");
       }
 
       // Guard against circuit breaker halts
@@ -107,18 +109,12 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, action = null, haltRe
       const haltDateEST = dayjs.tz(formData.haltTime, EST_ZONE);
       const nowEST = dayjs().tz(EST_ZONE);
       const endOfTodayEST = nowEST.endOf("day");
-      let newAction = action || HALT_ACTIONS.MODIFY_SCHEDULED_HALT;
 
       if (compareDateTimeToSecond(haltDateEST, nowEST) < 0) {
         throw new Error("Halt time must be in the future");
       }
-      if (!action && haltData.state === HALT_STATES.DRAFT_REG_HALT) {
-        newAction = HALT_ACTIONS.MODIFY_HALT_DRAFT;
-      } else if (!action) {
-        if (compareDateTimeToSecond(haltDateEST, endOfTodayEST) > 0) {
-          throw new Error("Halt time must be within today");
-        }
-      }
+      if (action === HALT_ACTIONS.SUBMIT_HALT_DRAFT && compareDateTimeToSecond(haltDateEST, endOfTodayEST) > 0) 
+         throw new Error("Halt time must be within today");
 
       setLoading(true);
 
@@ -145,7 +141,7 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, action = null, haltRe
         lastModifiedTime: "",
         sscbSource: haltData.sscbSource || "",
         responseMessage: haltData.responseMessage || "",
-        action: newAction,
+        action: action || "",
         comment: "",
       };
       await apiService.updateHalt(payload);
@@ -193,7 +189,9 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, action = null, haltRe
         )}
 
         <Typography className="cancel-halt-confirmation-text">
-          Please modify the fields for the scheduled halt as required:
+          {isReadOnly
+            ? "Please review the fields for the drafted halt before submitting."
+            : "Please modify the fields for the scheduled halt as required:"}
         </Typography>
 
         <Box className="cancel-halt-field-container">
@@ -223,8 +221,9 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, action = null, haltRe
             type="datetime-local"
             value={formData.haltTime}
             onChange={(e) => handleFieldChange("haltTime", e.target.value)}
-            disabled={loading}
+            disabled={loading || isReadOnly}
             InputLabelProps={{ shrink: true }}
+            inputProps={{ 'data-testid': 'halt-time-input' }}
             InputProps={{
               style: { backgroundColor: "white", height: "36px" },
             }}
@@ -239,7 +238,8 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, action = null, haltRe
             fullWidth
             value={formData.allIssue}
             onChange={(e) => handleFieldChange("allIssue", e.target.value)}
-            disabled={loading}
+            disabled={loading || isReadOnly}
+            inputProps={{ 'data-testid': 'all-issue-select' }}
             style={{ backgroundColor: "white", height: "36px" }}
           >
             <MenuItem value="Yes">Yes</MenuItem>
@@ -252,7 +252,8 @@ const EditScheduledHaltModal = ({ open, onClose, haltData, action = null, haltRe
           value={formData.haltReason}
           onChange={handleHaltReasonChange}
           onError={handleHaltReasonError}
-          loading={loading}
+          loading={loading || isReadOnly}
+          disabled={isReadOnly}
           error={error}
         />
       </DialogContent>
